@@ -3,7 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda Pro v3.1</title>
+<title>Agenda Pro</title>
+<script>
+// ═══════════════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════════════
+const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
+const SUPA_KEY = 'sb_publishable_n52t3_PPzeErFmL5eX07Cw_-qOkk-tH';
+
+async function supa(method, table, opts = {}) {
+  const { body, params, returning = false } = opts;
+  let url = `${SUPA_URL}/rest/v1/${table}`;
+  if (params) {
+    const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+    url += '?' + qs;
+  }
+  const headers = {
+    'apikey':        SUPA_KEY,
+    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Content-Type':  'application/json',
+    'Prefer':        returning ? 'return=representation' : 'return=minimal',
+  };
+  const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Supabase ${method} ${table}: ${err}`);
+  }
+  if (method === 'GET' || returning) return res.json();
+  return true;
+}
+
+// Auth helpers
+async function supaSignUp(email, password) {
+  const res = await fetch(`${SUPA_URL}/auth/v1/signup`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  return res.json();
+}
+
+async function supaSignIn(email, password) {
+  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  return res.json();
+}
+
+async function supaSignOut(token) {
+  await fetch(`${SUPA_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+  });
+}
+
+function supaWithAuth(token) {
+  return async function(method, table, opts = {}) {
+    const { body, params, returning = false } = opts;
+    let url = `${SUPA_URL}/rest/v1/${table}`;
+    if (params) {
+      const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+      url += '?' + qs;
+    }
+    const headers = {
+      'apikey':        SUPA_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type':  'application/json',
+      'Prefer':        returning ? 'return=representation' : 'return=minimal',
+    };
+    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Supabase ${method} ${table}: ${err}`);
+    }
+    if (method === 'GET' || returning) return res.json();
+    return true;
+  };
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
@@ -830,83 +909,6 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
 <div class="toast-container" id="toast-container"></div>
 
 <script>
-// ═══════════════════════════════════════════════
-// SUPABASE CONFIG
-// ═══════════════════════════════════════════════
-const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
-const SUPA_KEY = 'sb_publishable_n52t3_PPzeErFmL5eX07Cw_-qOkk-tH';
-
-async function supa(method, table, opts = {}) {
-  const { body, params, returning = false } = opts;
-  let url = `${SUPA_URL}/rest/v1/${table}`;
-  if (params) {
-    const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-    url += '?' + qs;
-  }
-  const headers = {
-    'apikey':        SUPA_KEY,
-    'Authorization': `Bearer ${SUPA_KEY}`,
-    'Content-Type':  'application/json',
-    'Prefer':        returning ? 'return=representation' : 'return=minimal',
-  };
-  const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Supabase ${method} ${table}: ${err}`);
-  }
-  if (method === 'GET' || returning) return res.json();
-  return true;
-}
-
-// Auth helpers
-async function supaSignUp(email, password) {
-  const res = await fetch(`${SUPA_URL}/auth/v1/signup`, {
-    method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  return res.json();
-}
-
-async function supaSignIn(email, password) {
-  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  return res.json();
-}
-
-async function supaSignOut(token) {
-  await fetch(`${SUPA_URL}/auth/v1/logout`, {
-    method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
-  });
-}
-
-function supaWithAuth(token) {
-  return async function(method, table, opts = {}) {
-    const { body, params, returning = false } = opts;
-    let url = `${SUPA_URL}/rest/v1/${table}`;
-    if (params) {
-      const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-      url += '?' + qs;
-    }
-    const headers = {
-      'apikey':        SUPA_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type':  'application/json',
-      'Prefer':        returning ? 'return=representation' : 'return=minimal',
-    };
-    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Supabase ${method} ${table}: ${err}`);
-    }
-    if (method === 'GET' || returning) return res.json();
-    return true;
-  };
-}
 // ════════════════════════════════════════════════
 // MOCK DATA — tenant_id em todos os registros
 // Estrutura espelha o schema real do Supabase
@@ -1207,10 +1209,8 @@ async function tentarRestaurarSessao() {
   }
 }
 
-// Inicialização — aguarda carregamento completo
-window.addEventListener('load', function() {
-  tentarRestaurarSessao();
-});
+// Inicialização
+tentarRestaurarSessao();
 
 // ════════════════════════════════════════════════
 // ROUTER
@@ -1971,7 +1971,7 @@ function openNovoAgendamento() {
   openModal();
 }
 
-async function salvarNovoAgendamento() {
+function salvarNovoAgendamento() {
   const clienteId = parseInt(document.getElementById('nag-cliente').value);
   const servicoId = parseInt(document.getElementById('nag-servico').value);
   const data      = document.getElementById('nag-data').value;
@@ -2067,7 +2067,7 @@ function openNovoCliente() {
   openModal();
 }
 
-async function salvarNovoCliente() {
+function salvarNovoCliente() {
   const nome = document.getElementById('nc-nome').value.trim();
   if (!nome) { toast('Nome é obrigatório.', 'error'); return; }
   const novoCli = {
