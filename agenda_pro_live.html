@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda Pro v3.2</title>
+<title>Agenda Pro v4</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
@@ -695,7 +695,7 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
       <p style="font-size:12px;color:var(--text-3);text-align:center;margin-top:14px;">
-        Demo: <strong>admin@contabilidadealfa.com.br</strong> / qualquer senha
+        Demo: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d5c595054537d5e5253495c5f545154595c59585c515b5c135e5250135f4f">[email&#160;protected]</a></strong> / qualquer senha
       </p>
     </div>
 
@@ -731,6 +731,7 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
         <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
       </div>
       <span class="brand-name">AgendaPro</span>
+      <span style="font-size:10px;background:rgba(255,255,255,0.15);color:#fff;padding:1px 6px;border-radius:99px;margin-left:6px;letter-spacing:.3px">v4</span>
     </div>
 
     <div class="tenant-badge">
@@ -829,7 +830,7 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
 <!-- TOAST -->
 <div class="toast-container" id="toast-container"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════════════
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════
@@ -1189,27 +1190,28 @@ function showApp() {
 }
 
 // Tentar restaurar sessão salva
-function tentarRestaurarSessao() {
+async function tentarRestaurarSessao() {
   const token = localStorage.getItem('agenda_token');
   if (!token) return;
-  fetch(`${SUPA_URL}/auth/v1/user`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
-  }).then(function(res) {
-    if (!res.ok) { localStorage.removeItem('agenda_token'); return null; }
-    return res.json();
-  }).then(function(user) {
-    if (!user) return;
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) { localStorage.removeItem('agenda_token'); return; }
+    const user = await res.json();
     APP.authToken = token;
     APP.authUser  = user;
     APP.db = supaWithAuth(token);
-    carregarDadosUsuario(user.id, user.email);
-  }).catch(function() {
+    await carregarDadosUsuario(user.id, user.email);
+  } catch(e) {
     localStorage.removeItem('agenda_token');
-  });
+  }
 }
 
-// Inicialização
-window.addEventListener('load', function() { tentarRestaurarSessao(); });
+// Inicialização — aguarda carregamento completo
+window.addEventListener('load', function() {
+  tentarRestaurarSessao();
+});
 
 // ════════════════════════════════════════════════
 // ROUTER
@@ -2128,21 +2130,31 @@ function openNovoServico() {
   openModal();
 }
 
-function salvarNovoServico() {
+async function salvarNovoServico() {
   const nome = document.getElementById('ns-nome').value.trim();
   if (!nome) { toast('Nome é obrigatório.', 'error'); return; }
-  SERVICOS.push({
-    id: ++nextId, tenant_id: 1, nome,
-    duracao_min:        parseInt(document.getElementById('ns-dur').value),
-    valor:              parseFloat(document.getElementById('ns-val').value),
-    antecedencia_min:   parseInt(document.getElementById('ns-ant').value),
-    max_reagendamentos: parseInt(document.getElementById('ns-reag').value),
-    cor:                document.getElementById('ns-cor').value,
-    ativo: true
-  });
-  closeModal();
-  toast('Serviço criado!', 'success');
-  go('servicos');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const novoServico = {
+      tenant_id:          APP.tenantId,
+      nome,
+      duracao_min:        parseInt(document.getElementById('ns-dur').value),
+      valor:              parseFloat(document.getElementById('ns-val').value),
+      antecedencia_min:   parseInt(document.getElementById('ns-ant').value),
+      max_reagendamentos: parseInt(document.getElementById('ns-reag').value),
+      cor:                document.getElementById('ns-cor').value,
+      ativo: true
+    };
+    const criado = await APP.db('POST', 'agenda_servicos', { body: novoServico, returning: true });
+    if (criado && criado[0]) SERVICOS.push(criado[0]);
+    closeModal();
+    toast('Serviço criado!', 'success');
+    go('servicos');
+  } catch(e) {
+    toast('Erro ao criar serviço: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Criar serviço'; }
+  }
 }
 
 function editServico(id) {
@@ -2170,23 +2182,40 @@ function editServico(id) {
   openModal();
 }
 
-function salvarEditServico(id) {
+async function salvarEditServico(id) {
   const s = SERVICOS.find(x=>x.id===id);
   if (!s) return;
-  s.nome = document.getElementById('es-nome').value.trim() || s.nome;
-  s.duracao_min = parseInt(document.getElementById('es-dur').value) || s.duracao_min;
-  s.valor = parseFloat(document.getElementById('es-val').value) || s.valor;
-  closeModal();
-  toast('Serviço atualizado!', 'success');
-  go('servicos');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const patch = {
+      nome:       document.getElementById('es-nome').value.trim() || s.nome,
+      duracao_min:parseInt(document.getElementById('es-dur').value) || s.duracao_min,
+      valor:      parseFloat(document.getElementById('es-val').value) ?? s.valor,
+    };
+    await APP.db('PATCH', 'agenda_servicos', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: patch });
+    Object.assign(s, patch);
+    closeModal();
+    toast('Serviço atualizado!', 'success');
+    go('servicos');
+  } catch(e) {
+    toast('Erro ao atualizar serviço: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }
 
-function toggleServico(id) {
+async function toggleServico(id) {
   const s = SERVICOS.find(x=>x.id===id);
   if (!s) return;
-  s.ativo = !s.ativo;
-  toast(`Serviço ${s.ativo?'ativado':'desativado'}.`);
-  go('servicos');
+  const novoAtivo = !s.ativo;
+  try {
+    await APP.db('PATCH', 'agenda_servicos', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: { ativo: novoAtivo } });
+    s.ativo = novoAtivo;
+    toast(`Serviço ${novoAtivo ? 'ativado' : 'desativado'}.`);
+    go('servicos');
+  } catch(e) {
+    toast('Erro ao atualizar serviço: ' + e.message, 'error');
+  }
 }
 
 function openDetalheCliente(id) {
@@ -2279,14 +2308,25 @@ function editColaborador(id) {
   openModal();
 }
 
-function salvarEditColaborador(id) {
+async function salvarEditColaborador(id) {
   const u = USUARIOS.find(x=>x.id===id);
   if (!u) return;
-  u.nome   = document.getElementById('ecol-nome').value.trim() || u.nome;
-  u.perfil = document.getElementById('ecol-perfil').value;
-  closeModal();
-  toast('Colaborador atualizado!', 'success');
-  go('colaboradores');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const patch = {
+      nome:   document.getElementById('ecol-nome').value.trim() || u.nome,
+      perfil: document.getElementById('ecol-perfil').value,
+    };
+    await APP.db('PATCH', 'agenda_usuarios', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: patch });
+    Object.assign(u, patch);
+    closeModal();
+    toast('Colaborador atualizado!', 'success');
+    go('colaboradores');
+  } catch(e) {
+    toast('Erro ao atualizar colaborador: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }
 
 function salvarColaborador() {
@@ -2435,22 +2475,35 @@ function openNovaDisponibilidade(preUsuario = null) {
   openModal();
 }
 
-function salvarDisponibilidade() {
+async function salvarDisponibilidade() {
   const uid  = parseInt(document.getElementById('nd-usuario').value);
   const ini  = document.getElementById('nd-ini').value;
   const fim  = document.getElementById('nd-fim').value;
   const dias = [...document.querySelectorAll('#nd-dias input:checked')].map(x => parseInt(x.value));
   if (!dias.length) { toast('Selecione ao menos um dia.', 'error'); return; }
   if (ini >= fim)   { toast('Hora fim deve ser maior que hora início.', 'error'); return; }
-  dias.forEach(dia => {
-    // Remove existente no mesmo dia/usuario para evitar duplicata
-    const idx = DISPONIBILIDADE.findIndex(d => d.usuario_id === uid && d.dia_semana === dia);
-    if (idx >= 0) DISPONIBILIDADE.splice(idx, 1);
-    DISPONIBILIDADE.push({ id: ++nextId, tenant_id: 1, usuario_id: uid, dia_semana: dia, hora_inicio: ini, hora_fim: fim, ativo: true });
-  });
-  closeModal();
-  toast(`${dias.length} horário(s) salvo(s)!`, 'success');
-  go('disponibilidade');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    for (const dia of dias) {
+      // Remover existente no mesmo dia/usuário (UPSERT manual)
+      const existente = DISPONIBILIDADE.find(d => d.usuario_id === uid && d.dia_semana === dia);
+      if (existente) {
+        await APP.db('DELETE', 'agenda_disponibilidade', { params: { id: `eq.${existente.id}`, tenant_id: `eq.${APP.tenantId}` } });
+        const idx = DISPONIBILIDADE.findIndex(d => d.id === existente.id);
+        if (idx >= 0) DISPONIBILIDADE.splice(idx, 1);
+      }
+      const novo = { tenant_id: APP.tenantId, usuario_id: uid, dia_semana: dia, hora_inicio: ini, hora_fim: fim, ativo: true };
+      const criado = await APP.db('POST', 'agenda_disponibilidade', { body: novo, returning: true });
+      if (criado && criado[0]) DISPONIBILIDADE.push(criado[0]);
+    }
+    closeModal();
+    toast(`${dias.length} horário(s) salvo(s)!`, 'success');
+    go('disponibilidade');
+  } catch(e) {
+    toast('Erro ao salvar disponibilidade: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }
 
 function editDisponibilidade(id) {
@@ -2474,32 +2527,51 @@ function editDisponibilidade(id) {
   openModal();
 }
 
-function salvarEditDisponibilidade(id) {
+async function salvarEditDisponibilidade(id) {
   const d = DISPONIBILIDADE.find(x => x.id === id);
   if (!d) return;
   const ini = document.getElementById('ed-ini').value;
   const fim = document.getElementById('ed-fim').value;
   if (ini >= fim) { toast('Hora fim deve ser maior que hora início.', 'error'); return; }
-  d.hora_inicio = ini; d.hora_fim = fim;
-  closeModal();
-  toast('Horário atualizado!', 'success');
-  go('disponibilidade');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    await APP.db('PATCH', 'agenda_disponibilidade', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: { hora_inicio: ini, hora_fim: fim } });
+    d.hora_inicio = ini; d.hora_fim = fim;
+    closeModal();
+    toast('Horário atualizado!', 'success');
+    go('disponibilidade');
+  } catch(e) {
+    toast('Erro ao atualizar horário: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }
 
-function toggleDisponibilidade(id) {
+async function toggleDisponibilidade(id) {
   const d = DISPONIBILIDADE.find(x => x.id === id);
   if (!d) return;
-  d.ativo = !d.ativo;
-  toast(`Horário ${d.ativo ? 'ativado' : 'desativado'}.`);
-  go('disponibilidade');
+  const novoAtivo = !d.ativo;
+  try {
+    await APP.db('PATCH', 'agenda_disponibilidade', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: { ativo: novoAtivo } });
+    d.ativo = novoAtivo;
+    toast(`Horário ${novoAtivo ? 'ativado' : 'desativado'}.`);
+    go('disponibilidade');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'error');
+  }
 }
 
-function removerDisponibilidade(id) {
+async function removerDisponibilidade(id) {
   const idx = DISPONIBILIDADE.findIndex(x => x.id === id);
   if (idx < 0) return;
-  DISPONIBILIDADE.splice(idx, 1);
-  toast('Horário removido.');
-  go('disponibilidade');
+  try {
+    await APP.db('DELETE', 'agenda_disponibilidade', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` } });
+    DISPONIBILIDADE.splice(idx, 1);
+    toast('Horário removido.');
+    go('disponibilidade');
+  } catch(e) {
+    toast('Erro ao remover horário: ' + e.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -2630,7 +2702,7 @@ function toggleBloqueioTipo() {
   }
 }
 
-function salvarBloqueio() {
+async function salvarBloqueio() {
   const tipo   = document.getElementById('nb-tipo').value;
   const uid    = document.getElementById('nb-usuario').value ? parseInt(document.getElementById('nb-usuario').value) : null;
   const dini   = document.getElementById('nb-dini').value;
@@ -2639,10 +2711,27 @@ function salvarBloqueio() {
   const hfim   = tipo === 'manual' ? document.getElementById('nb-hfim').value : '23:59';
   const motivo = document.getElementById('nb-motivo').value.trim();
   if (!dini || !dfim) { toast('Informe as datas.', 'error'); return; }
-  BLOQUEIOS.push({ id: ++nextId, tenant_id: 1, usuario_id: uid, tipo, data_inicio: dini+'T'+hini+':00', data_fim: dfim+'T'+hfim+':00', recorrente: false, motivo });
-  closeModal();
-  toast('Bloqueio cadastrado!', 'success');
-  go('bloqueios');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const novoBloqueio = {
+      tenant_id:   APP.tenantId,
+      usuario_id:  uid,
+      tipo,
+      data_inicio: dini + 'T' + hini + ':00',
+      data_fim:    dfim + 'T' + hfim + ':00',
+      recorrente:  false,
+      motivo
+    };
+    const criado = await APP.db('POST', 'agenda_bloqueios', { body: novoBloqueio, returning: true });
+    if (criado && criado[0]) BLOQUEIOS.push(criado[0]);
+    closeModal();
+    toast('Bloqueio cadastrado!', 'success');
+    go('bloqueios');
+  } catch(e) {
+    toast('Erro ao salvar bloqueio: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar bloqueio'; }
+  }
 }
 
 function editBloqueio(id) {
@@ -2670,25 +2759,43 @@ function editBloqueio(id) {
   openModal();
 }
 
-function salvarEditBloqueio(id) {
+async function salvarEditBloqueio(id) {
   const b = BLOQUEIOS.find(x => x.id === id);
   if (!b) return;
-  b.motivo = document.getElementById('eb-motivo').value;
-  const nd = document.getElementById('eb-dini').value;
-  const nf = document.getElementById('eb-dfim').value;
-  if (nd) b.data_inicio = nd + b.data_inicio.slice(10);
-  if (nf) b.data_fim    = nf + b.data_fim.slice(10);
-  closeModal();
-  toast('Bloqueio atualizado!', 'success');
-  go('bloqueios');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const motivo = document.getElementById('eb-motivo').value;
+    const nd = document.getElementById('eb-dini').value;
+    const nf = document.getElementById('eb-dfim').value;
+    const patch = {
+      motivo,
+      data_inicio: nd ? nd + b.data_inicio.slice(10) : b.data_inicio,
+      data_fim:    nf ? nf + b.data_fim.slice(10)    : b.data_fim,
+    };
+    await APP.db('PATCH', 'agenda_bloqueios', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: patch });
+    Object.assign(b, patch);
+    closeModal();
+    toast('Bloqueio atualizado!', 'success');
+    go('bloqueios');
+  } catch(e) {
+    toast('Erro ao atualizar bloqueio: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }
 
-function removerBloqueio(id) {
+async function removerBloqueio(id) {
   if (!confirm('Remover este bloqueio?')) return;
   const idx = BLOQUEIOS.findIndex(x => x.id === id);
-  if (idx >= 0) BLOQUEIOS.splice(idx, 1);
-  toast('Bloqueio removido.');
-  go('bloqueios');
+  if (idx < 0) return;
+  try {
+    await APP.db('DELETE', 'agenda_bloqueios', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` } });
+    BLOQUEIOS.splice(idx, 1);
+    toast('Bloqueio removido.');
+    go('bloqueios');
+  } catch(e) {
+    toast('Erro ao remover bloqueio: ' + e.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -2728,7 +2835,7 @@ function renderConfiguracoes() {
 
   <div class="card" style="margin-top:20px">
     <div style="font-size:15px;font-weight:600;margin-bottom:4px">🗄️ Banco de Dados</div>
-    <div class="text-muted" style="margin-bottom:16px">Status da integração com Supabase (disponível após migração do mock)</div>
+    <div class="text-muted" style="margin-bottom:16px">Status da integração com Supabase</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px">
         <div class="text-muted">Projeto Supabase</div>
@@ -2782,10 +2889,4 @@ function salvarConfig(cat) {
 
 // ════════════════════════════════════════════════
 // KEYBOARD
-// ════════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeDetail(); }
-});
-</script>
-</body>
-</html>
+// ════════════
