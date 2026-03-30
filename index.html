@@ -53,7 +53,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: var(--bg); /* shown via JS after session check */
   background-image:
     radial-gradient(circle at 20% 20%, rgba(43,92,230,.07) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(232,67,10,.05) 0%, transparent 50%);
@@ -672,12 +672,19 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
   font-size: 12px;
   color: var(--text-2);
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════ LOADING SCREEN ═══════════════ -->
+<div id="loading-screen" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px">
+  <div style="font-size:22px;font-weight:700;color:var(--text-1)">Agenda<span style="color:var(--accent)">Pro</span></div>
+  <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
+</div>
+
 <!-- ═══════════════ AUTH SCREEN ═══════════════ -->
-<div id="auth-screen">
+<div id="auth-screen" style="display:none">
   <div class="auth-box">
     <div class="auth-logo">Agenda<span>Pro</span></div>
     <div class="auth-subtitle">Sistema de agendamento para escritórios contábeis</div>
@@ -691,16 +698,13 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
     <div id="tab-login">
       <div class="field">
         <label>E-mail</label>
-        <input type="email" id="login-email" value="admin@contabilidadealfa.com.br" placeholder="seu@email.com">
+        <input type="email" id="login-email" value="" placeholder="seu@email.com">
       </div>
       <div class="field">
         <label>Senha</label>
-        <input type="password" id="login-pass" value="123456" placeholder="••••••••">
+        <input type="password" id="login-pass" value="" placeholder="••••••••">
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
-      <p style="font-size:12px;color:var(--text-3);text-align:center;margin-top:14px;">
-        Demo: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d5c595054537d5e5253495c5f545154595c59585c515b5c135e5250135f4f">[email&#160;protected]</a></strong> / qualquer senha
-      </p>
     </div>
 
     <!-- REGISTER -->
@@ -1116,6 +1120,7 @@ async function doLogout() {
 }
 
 function showApp() {
+  document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'none';
   const app = document.getElementById('app');
   app.style.display = 'flex';
@@ -1149,8 +1154,15 @@ async function tentarRestaurarSessao() {
 }
 
 // Inicialização — aguarda carregamento completo
-window.addEventListener('load', function() {
-  tentarRestaurarSessao();
+window.addEventListener('load', async function() {
+  await tentarRestaurarSessao();
+  // Se sessão não restaurada, mostrar tela de login
+  if (!APP.authToken) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+  } else {
+    document.getElementById('loading-screen').style.display = 'none';
+  }
 });
 
 // ════════════════════════════════════════════════
@@ -3225,8 +3237,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Init
-tentarRestaurarSessao();
 </script>
 </body>
 </html>
