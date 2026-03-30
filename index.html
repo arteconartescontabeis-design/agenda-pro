@@ -50,10 +50,13 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 ═══════════════════════════════════════════════════ */
 #auth-screen {
   min-height: 100vh;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
-  background: var(--bg); /* shown via JS after session check */
+  background: var(--bg);
+}
+#auth-screen.visible {
+  display: flex;
   background-image:
     radial-gradient(circle at 20% 20%, rgba(43,92,230,.07) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(232,67,10,.05) 0%, transparent 50%);
@@ -684,7 +687,7 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
 </div>
 
 <!-- ═══════════════ AUTH SCREEN ═══════════════ -->
-<div id="auth-screen" style="display:none">
+<div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">Agenda<span>Pro</span></div>
     <div class="auth-subtitle">Sistema de agendamento para escritórios contábeis</div>
@@ -1115,13 +1118,13 @@ async function doLogout() {
   localStorage.removeItem('agenda_user_email');
   APP.user = null; APP.authToken = null; APP.db = null;
   document.getElementById('app').classList.remove('visible');
-  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('auth-screen').classList.add('visible');
   document.getElementById('app').style.display = 'none';
 }
 
 function showApp() {
   document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('visible');
   const app = document.getElementById('app');
   app.style.display = 'flex';
   app.classList.add('visible');
@@ -1159,7 +1162,7 @@ window.addEventListener('load', async function() {
   // Se sessão não restaurada, mostrar tela de login
   if (!APP.authToken) {
     document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('auth-screen').classList.add('visible');
   } else {
     document.getElementById('loading-screen').style.display = 'none';
   }
