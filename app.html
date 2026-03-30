@@ -733,6 +733,90 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
   </div>
 </div>
 
+<!-- ═══════════════ SUPERADMIN SCREEN ═══════════════ -->
+<div id="sa-screen" style="display:none;min-height:100vh;background:var(--bg)">
+
+  <!-- SA LOGIN -->
+  <div id="sa-login" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+    <div class="auth-box" style="max-width:360px">
+      <div class="auth-logo" style="margin-bottom:4px">Agenda<span>Pro</span></div>
+      <div class="auth-subtitle" style="margin-bottom:24px;color:var(--red)">⚙ Painel Superadmin</div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" id="sa-email" placeholder="superadmin@agendapro.com.br">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="sa-pass" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="saLogin()">Entrar como Superadmin</button>
+      <p id="sa-err" style="color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none"></p>
+    </div>
+  </div>
+
+  <!-- SA DASHBOARD -->
+  <div id="sa-dashboard" style="display:none">
+    <!-- SA TOPBAR -->
+    <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
+      <div style="font-size:16px;font-weight:600">Agenda<span style="color:var(--accent)">Pro</span> <span style="font-size:12px;background:var(--red);color:#fff;border-radius:4px;padding:2px 6px;margin-left:6px">SUPERADMIN</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="sa-user-label" style="font-size:13px;color:var(--text-2)"></span>
+        <button class="btn btn-outline btn-sm" onclick="saLogout()">Sair</button>
+      </div>
+    </div>
+
+    <!-- SA CONTENT -->
+    <div style="padding:24px;max-width:1200px;margin:0 auto">
+
+      <!-- METRICS SUMMARY -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px">
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--accent)" id="sa-total-tenants">—</div>
+          <div class="text-muted" style="font-size:13px;margin-top:4px">Escritórios ativos</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--green)" id="sa-total-clientes">—</div>
+          <div class="text-muted" style="font-size:13px;margin-top:4px">Total de clientes</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--purple,#6B3FA0)" id="sa-total-ags">—</div>
+          <div class="text-muted" style="font-size:13px;margin-top:4px">Total de agendamentos</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--amber)" id="sa-total-usuarios">—</div>
+          <div class="text-muted" style="font-size:13px;margin-top:4px">Total de usuários</div>
+        </div>
+      </div>
+
+      <!-- TENANTS TABLE -->
+      <div class="card">
+        <div class="flex-between mb-8" style="margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600">Escritórios cadastrados</div>
+          <button class="btn btn-accent btn-sm" onclick="saRecarregar()">↺ Atualizar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Escritório</th>
+              <th>Plano</th>
+              <th>Clientes</th>
+              <th>Usuários</th>
+              <th>Agendamentos</th>
+              <th>Ag. hoje</th>
+              <th>Criado em</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="sa-tenants-body">
+              <tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:32px">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ APP ═══════════════ -->
 <div id="app">
   <!-- SIDEBAR -->
@@ -1158,8 +1242,16 @@ async function tentarRestaurarSessao() {
 
 // Inicialização — aguarda carregamento completo
 window.addEventListener('load', async function() {
+  // Block app restore if superadmin mode
+  if (window.location.hash === '#superadmin') {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth-screen').classList.remove('visible');
+    await checkSuperadminMode();
+    return;
+  }
+
+  // Normal tenant flow
   await tentarRestaurarSessao();
-  // Se sessão não restaurada, mostrar tela de login
   if (!APP.authToken) {
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('auth-screen').classList.add('visible');
@@ -3239,6 +3331,187 @@ document.addEventListener('keydown', e => {
     document.getElementById('detail-panel').classList.remove('open');
   }
 });
+
+// ════════════════════════════════════════════════
+// SUPERADMIN PANEL
+// Acesso: app.html#superadmin
+// ════════════════════════════════════════════════
+
+const SA = { token: null, email: null, db: null };
+
+function saDbAnon() {
+  return async function(method, table, opts = {}) {
+    const { params } = opts;
+    let url = `${SUPA_URL}/rest/v1/${table}`;
+    if (params) {
+      const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+      url += '?' + qs;
+    }
+    const res = await fetch(url, {
+      method,
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SA.token}` }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  };
+}
+
+async function saLogin() {
+  const email = document.getElementById('sa-email').value.trim();
+  const pass  = document.getElementById('sa-pass').value;
+  const err   = document.getElementById('sa-err');
+  const btn   = document.querySelector('#sa-login .btn-primary');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Autenticando...';
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.access_token) throw new Error(data.error_description || 'Credenciais inválidas');
+
+    // Verify superadmin flag in agenda_superadmins table
+    const check = await fetch(`${SUPA_URL}/rest/v1/agenda_superadmins?email=eq.${encodeURIComponent(email)}&select=email`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${data.access_token}` }
+    });
+    const rows = await check.json();
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('Acesso negado — usuário não é superadmin');
+
+    SA.token = data.access_token;
+    SA.email = email;
+    SA.db = saDbAnon();
+    localStorage.setItem('sa_token', SA.token);
+    localStorage.setItem('sa_email', SA.email);
+    document.getElementById('sa-user-label').textContent = email;
+    document.getElementById('sa-login').style.display = 'none';
+    document.getElementById('sa-dashboard').style.display = 'block';
+    await saCarregarDados();
+  } catch(e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar como Superadmin';
+  }
+}
+
+async function saCarregarDados() {
+  const tbody = document.getElementById('sa-tenants-body');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:32px">Carregando...</td></tr>';
+  try {
+    const [tenants, clientes, usuarios, agendamentos] = await Promise.all([
+      fetch(`${SUPA_URL}/rest/v1/agenda_tenants?select=*&order=criado_em.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SA.token}` } }).then(r=>r.json()),
+      fetch(`${SUPA_URL}/rest/v1/agenda_clientes?select=tenant_id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SA.token}` } }).then(r=>r.json()),
+      fetch(`${SUPA_URL}/rest/v1/agenda_usuarios?select=tenant_id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SA.token}` } }).then(r=>r.json()),
+      fetch(`${SUPA_URL}/rest/v1/agenda_agendamentos?select=tenant_id,data_inicio`, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SA.token}` } }).then(r=>r.json()),
+    ]);
+
+    const todayPrefix = new Date().toISOString().slice(0,10);
+
+    // Build metrics per tenant
+    const cliCount  = {};
+    const usrCount  = {};
+    const agCount   = {};
+    const agHoje    = {};
+    if (Array.isArray(clientes))    clientes.forEach(c    => { cliCount[c.tenant_id]  = (cliCount[c.tenant_id]  || 0) + 1; });
+    if (Array.isArray(usuarios))    usuarios.forEach(u    => { usrCount[u.tenant_id]  = (usrCount[u.tenant_id]  || 0) + 1; });
+    if (Array.isArray(agendamentos)) agendamentos.forEach(a => {
+      agCount[a.tenant_id]  = (agCount[a.tenant_id]  || 0) + 1;
+      if (a.data_inicio && a.data_inicio.startsWith(todayPrefix))
+        agHoje[a.tenant_id] = (agHoje[a.tenant_id] || 0) + 1;
+    });
+
+    // Summary cards
+    const ativos = Array.isArray(tenants) ? tenants.filter(t => t.ativo !== false) : [];
+    document.getElementById('sa-total-tenants').textContent  = ativos.length;
+    document.getElementById('sa-total-clientes').textContent = Object.values(cliCount).reduce((a,b)=>a+b,0);
+    document.getElementById('sa-total-ags').textContent      = Object.values(agCount).reduce((a,b)=>a+b,0);
+    document.getElementById('sa-total-usuarios').textContent = Object.values(usrCount).reduce((a,b)=>a+b,0);
+
+    // Render table
+    if (!Array.isArray(tenants) || tenants.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:32px">Nenhum escritório encontrado</td></tr>';
+      return;
+    }
+
+    const planoLabel = { starter:'Starter', pro:'Pro', enterprise:'Enterprise' };
+    tbody.innerHTML = tenants.map(t => {
+      const ativo = t.ativo !== false;
+      const cli  = cliCount[t.id]  || 0;
+      const usr  = usrCount[t.id]  || 0;
+      const ags  = agCount[t.id]   || 0;
+      const hoje = agHoje[t.id]    || 0;
+      const criado = t.criado_em ? new Date(t.criado_em).toLocaleDateString('pt-BR') : '—';
+      return `<tr>
+        <td><strong>${t.nome}</strong></td>
+        <td><span class="chip">${planoLabel[t.plano] || t.plano}</span></td>
+        <td style="text-align:center;font-weight:600">${cli}</td>
+        <td style="text-align:center">${usr}</td>
+        <td style="text-align:center">${ags}</td>
+        <td style="text-align:center;font-weight:${hoje>0?700:400};color:${hoje>0?'var(--accent)':'var(--text-3)'}">${hoje}</td>
+        <td style="font-size:12px;color:var(--text-2)">${criado}</td>
+        <td>
+          <span class="badge ${ativo?'badge-confirmado':'badge-cancelado'}">${ativo?'Ativo':'Inativo'}</span>
+        </td>
+      </tr>`;
+    }).join('');
+
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:32px">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function saRecarregar() { saCarregarDados(); }
+
+function saLogout() {
+  localStorage.removeItem('sa_token');
+  localStorage.removeItem('sa_email');
+  SA.token = null; SA.email = null; SA.db = null;
+  document.getElementById('sa-dashboard').style.display = 'none';
+  document.getElementById('sa-login').style.display = 'flex';
+  document.getElementById('sa-email').value = '';
+  document.getElementById('sa-pass').value = '';
+}
+
+async function tentarRestaurarSessaoSA() {
+  const token = localStorage.getItem('sa_token');
+  const email = localStorage.getItem('sa_email');
+  if (!token || !email) return false;
+  try {
+    const check = await fetch(`${SUPA_URL}/rest/v1/agenda_superadmins?email=eq.${encodeURIComponent(email)}&select=email`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    const rows = await check.json();
+    if (!Array.isArray(rows) || rows.length === 0) { localStorage.removeItem('sa_token'); return false; }
+    SA.token = token; SA.email = email; SA.db = saDbAnon();
+    document.getElementById('sa-user-label').textContent = email;
+    document.getElementById('sa-login').style.display = 'none';
+    document.getElementById('sa-dashboard').style.display = 'block';
+    await saCarregarDados();
+    return true;
+  } catch(e) {
+    localStorage.removeItem('sa_token');
+    return false;
+  }
+}
+
+// Detect #superadmin hash and activate panel
+async function checkSuperadminMode() {
+  if (window.location.hash !== '#superadmin') return false;
+  // Hide everything else immediately
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('visible');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('sa-screen').style.display = 'block';
+  const restored = await tentarRestaurarSessaoSA();
+  if (!restored) {
+    document.getElementById('sa-login').style.display = 'flex';
+    document.getElementById('sa-dashboard').style.display = 'none';
+  }
+  return true;
+}
 
 </script>
 </body>
