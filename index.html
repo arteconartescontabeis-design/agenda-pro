@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- Agenda Pro v4 build-20260329 -->
-<title>Agenda Pro v4</title>
+<!-- Agenda Pro v5 build-20260330 -->
+<title>Agenda Pro v5</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
@@ -781,6 +781,13 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/></svg>
         Bloqueios
       </button>
+      <div class="nav-section">Pessoal</div>
+      <button class="nav-item" onclick="go('minha_agenda')" data-page="minha_agenda">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="0"/></svg>
+        Minha Agenda
+      </button>
+
+      <div class="nav-section">Sistema</div>
       <button class="nav-item" onclick="go('configuracoes')" data-page="configuracoes">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         Configurações
@@ -958,6 +965,8 @@ const isoDateTime = (date, hhmm) => `${date}T${hhmm}:00`;
 
 let nextId = 10;
 
+const COMPROMISSOS = []; // RF-01: compromissos pessoais
+
 const AGENDAMENTOS = [
   { id: 1,  tenant_id: 1, cliente_id: 1, servico_id: 1, usuario_responsavel_id: 2, data_inicio: isoDateTime(todayStr,'09:00'), data_fim: isoDateTime(todayStr,'10:00'), status: 'confirmado',         origem_agendamento: 'interno',      observacao_interna: 'Cliente preferiu horário matutino', observacao_cliente: '', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 1, atualizado_por: 1 },
   { id: 2,  tenant_id: 1, cliente_id: 3, servico_id: 2, usuario_responsavel_id: 3, data_inicio: isoDateTime(todayStr,'10:30'), data_fim: isoDateTime(todayStr,'12:00'), status: 'confirmado',         origem_agendamento: 'link_publico', observacao_interna: '', observacao_cliente: 'Trazer documentos societários', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 3, atualizado_por: 3 },
@@ -1093,7 +1102,7 @@ async function carregarTodosDados() {
   const tid = APP.tenantId;
   const db  = APP.db;
   try {
-    const [clientes, servicos, usuarios, agendamentos, disponibilidade, bloqueios, config, tenants] = await Promise.all([
+    const [clientes, servicos, usuarios, agendamentos, disponibilidade, bloqueios, config, tenants, compromissos] = await Promise.all([
       db('GET', 'agenda_clientes',       { params: { tenant_id: `eq.${tid}`, ativo: 'eq.true', select: '*' } }),
       db('GET', 'agenda_servicos',       { params: { tenant_id: `eq.${tid}`, select: '*' } }),
       db('GET', 'agenda_usuarios',       { params: { tenant_id: `eq.${tid}`, ativo: 'eq.true', select: '*' } }),
@@ -1102,6 +1111,7 @@ async function carregarTodosDados() {
       db('GET', 'agenda_bloqueios',      { params: { tenant_id: `eq.${tid}`, select: '*', order: 'data_inicio.asc' } }),
       db('GET', 'agenda_config',         { params: { tenant_id: `eq.${tid}`, select: '*' } }),
       db('GET', 'agenda_tenants',        { params: { id: `eq.${tid}`, select: '*' } }),
+      db('GET', 'agenda_compromissos',   { params: { tenant_id: `eq.${tid}`, usuario_id: `eq.${APP.user?.id}`, select: '*', order: 'data_inicio.desc', limit: 200 } }),
     ]);
     // Mapear para arrays globais usados pelo app
     CLIENTES.length       = 0; clientes.forEach(x => CLIENTES.push(x));
@@ -1112,6 +1122,7 @@ async function carregarTodosDados() {
     BLOQUEIOS.length      = 0; bloqueios.forEach(x => BLOQUEIOS.push(x));
     CONFIG.length         = 0; config.forEach(x => CONFIG.push(x));
     if (tenants && tenants[0]) { TENANT.id = tenants[0].id; TENANT.nome = tenants[0].nome; TENANT.plano = tenants[0].plano; }
+    if (compromissos) { COMPROMISSOS.length = 0; compromissos.forEach(x => COMPROMISSOS.push(x)); }
   } catch(e) {
     toast('Erro ao carregar dados do servidor: ' + e.message, 'error');
   }
@@ -1235,6 +1246,7 @@ const PAGES = {
   disponibilidade: { title: 'Disponibilidade', actions: '', render: renderDisponibilidade },
   bloqueios:       { title: 'Bloqueios',       actions: '', render: renderBloqueios },
   configuracoes:   { title: 'Configurações',   actions: '', render: renderConfiguracoes },
+  minha_agenda:    { title: 'Minha Agenda',    actions: 'minhaAgendaActions', render: renderMinhaAgenda },
 };
 
 function go(page) {
@@ -2897,6 +2909,250 @@ function salvarConfig(cat) {
 }
 
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// PAGE: MINHA AGENDA (RF-01 — Compromissos Pessoais)
+// ════════════════════════════════════════════════
+
+const TIPOS_COMPROMISSO = {
+  reuniao: { label: 'Reuniao interna',   cor: '#2B5CE6' },
+  externo: { label: 'Atendimento ext.',  cor: '#1A8C5B' },
+  pessoal: { label: 'Pessoal',           cor: '#6B3FA0' },
+  almoco:  { label: 'Almoco/intervalo',  cor: '#C27B00' },
+  curso:   { label: 'Curso/Capacitacao', cor: '#E8430A' },
+  outro:   { label: 'Outro',             cor: '#555555' },
+};
+
+function renderMinhaAgenda() {
+  const actions = document.getElementById('topbar-actions');
+  actions.innerHTML = `<button class="btn btn-accent btn-sm" onclick="openNovoCompromisso()">+ Novo compromisso</button>`;
+
+  const hoje = todayStr;
+  const proximos = COMPROMISSOS
+    .filter(c => c.data_inicio >= hoje + 'T00:00:00')
+    .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio));
+  const passados = COMPROMISSOS
+    .filter(c => c.data_inicio < hoje + 'T00:00:00')
+    .sort((a, b) => b.data_inicio.localeCompare(a.data_inicio));
+
+  const cardHTML = (c) => {
+    const tipo = TIPOS_COMPROMISSO[c.tipo] || TIPOS_COMPROMISSO.outro;
+    const isPast = c.data_inicio < new Date().toISOString();
+    const lockIcon = c.visibilidade === 'privado' ? ' <span class="chip" style="font-size:11px">Privado</span>' : c.visibilidade === 'ocupado' ? ' <span class="chip" style="font-size:11px">Ocupado</span>' : '';
+    return `<div class="card" style="border-left:4px solid ${tipo.cor};opacity:${isPast ? '0.7' : '1'};margin-bottom:12px">
+        <div class="flex-between mb-8">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:10px;height:10px;border-radius:50%;background:${tipo.cor};flex-shrink:0"></div>
+            <strong style="font-size:15px">${c.titulo}</strong>${lockIcon}
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="editCompromisso(${c.id})">Editar</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removerCompromisso(${c.id})">Remover</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:${c.descricao ? 10 : 0}px">
+          <div><div class="text-muted" style="font-size:11px">Tipo</div><div style="font-size:13px">${tipo.label}</div></div>
+          <div><div class="text-muted" style="font-size:11px">Inicio</div><div style="font-size:13px;font-weight:600">${fmtDateTime(c.data_inicio)}</div></div>
+          <div><div class="text-muted" style="font-size:11px">Fim</div><div style="font-size:13px">${fmtDateTime(c.data_fim)}</div></div>
+          ${c.local ? '<div><div class="text-muted" style="font-size:11px">Local</div><div style="font-size:13px">' + c.local + '</div></div>' : ''}
+        </div>
+        ${c.descricao ? '<div style="font-size:13px;color:var(--text-2);background:var(--bg);border-radius:6px;padding:8px">' + c.descricao + '</div>' : ''}
+      </div>`;
+  };
+
+  document.getElementById('page-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text-2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Proximos (${proximos.length})</div>
+        ${proximos.length ? proximos.map(cardHTML).join('') : '<div class="card text-muted">Nenhum compromisso futuro.</div>'}
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text-2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Passados (${passados.length})</div>
+        ${passados.length ? passados.slice(0,5).map(cardHTML).join('') : '<div class="card text-muted">Nenhum compromisso passado.</div>'}
+      </div>
+    </div>`;
+}
+
+function openNovoCompromisso() {
+  document.getElementById('modal-title').textContent = 'Novo Compromisso Pessoal';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Titulo *</label>
+        <input type="text" class="form-input" id="nc-titulo" placeholder="Ex: Reuniao com cliente...">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Tipo</label>
+        <select class="form-input" id="nc-tipo">
+          <option value="reuniao">Reuniao interna</option>
+          <option value="externo">Atendimento externo</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="almoco">Almoco/Intervalo</option>
+          <option value="curso">Curso/Capacitacao</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Visibilidade</label>
+        <select class="form-input" id="nc-vis">
+          <option value="publico">Visivel ao grupo</option>
+          <option value="ocupado">Mostrar apenas Ocupado</option>
+          <option value="privado" selected>Privado (oculto)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Data inicio *</label>
+        <input type="datetime-local" class="form-input" id="nc-ini" value="${todayStr}T09:00">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Data fim *</label>
+        <input type="datetime-local" class="form-input" id="nc-fim" value="${todayStr}T10:00">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Local</label>
+        <input type="text" class="form-input" id="nc-local" placeholder="Sala, endereco, link...">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Descricao</label>
+        <textarea class="form-input" id="nc-desc" rows="3" placeholder="Detalhes do compromisso..."></textarea>
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-accent" onclick="salvarNovoCompromisso()">Criar compromisso</button>`;
+  openModal();
+}
+
+async function salvarNovoCompromisso() {
+  const titulo = document.getElementById('nc-titulo').value.trim();
+  const ini    = document.getElementById('nc-ini').value;
+  const fim    = document.getElementById('nc-fim').value;
+  if (!titulo) { toast('Titulo e obrigatorio.', 'error'); return; }
+  if (!ini || !fim) { toast('Informe data de inicio e fim.', 'error'); return; }
+  if (ini >= fim) { toast('Data fim deve ser apos o inicio.', 'error'); return; }
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const novo = {
+      tenant_id:    APP.tenantId,
+      usuario_id:   APP.user.id,
+      titulo,
+      tipo:         document.getElementById('nc-tipo').value,
+      visibilidade: document.getElementById('nc-vis').value,
+      data_inicio:  ini + ':00',
+      data_fim:     fim + ':00',
+      local:        document.getElementById('nc-local').value.trim(),
+      descricao:    document.getElementById('nc-desc').value.trim(),
+    };
+    const criado = await APP.db('POST', 'agenda_compromissos', { body: novo, returning: true });
+    if (criado && criado[0]) COMPROMISSOS.push(criado[0]);
+    closeModal();
+    toast('Compromisso criado!', 'success');
+    go('minha_agenda');
+  } catch(e) {
+    toast('Erro ao salvar: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Criar compromisso'; }
+  }
+}
+
+function editCompromisso(id) {
+  const c = COMPROMISSOS.find(x => x.id === id);
+  if (!c) return;
+  const fmtLocal = (dt) => dt ? dt.slice(0, 16) : '';
+  document.getElementById('modal-title').textContent = 'Editar Compromisso';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Titulo *</label>
+        <input type="text" class="form-input" id="ec-titulo" value="${c.titulo || ''}">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Tipo</label>
+        <select class="form-input" id="ec-tipo">
+          <option value="reuniao" ${c.tipo === 'reuniao' ? 'selected' : ''}>Reuniao interna</option>
+          <option value="externo" ${c.tipo === 'externo' ? 'selected' : ''}>Atendimento externo</option>
+          <option value="pessoal" ${c.tipo === 'pessoal' ? 'selected' : ''}>Pessoal</option>
+          <option value="almoco"  ${c.tipo === 'almoco'  ? 'selected' : ''}>Almoco/Intervalo</option>
+          <option value="curso"   ${c.tipo === 'curso'   ? 'selected' : ''}>Curso/Capacitacao</option>
+          <option value="outro"   ${c.tipo === 'outro'   ? 'selected' : ''}>Outro</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Visibilidade</label>
+        <select class="form-input" id="ec-vis">
+          <option value="publico" ${c.visibilidade === 'publico' ? 'selected' : ''}>Visivel ao grupo</option>
+          <option value="ocupado" ${c.visibilidade === 'ocupado' ? 'selected' : ''}>Mostrar apenas Ocupado</option>
+          <option value="privado" ${c.visibilidade === 'privado' ? 'selected' : ''}>Privado (oculto)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Data inicio</label>
+        <input type="datetime-local" class="form-input" id="ec-ini" value="${fmtLocal(c.data_inicio)}">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Data fim</label>
+        <input type="datetime-local" class="form-input" id="ec-fim" value="${fmtLocal(c.data_fim)}">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Local</label>
+        <input type="text" class="form-input" id="ec-local" value="${c.local || ''}">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Descricao</label>
+        <textarea class="form-input" id="ec-desc" rows="3">${c.descricao || ''}</textarea>
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-accent" onclick="salvarEditCompromisso(${id})">Salvar</button>`;
+  openModal();
+}
+
+async function salvarEditCompromisso(id) {
+  const c = COMPROMISSOS.find(x => x.id === id);
+  if (!c) return;
+  const titulo = document.getElementById('ec-titulo').value.trim();
+  const ini    = document.getElementById('ec-ini').value;
+  const fim    = document.getElementById('ec-fim').value;
+  if (!titulo) { toast('Titulo e obrigatorio.', 'error'); return; }
+  if (ini && fim && ini >= fim) { toast('Data fim deve ser apos o inicio.', 'error'); return; }
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const patch = {
+      titulo,
+      tipo:         document.getElementById('ec-tipo').value,
+      visibilidade: document.getElementById('ec-vis').value,
+      data_inicio:  ini ? ini + ':00' : c.data_inicio,
+      data_fim:     fim ? fim + ':00' : c.data_fim,
+      local:        document.getElementById('ec-local').value.trim(),
+      descricao:    document.getElementById('ec-desc').value.trim(),
+    };
+    await APP.db('PATCH', 'agenda_compromissos', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: patch });
+    Object.assign(c, patch);
+    closeModal();
+    toast('Compromisso atualizado!', 'success');
+    go('minha_agenda');
+  } catch(e) {
+    toast('Erro ao atualizar: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
+}
+
+async function removerCompromisso(id) {
+  if (!confirm('Remover este compromisso?')) return;
+  const idx = COMPROMISSOS.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  try {
+    await APP.db('DELETE', 'agenda_compromissos', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` } });
+    COMPROMISSOS.splice(idx, 1);
+    toast('Compromisso removido.');
+    go('minha_agenda');
+  } catch(e) {
+    toast('Erro ao remover: ' + e.message, 'error');
+  }
+}
+
+
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 // KEYBOARD SHORTCUTS
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
