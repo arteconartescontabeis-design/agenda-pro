@@ -920,107 +920,27 @@ function supaWithAuth(token) {
   };
 }
 // ════════════════════════════════════════════════
-// MOCK DATA — tenant_id em todos os registros
-// Estrutura espelha o schema real do Supabase
+// ESTADO INICIAL — arrays preenchidos após login pelo Supabase
 // ════════════════════════════════════════════════
 
-const TENANT = {
-  id: 1,
-  nome: "Contabilidade Alfa Ltda",
-  plano: "starter",
-  criado_em: "2026-01-10"
-};
+const TENANT = { id: null, nome: '', plano: 'starter', criado_em: '' };
 
-const USUARIOS = [
-  { id: 1, tenant_id: 1, auth_id: "mock-uuid-001", nome: "Admin Alfa",    email: "admin@contabilidadealfa.com.br", perfil: "admin",        ativo: true },
-  { id: 2, tenant_id: 1, auth_id: "mock-uuid-002", nome: "Carla Mendes",  email: "carla@contabilidadealfa.com.br", perfil: "colaborador",  ativo: true },
-  { id: 3, tenant_id: 1, auth_id: "mock-uuid-003", nome: "Rafael Torres", email: "rafael@contabilidadealfa.com.br",perfil: "colaborador",  ativo: true },
-  { id: 4, tenant_id: 1, auth_id: "mock-uuid-004", nome: "Juliana Costa", email: "juliana@contabilidadealfa.com.br",perfil: "gerente",     ativo: true },
-];
-
-const CLIENTES = [
-  { id: 1, tenant_id: 1, nome: "Marcos Oliveira",    cpf_cnpj: "32145678901", email: "marcos@email.com",   telefone: "(11) 98765-4321", responsavel_id: 2, noshow_count: 0, score: 100, ativo: true },
-  { id: 2, tenant_id: 1, nome: "Ana Beatriz Lima",   cpf_cnpj: "45678912300", email: "ana@email.com",      telefone: "(11) 91234-5678", responsavel_id: 2, noshow_count: 1, score: 85,  ativo: true },
-  { id: 3, tenant_id: 1, nome: "Tech Soluções Ltda", cpf_cnpj: "12345678000195", email: "financeiro@techsolucoes.com.br", telefone: "(11) 3456-7890", responsavel_id: 3, noshow_count: 0, score: 100, ativo: true },
-  { id: 4, tenant_id: 1, nome: "Roberto Fernandes",  cpf_cnpj: "56789012345", email: "roberto@email.com",  telefone: "(11) 99876-5432", responsavel_id: 3, noshow_count: 0, score: 100, ativo: true },
-  { id: 5, tenant_id: 1, nome: "Patrícia Souza",     cpf_cnpj: "67890123456", email: "patricia@email.com", telefone: "(11) 94567-8901", responsavel_id: 2, noshow_count: 2, score: 70,  ativo: true },
-  { id: 6, tenant_id: 1, nome: "Distribuidora XY ME",cpf_cnpj: "98765432000188", email: "contato@distribuidoraxy.com.br", telefone: "(11) 3987-6543", responsavel_id: 4, noshow_count: 0, score: 100, ativo: true },
-];
-
-const SERVICOS = [
-  { id: 1, tenant_id: 1, nome: "Consultoria IRPF",      duracao_min: 60, cor: "#2B5CE6", valor: 350.00, antecedencia_min: 60,  max_reagendamentos: 2, ativo: true },
-  { id: 2, tenant_id: 1, nome: "Abertura de Empresa",   duracao_min: 90, cor: "#1A8C5B", valor: 800.00, antecedencia_min: 120, max_reagendamentos: 1, ativo: true },
-  { id: 3, tenant_id: 1, nome: "Revisão Contábil",      duracao_min: 45, cor: "#C27B00", valor: 200.00, antecedencia_min: 30,  max_reagendamentos: 3, ativo: true },
-  { id: 4, tenant_id: 1, nome: "Planejamento Tributário",duracao_min:120, cor: "#6B3FA0", valor: 600.00, antecedencia_min: 240, max_reagendamentos: 2, ativo: true },
-  { id: 5, tenant_id: 1, nome: "Regularização MEI",     duracao_min: 30, cor: "#E8430A", valor: 150.00, antecedencia_min: 30,  max_reagendamentos: 3, ativo: true },
-];
+const USUARIOS      = [];
+const CLIENTES      = [];
+const SERVICOS      = [];
+const COMPROMISSOS  = [];
+const AGENDAMENTOS  = [];
+let   DISPONIBILIDADE = [];
+let   BLOQUEIOS       = [];
+let   CONFIG          = [];
 
 // Data de hoje
-const TODAY = new Date();
-const todayStr = TODAY.toISOString().slice(0,10);
-const fmtDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
+const TODAY     = new Date();
+const todayStr  = TODAY.toISOString().slice(0,10);
+const fmtDate     = (d)  => new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
 const fmtDateTime = (dt) => new Date(dt).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-const fmtTime = (dt) => new Date(dt).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+const fmtTime     = (dt) => new Date(dt).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
 const isoDateTime = (date, hhmm) => `${date}T${hhmm}:00`;
-
-let nextId = 10;
-
-const COMPROMISSOS = []; // RF-01: compromissos pessoais
-
-const AGENDAMENTOS = [
-  { id: 1,  tenant_id: 1, cliente_id: 1, servico_id: 1, usuario_responsavel_id: 2, data_inicio: isoDateTime(todayStr,'09:00'), data_fim: isoDateTime(todayStr,'10:00'), status: 'confirmado',         origem_agendamento: 'interno',      observacao_interna: 'Cliente preferiu horário matutino', observacao_cliente: '', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 1, atualizado_por: 1 },
-  { id: 2,  tenant_id: 1, cliente_id: 3, servico_id: 2, usuario_responsavel_id: 3, data_inicio: isoDateTime(todayStr,'10:30'), data_fim: isoDateTime(todayStr,'12:00'), status: 'confirmado',         origem_agendamento: 'link_publico', observacao_interna: '', observacao_cliente: 'Trazer documentos societários', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 3, atualizado_por: 3 },
-  { id: 3,  tenant_id: 1, cliente_id: 2, servico_id: 3, usuario_responsavel_id: 2, data_inicio: isoDateTime(todayStr,'14:00'), data_fim: isoDateTime(todayStr,'14:45'), status: 'pendente_confirmacao', origem_agendamento: 'link_publico', observacao_interna: '', observacao_cliente: '', confirmado_em: null, cancelado_em: null, motivo_cancelamento: '', criado_por: 2, atualizado_por: 2 },
-  { id: 4,  tenant_id: 1, cliente_id: 5, servico_id: 5, usuario_responsavel_id: 3, data_inicio: isoDateTime(todayStr,'15:30'), data_fim: isoDateTime(todayStr,'16:00'), status: 'solicitado',          origem_agendamento: 'whatsapp',     observacao_interna: '', observacao_cliente: '', confirmado_em: null, cancelado_em: null, motivo_cancelamento: '', criado_por: 3, atualizado_por: 3 },
-  { id: 5,  tenant_id: 1, cliente_id: 4, servico_id: 4, usuario_responsavel_id: 4, data_inicio: isoDateTime(todayStr,'16:00'), data_fim: isoDateTime(todayStr,'18:00'), status: 'confirmado',         origem_agendamento: 'interno',      observacao_interna: 'Cliente VIP — preparar relatório', observacao_cliente: '', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 1, atualizado_por: 1 },
-  // Ontem
-  { id: 6,  tenant_id: 1, cliente_id: 1, servico_id: 3, usuario_responsavel_id: 2, data_inicio: isoDateTime(getRelDay(-1),'09:30'), data_fim: isoDateTime(getRelDay(-1),'10:15'), status: 'concluido', origem_agendamento: 'interno', observacao_interna: '', observacao_cliente: '', confirmado_em: null, cancelado_em: null, motivo_cancelamento: '', criado_por: 2, atualizado_por: 2 },
-  { id: 7,  tenant_id: 1, cliente_id: 6, servico_id: 2, usuario_responsavel_id: 3, data_inicio: isoDateTime(getRelDay(-1),'14:00'), data_fim: isoDateTime(getRelDay(-1),'15:30'), status: 'nao_compareceu', origem_agendamento: 'interno', observacao_interna: '', observacao_cliente: '', confirmado_em: null, cancelado_em: null, motivo_cancelamento: '', criado_por: 3, atualizado_por: 3 },
-  // Amanhã
-  { id: 8,  tenant_id: 1, cliente_id: 6, servico_id: 1, usuario_responsavel_id: 2, data_inicio: isoDateTime(getRelDay(1),'10:00'), data_fim: isoDateTime(getRelDay(1),'11:00'), status: 'confirmado', origem_agendamento: 'interno', observacao_interna: '', observacao_cliente: '', confirmado_em: new Date().toISOString(), cancelado_em: null, motivo_cancelamento: '', criado_por: 2, atualizado_por: 2 },
-  { id: 9,  tenant_id: 1, cliente_id: 4, servico_id: 3, usuario_responsavel_id: 3, data_inicio: isoDateTime(getRelDay(1),'14:30'), data_fim: isoDateTime(getRelDay(1),'15:15'), status: 'solicitado', origem_agendamento: 'link_publico', observacao_interna: '', observacao_cliente: '', confirmado_em: null, cancelado_em: null, motivo_cancelamento: '', criado_por: 4, atualizado_por: 4 },
-];
-
-// DISPONIBILIDADE por colaborador e dia da semana (0=Dom…6=Sáb)
-let DISPONIBILIDADE = [
-  { id: 1, tenant_id: 1, usuario_id: 2, dia_semana: 1, hora_inicio: '08:00', hora_fim: '17:00', ativo: true },
-  { id: 2, tenant_id: 1, usuario_id: 2, dia_semana: 2, hora_inicio: '08:00', hora_fim: '17:00', ativo: true },
-  { id: 3, tenant_id: 1, usuario_id: 2, dia_semana: 3, hora_inicio: '08:00', hora_fim: '17:00', ativo: true },
-  { id: 4, tenant_id: 1, usuario_id: 2, dia_semana: 4, hora_inicio: '08:00', hora_fim: '17:00', ativo: true },
-  { id: 5, tenant_id: 1, usuario_id: 2, dia_semana: 5, hora_inicio: '08:00', hora_fim: '12:00', ativo: true },
-  { id: 6, tenant_id: 1, usuario_id: 3, dia_semana: 1, hora_inicio: '09:00', hora_fim: '18:00', ativo: true },
-  { id: 7, tenant_id: 1, usuario_id: 3, dia_semana: 2, hora_inicio: '09:00', hora_fim: '18:00', ativo: true },
-  { id: 8, tenant_id: 1, usuario_id: 3, dia_semana: 3, hora_inicio: '09:00', hora_fim: '18:00', ativo: true },
-  { id: 9, tenant_id: 1, usuario_id: 3, dia_semana: 4, hora_inicio: '09:00', hora_fim: '18:00', ativo: true },
-  { id:10, tenant_id: 1, usuario_id: 3, dia_semana: 5, hora_inicio: '09:00', hora_fim: '18:00', ativo: true },
-  { id:11, tenant_id: 1, usuario_id: 4, dia_semana: 1, hora_inicio: '08:00', hora_fim: '18:00', ativo: true },
-  { id:12, tenant_id: 1, usuario_id: 4, dia_semana: 2, hora_inicio: '08:00', hora_fim: '18:00', ativo: true },
-  { id:13, tenant_id: 1, usuario_id: 4, dia_semana: 3, hora_inicio: '08:00', hora_fim: '18:00', ativo: true },
-  { id:14, tenant_id: 1, usuario_id: 4, dia_semana: 4, hora_inicio: '08:00', hora_fim: '18:00', ativo: true },
-  { id:15, tenant_id: 1, usuario_id: 4, dia_semana: 5, hora_inicio: '08:00', hora_fim: '18:00', ativo: true },
-];
-
-// BLOQUEIOS manuais, feriados, férias
-let BLOQUEIOS = [
-  { id: 1, tenant_id: 1, usuario_id: null, tipo: 'feriado', data_inicio: getRelDay(7)+'T00:00:00', data_fim: getRelDay(7)+'T23:59:00', recorrente: false, motivo: 'Feriado Nacional — Tiradentes' },
-  { id: 2, tenant_id: 1, usuario_id: 2,    tipo: 'ferias',  data_inicio: getRelDay(14)+'T00:00:00', data_fim: getRelDay(21)+'T23:59:00', recorrente: false, motivo: 'Férias anuais — Carla Mendes' },
-  { id: 3, tenant_id: 1, usuario_id: 3,    tipo: 'manual',  data_inicio: getRelDay(3)+'T13:00:00',  data_fim: getRelDay(3)+'T15:00:00',  recorrente: false, motivo: 'Curso de atualização contábil' },
-  { id: 4, tenant_id: 1, usuario_id: null, tipo: 'feriado', data_inicio: getRelDay(30)+'T00:00:00', data_fim: getRelDay(30)+'T23:59:00', recorrente: false, motivo: 'Feriado Nacional — Dia do Trabalho' },
-];
-
-// CONFIG do tenant
-let CONFIG = [
-  { id: 1, tenant_id: 1, chave: 'antecedencia_minima_min',     valor: '60',                    descricao: 'Antecedência mínima para agendar (minutos)',  categoria: 'operacional' },
-  { id: 2, tenant_id: 1, chave: 'tolerancia_atraso_min',       valor: '15',                    descricao: 'Tolerância de atraso para marcar no-show',    categoria: 'operacional' },
-  { id: 3, tenant_id: 1, chave: 'max_reagendamentos_global',   valor: '2',                     descricao: 'Limite global de reagendamentos',             categoria: 'operacional' },
-  { id: 4, tenant_id: 1, chave: 'fuso_horario',                valor: 'America/Sao_Paulo',     descricao: 'Fuso horário do escritório',                  categoria: 'operacional' },
-  { id: 5, tenant_id: 1, chave: 'confirmacao_automatica',      valor: 'false',                 descricao: 'Confirmar automaticamente agendamentos online',categoria: 'operacional' },
-  { id: 6, tenant_id: 1, chave: 'webhook_url',                 valor: '',                      descricao: 'URL para receber eventos via webhook',         categoria: 'integracao'  },
-  { id: 7, tenant_id: 1, chave: 'nome_escritorio',             valor: 'Contabilidade Alfa Ltda',descricao: 'Nome do escritório exibido ao cliente',       categoria: 'aparencia'   },
-  { id: 8, tenant_id: 1, chave: 'email_remetente',             valor: 'noreply@contabilidadealfa.com.br', descricao: 'E-mail usado para notificações',   categoria: 'notificacao' },
-  { id: 9, tenant_id: 1, chave: 'lembrete_24h',                valor: 'true',                  descricao: 'Enviar lembrete 24h antes (v2)',               categoria: 'notificacao' },
-  { id:10, tenant_id: 1, chave: 'lembrete_dia',                valor: 'true',                  descricao: 'Enviar lembrete no dia do agendamento (v2)',   categoria: 'notificacao' },
-];
 
 function getRelDay(delta) {
   const d = new Date(TODAY);
@@ -1708,7 +1628,11 @@ function renderClientes() {
                   </div>
                 </td>
                 <td><span style="color:${c.noshow_count>0?'var(--red)':'var(--text-3)'};font-weight:${c.noshow_count>0?700:400}">${c.noshow_count}</span></td>
-                <td><button class="btn btn-ghost btn-sm" onclick="openDetalheCliente(${c.id})">Ver →</button></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm" onclick="openDetalheCliente(${c.id})">Ver →</button>
+                  <button class="btn btn-ghost btn-sm" onclick="openEditCliente(${c.id})">Editar</button>
+                  <button class="btn btn-ghost btn-sm" onclick="toggleCliente(${c.id})">${c.ativo?'Desativar':'Ativar'}</button>
+                </td>
               </tr>`).join('')}
           </tbody>
         </table>
@@ -1804,7 +1728,10 @@ function renderColaboradores() {
                 <td><span class="chip">${perfis[u.perfil]||u.perfil}</span></td>
                 <td style="font-weight:600;color:${agHoje>0?'var(--accent)':'var(--text-3)'}">${agHoje}</td>
                 <td><span class="badge ${u.ativo?'badge-confirmado':'badge-cancelado'}">${u.ativo?'Ativo':'Inativo'}</span></td>
-                <td><button class="btn btn-ghost btn-sm" onclick="editColaborador(${u.id})">Editar</button></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm" onclick="editColaborador(${u.id})">Editar</button>
+                  <button class="btn btn-ghost btn-sm" onclick="toggleColaborador(${u.id})">${u.ativo?'Desativar':'Ativar'}</button>
+                </td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -2113,6 +2040,90 @@ async function salvarNovoCliente() {
   }
 }
 
+async function toggleCliente(id) {
+  const c = CLIENTES.find(x => x.id === id);
+  if (!c) return;
+  const novoAtivo = !c.ativo;
+  try {
+    await APP.db('PATCH', 'agenda_clientes', {
+      params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` },
+      body:   { ativo: novoAtivo }
+    });
+    c.ativo = novoAtivo;
+    toast(`Cliente ${novoAtivo ? 'ativado' : 'desativado'}!`, 'success');
+    go('clientes');
+  } catch(e) {
+    toast('Erro ao atualizar cliente: ' + e.message, 'error');
+  }
+}
+
+function openEditCliente(id) {
+  const c = CLIENTES.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('modal-title').textContent = 'Editar Cliente';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Nome completo / Razão social</label>
+        <input type="text" class="form-input" id="ec-nome" value="${c.nome}">
+      </div>
+      <div class="form-field">
+        <label class="form-label">CPF / CNPJ</label>
+        <input type="text" class="form-input" id="ec-doc" value="${c.cpf_cnpj||''}">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Telefone</label>
+        <input type="text" class="form-input" id="ec-tel" value="${c.telefone||''}">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">E-mail</label>
+        <input type="email" class="form-input" id="ec-email" value="${c.email||''}">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Responsável padrão</label>
+        <select class="form-select" id="ec-resp">
+          ${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}" ${c.responsavel_id===u.id?'selected':''}>${u.nome}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Observação interna</label>
+        <textarea class="form-textarea" id="ec-obs">${c.obs_interna||''}</textarea>
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-accent" onclick="salvarEditCliente(${id})">Salvar</button>`;
+  openModal();
+}
+
+async function salvarEditCliente(id) {
+  const c = CLIENTES.find(x => x.id === id);
+  if (!c) return;
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const patch = {
+      nome:          document.getElementById('ec-nome').value.trim() || c.nome,
+      cpf_cnpj:      document.getElementById('ec-doc').value.replace(/\D/g,'') || null,
+      telefone:      document.getElementById('ec-tel').value || null,
+      email:         document.getElementById('ec-email').value || null,
+      responsavel_id:parseInt(document.getElementById('ec-resp').value) || null,
+      obs_interna:   document.getElementById('ec-obs').value || null,
+    };
+    await APP.db('PATCH', 'agenda_clientes', {
+      params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` },
+      body:   patch
+    });
+    Object.assign(c, patch);
+    closeModal();
+    toast('Cliente atualizado!', 'success');
+    go('clientes');
+  } catch(e) {
+    toast('Erro ao atualizar cliente: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
+}
+
 // ════════════════════════════════════════════════
 // MODAL: NOVO SERVIÇO
 // ════════════════════════════════════════════════
@@ -2350,15 +2361,48 @@ async function salvarEditColaborador(id) {
   }
 }
 
-function salvarColaborador() {
+async function toggleColaborador(id) {
+  const u = USUARIOS.find(x => x.id === id);
+  if (!u) return;
+  const novoAtivo = !u.ativo;
+  try {
+    await APP.db('PATCH', 'agenda_usuarios', {
+      params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` },
+      body:   { ativo: novoAtivo }
+    });
+    u.ativo = novoAtivo;
+    toast(`Colaborador ${novoAtivo ? 'ativado' : 'desativado'}!`, 'success');
+    go('colaboradores');
+  } catch(e) {
+    toast('Erro ao atualizar colaborador: ' + e.message, 'error');
+  }
+}
+
+async function salvarColaborador() {
   const nome  = document.getElementById('ncol-nome').value.trim();
   const email = document.getElementById('ncol-email').value.trim();
   const perfil= document.getElementById('ncol-perfil').value;
   if (!nome || !email) { toast('Preencha nome e e-mail.', 'error'); return; }
-  USUARIOS.push({ id: ++nextId, tenant_id: 1, auth_id: 'mock-'+nextId, nome, email, perfil, ativo: true });
-  closeModal();
-  toast('Convite enviado para ' + email + '!', 'success');
-  go('colaboradores');
+  const btn = document.querySelector('#modal-footer .btn-accent');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const novoUsuario = {
+      tenant_id: APP.tenantId,
+      auth_id:   crypto.randomUUID(),
+      nome,
+      email,
+      perfil,
+      ativo: true,
+    };
+    const criado = await APP.db('POST', 'agenda_usuarios', { body: novoUsuario, returning: true });
+    USUARIOS.push(criado[0] ?? { ...novoUsuario, id: Date.now() });
+    closeModal();
+    toast('Colaborador ' + nome + ' adicionado!', 'success');
+    go('colaboradores');
+  } catch(e) {
+    toast('Erro ao salvar colaborador: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar convite'; }
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -2860,15 +2904,19 @@ function renderConfiguracoes() {
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px">
         <div class="text-muted">Projeto Supabase</div>
-        <div style="font-weight:600;font-family:var(--mono);font-size:13px;margin-top:4px">— não configurado —</div>
+        <div style="font-weight:600;font-family:var(--mono);font-size:12px;margin-top:4px">${SUPA_URL.replace('https://','').split('.')[0]}</div>
       </div>
       <div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px">
         <div class="text-muted">Modo atual</div>
-        <div style="font-weight:600;color:var(--amber);margin-top:4px">Mock (dados locais)</div>
+        <div style="font-weight:600;color:${APP.authToken?'var(--green)':'var(--amber)'};margin-top:4px">${APP.authToken ? '✓ Supabase conectado' : 'Sem sessão ativa'}</div>
       </div>
       <div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px">
         <div class="text-muted">Tenant ID</div>
-        <div style="font-weight:600;font-family:var(--mono);font-size:13px;margin-top:4px">${TENANT.id}</div>
+        <div style="font-weight:600;font-family:var(--mono);font-size:13px;margin-top:4px">${APP.tenantId ?? '—'}</div>
+      </div>
+      <div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px">
+        <div class="text-muted">Usuário</div>
+        <div style="font-weight:600;font-size:13px;margin-top:4px">${APP.user?.email ?? '—'}</div>
       </div>
     </div>
   </div>`;
@@ -2897,7 +2945,7 @@ function updateConfigToggle(chave, checked) {
   renderConfiguracoes();
 }
 
-function salvarConfig(cat) {
+async function salvarConfig(cat) {
   const cfgs = CONFIG.filter(c => c.categoria === cat);
   cfgs.forEach(c => {
     const el = document.getElementById('cfg-' + c.chave);
@@ -2905,7 +2953,21 @@ function salvarConfig(cat) {
     if (el.type === 'checkbox') { c.valor = el.checked ? 'true' : 'false'; }
     else { c.valor = el.value; }
   });
-  toast('Configurações salvas!', 'success');
+  const btn = document.querySelector(`#page-configuracoes .btn-accent[onclick*="${cat}"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    await Promise.all(cfgs.map(c =>
+      APP.db('PATCH', 'agenda_config', {
+        params: { id: `eq.${c.id}`, tenant_id: `eq.${APP.tenantId}` },
+        body:   { valor: c.valor }
+      })
+    ));
+    toast('Configurações salvas!', 'success');
+  } catch(e) {
+    toast('Erro ao salvar configurações: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar ' + ({ negocio:'Negócio', agenda:'Agenda', notificacoes:'Notificações', agendamento_publico:'Agendamento Público' }[cat] || cat); }
+  }
 }
 
 // ════════════════════════════════════════════════
