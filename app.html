@@ -2951,6 +2951,42 @@ function openNovoAgendamento(prefill) {
     <button class="btn btn-accent" onclick="salvarNovoAgendamento()">Criar agendamento</button>`;
   openModal();
   window._lembretes = [];
+
+  // Forçar valores via JS após render (Android Chrome ignora value= em inputs date/time)
+  if (pf && (pf.data || pf.hora || pf.cliente_id || pf.servico_id || pf.usuario_id)) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (pf.data) {
+          const el = document.getElementById('nag-data');
+          if (el) { el.value = ''; el.value = pf.data; }
+        }
+        if (pf.hora) {
+          const el = document.getElementById('nag-hora');
+          if (el) { el.value = ''; el.value = pf.hora; }
+        }
+        if (pf.cliente_id) {
+          const el = document.getElementById('nag-cliente');
+          if (el) { el.value = String(pf.cliente_id); }
+        }
+        if (pf.servico_id) {
+          const el = document.getElementById('nag-servico');
+          if (el) { el.value = String(pf.servico_id); }
+        }
+        if (pf.usuario_id) {
+          const el = document.getElementById('nag-resp');
+          if (el) { el.value = String(pf.usuario_id); }
+        }
+        if (pf.cliente_nome) {
+          const el = document.getElementById('nag-cliente-nome');
+          if (el) { el.value = pf.cliente_nome; }
+        }
+        if (pf.servico_nome) {
+          const el = document.getElementById('nag-servico-nome');
+          if (el) { el.value = pf.servico_nome; }
+        }
+      });
+    });
+  }
 }
 
 function nagToggleCliente() {
@@ -5365,10 +5401,7 @@ Regras:
     const txt = data.content?.[0]?.text || '{}';
     const clean = txt.replace(/```json|```/g,'').trim();
 
-    // Log visual para debug — mostra o JSON retornado pela IA
     console.log('[Voz] IA retornou:', clean);
-    toast('🔍 IA: ' + clean.slice(0, 120), 'success');
-
     const parsed = JSON.parse(clean);
 
     btn.style.background = '';
