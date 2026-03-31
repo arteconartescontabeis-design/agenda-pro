@@ -3067,6 +3067,10 @@ async function salvarNovoAgendamento() {
     window._lembretes = [];
     closeModal();
     toast(`Agendamento criado com sucesso!`, 'success');
+
+    // Notificação imediata de confirmação do agendamento
+    notifAgendamentoCriado(criado && criado[0] ? criado[0] : novoAg);
+
     go(APP.page);
 
   } catch(e) {
@@ -4711,6 +4715,14 @@ function _permSetCard(tipo, estado) {
 }
 
 async function permPedirMicrofone() {
+  // Se estiver em WebView (WhatsApp etc), avisar para abrir no Chrome
+  if (_isWebView()) {
+    closeModal && closeModal();
+    const scr = document.getElementById('perm-screen');
+    if (scr) scr.style.display = 'none';
+    _vozMostrarAbrirChrome();
+    return;
+  }
   const btn = document.getElementById('btn-perm-mic');
   if (btn) { btn.textContent = '⏳ Aguardando...'; btn.disabled = true; }
   try {
@@ -4991,18 +5003,54 @@ function dispararLembrete(ag, minAntes) {
   }
 }
 
+// Notificação imediata ao criar agendamento
+function notifAgendamentoCriado(ag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const cl = getCliente(ag.cliente_id, ag);
+  const sv = getServico(ag.servico_id, ag);
+  const dataFmt = ag.data_inicio ? new Date(ag.data_inicio).toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }) : '';
+  const horaFmt = ag.data_inicio ? fmtTime(ag.data_inicio) : '';
+  try {
+    const n = new Notification('✅ Agendamento confirmado', {
+      body: `${cl.nome} · ${sv.nome}\n📅 ${dataFmt} às ${horaFmt}`,
+      icon: _notifIcon(),
+      tag: 'ag-criado-' + Date.now(),
+    });
+    setTimeout(() => n.close(), 6000);
+  } catch(e) {}
+}
+
 // Inicializar todos os lembretes ao carregar os dados
 function lembreteInicializarTodos() {
   if (!window._lembreteTimers) window._lembreteTimers = {};
   const agora = Date.now();
+  let count = 0;
   AGENDAMENTOS.forEach(ag => {
-    if (!ag.lembretes_min) return;
     if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(ag.status)) return;
     const agInicio = new Date(ag.data_inicio).getTime();
     if (agInicio < agora) return; // já passou
+
+    // Se não tem lembrete configurado, adicionar padrão de 30min silenciosamente
+    if (!ag.lembretes_min) {
+      const disparo30 = agInicio - 30 * 60000;
+      const delay30 = disparo30 - agora;
+      if (delay30 > 0 && delay30 < 24 * 60 * 60 * 1000) {
+        const key = ag.id + '_30_auto';
+        if (!window._lembreteTimers[key]) {
+          window._lembreteTimers[key] = setTimeout(() => {
+            dispararLembrete(ag, 30);
+            delete window._lembreteTimers[key];
+          }, delay30);
+          count++;
+        }
+      }
+      return;
+    }
+
     lembreteRegistrar(ag);
+    count++;
   });
-  console.log('[AgendaPro] Lembretes inicializados:', Object.keys(window._lembreteTimers).length, 'timers ativos');
+  console.log('[AgendaPro] Lembretes inicializados:', count, 'timers ativos');
 }
 
 
@@ -5020,7 +5068,20 @@ function _vozResetBtn() {
   _vozAtivo = false;
 }
 
+function _isWebView() {
+  const ua = navigator.userAgent || '';
+  // WhatsApp, Instagram, Facebook, Telegram WebView
+  return /WABA|WhatsApp|Instagram|FBAN|FBAV|FB_IAB|MicroMessenger|Telegram/i.test(ua)
+      || (typeof window.webkit !== 'undefined' && /WKWebView/i.test(ua));
+}
+
 async function iniciarVoz() {
+  // Detectar WebView de apps (WhatsApp, Instagram etc) — nunca têm permissão de mic
+  if (_isWebView()) {
+    _vozMostrarAbrirChrome();
+    return;
+  }
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     toast('Reconhecimento de voz não suportado. Use Chrome ou Edge.', 'error');
@@ -5128,48 +5189,67 @@ async function iniciarVoz() {
   }
 }
 
+function _vozMostrarAbrirChrome() {
+  // Usuário está no WebView do WhatsApp/Instagram — precisa abrir no Chrome
+  const url = window.location.href;
+  document.getElementById('modal-title').textContent = '🎤 Abrir no Chrome';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px;padding-bottom:8px">
+      <div style="background:var(--amber-lt);border:1px solid var(--amber);border-radius:10px;padding:14px;font-size:13px;color:var(--amber);line-height:1.5">
+        <strong>Você está abrindo o app dentro do WhatsApp.</strong><br>
+        O microfone só funciona no <strong>Chrome</strong> ou <strong>Safari</strong> — não dentro de outros apps.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">1</div>
+          <div style="font-size:13px">Toque nos <strong>três pontos ⋮</strong> no canto superior direito desta janela</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">2</div>
+          <div style="font-size:13px">Toque em <strong>"Abrir no Chrome"</strong> (ou "Abrir no navegador")</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">3</div>
+          <div style="font-size:13px">Faça login normalmente — o microfone funcionará</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text-3);word-break:break-all">
+        🔗 ${url}
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+    <button class="btn btn-accent" onclick="navigator.clipboard&&navigator.clipboard.writeText('${url}').then(()=>toast('Link copiado!','success'))">📋 Copiar link</button>`;
+  openModal();
+}
+
 function _vozMostrarInstrucoesMobile() {
-  // Modal com instruções visuais para liberar microfone no Android/iOS
   document.getElementById('modal-title').textContent = '🎤 Liberar Microfone';
   document.getElementById('modal-body').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:16px;padding-bottom:8px">
+    <div style="display:flex;flex-direction:column;gap:14px;padding-bottom:8px">
       <div style="background:var(--amber-lt);border:1px solid var(--amber);border-radius:10px;padding:14px;font-size:13px;color:var(--amber)">
         <strong>Permissão de microfone bloqueada.</strong><br>Siga os passos abaixo para liberar.
       </div>
-
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">1</div>
-          <div>
-            <div style="font-weight:600;font-size:13px">Abra as Configurações do Chrome</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Toque nos <strong>⋮ três pontos</strong> no canto superior direito do Chrome → <strong>Configurações</strong></div>
-          </div>
+          <div style="font-size:13px">No Chrome: toque nos <strong>⋮ três pontos</strong> → <strong>Configurações</strong></div>
         </div>
-        <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">2</div>
-          <div>
-            <div style="font-weight:600;font-size:13px">Acesse Configurações do site</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Role até <strong>Avançado</strong> → <strong>Configurações do site</strong> → <strong>Microfone</strong></div>
-          </div>
+          <div style="font-size:13px">Vá em <strong>Configurações do site → Microfone</strong></div>
         </div>
-        <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">3</div>
-          <div>
-            <div style="font-weight:600;font-size:13px">Localize este site e permita</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Encontre <strong>github.io</strong> na lista de bloqueados e mude para <strong>Permitir</strong></div>
-          </div>
+          <div style="font-size:13px">Encontre <strong>github.io</strong> nos bloqueados e mude para <strong>Permitir</strong></div>
         </div>
-        <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="min-width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">4</div>
-          <div>
-            <div style="font-weight:600;font-size:13px">Recarregue o app e tente novamente</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Após liberar, volte ao app e toque em <strong>🎤 Voz</strong> novamente.</div>
-          </div>
+          <div style="font-size:13px">Recarregue o app e toque em <strong>🎤 Voz</strong> novamente</div>
         </div>
       </div>
-
       <div style="background:var(--bg);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text-3)">
-        💡 <strong>iOS (Safari):</strong> Vá em <strong>Ajustes → Safari → Microfone</strong> e permita para este site.
+        💡 <strong>iOS:</strong> Ajustes → Chrome/Safari → Microfone → Permitir
       </div>
     </div>`;
   document.getElementById('modal-footer').innerHTML = `
@@ -5192,17 +5272,20 @@ async function interpretarVoz(texto) {
   const prompt = `Você é um assistente de agendamento. Hoje é ${hoje} (${todayISO}).
 Interprete o comando de voz e retorne APENAS um JSON com os campos abaixo.
 
-Clientes disponíveis: ${clientesCtx}
-Serviços disponíveis: ${servicosCtx}
+Clientes disponíveis: ${clientesCtx || '(nenhum cadastrado)'}
+Serviços disponíveis: ${servicosCtx || '(nenhum cadastrado)'}
 Colaboradores disponíveis: ${usuariosCtx}
 
 Comando: "${texto}"
 
 Retorne SOMENTE este JSON (sem texto extra, sem markdown):
 {
-  "cliente_id": <número ou null>,
-  "servico_id": <número ou null>,
-  "usuario_id": <número ou null>,
+  "cliente_id": <número do id ou null>,
+  "cliente_nome": "<nome mencionado se não encontrou o id, ou null>",
+  "servico_id": <número do id ou null>,
+  "servico_nome": "<nome mencionado se não encontrou o id, ou null>",
+  "duracao_min": <número ou null>,
+  "usuario_id": <número do id ou null>,
   "data": "<YYYY-MM-DD ou null>",
   "hora": "<HH:MM ou null>",
   "obs": "<observação ou null>",
@@ -5212,8 +5295,9 @@ Retorne SOMENTE este JSON (sem texto extra, sem markdown):
 Regras:
 - "amanhã" = ${new Date(TODAY.getTime()+86400000).toISOString().slice(0,10)}
 - Use fuzzy match nos nomes (ex: "João" pode ser "João da Silva")
-- Se não encontrar cliente/serviço, retorne null
-- data deve ser YYYY-MM-DD`;
+- Se encontrar o cliente/serviço na lista, use o id. Se não encontrar, coloque null no id e o nome dito em cliente_nome/servico_nome
+- data deve ser YYYY-MM-DD
+- hora deve ser HH:MM (24h)`;
 
   const btn = document.getElementById('btn-voz');
   const lbl = document.getElementById('btn-voz-label');
@@ -5259,43 +5343,86 @@ Regras:
 function vozPreencherModal(dados, textoOriginal) {
   openNovoAgendamento();
 
-  // Aguardar modal abrir e preencher campos
+  // Aguardar modal renderizar completamente (mobile precisa de mais tempo)
   setTimeout(() => {
+    // ── CLIENTE ──────────────────────────────────────
     if (dados.cliente_id) {
+      const selWrap = document.getElementById('nag-cliente-select-wrap');
+      const txtWrap = document.getElementById('nag-cliente-text-wrap');
+      // Garantir que está no modo select
+      if (selWrap) selWrap.style.display = '';
+      if (txtWrap) txtWrap.style.display = 'none';
       const sel = document.getElementById('nag-cliente');
-      if (sel) sel.value = dados.cliente_id;
+      if (sel) {
+        sel.value = String(dados.cliente_id);
+        // Se não achou a opção, tentar como número
+        if (!sel.value || sel.value === '0') sel.value = dados.cliente_id;
+      }
+    } else if (dados.cliente_nome) {
+      // Claude retornou nome em vez de ID — usar modo texto livre
+      const selWrap = document.getElementById('nag-cliente-select-wrap');
+      const txtWrap = document.getElementById('nag-cliente-text-wrap');
+      if (selWrap) selWrap.style.display = 'none';
+      if (txtWrap) txtWrap.style.display = '';
+      const inp = document.getElementById('nag-cliente-nome');
+      if (inp) inp.value = dados.cliente_nome;
     }
+
+    // ── SERVIÇO ───────────────────────────────────────
     if (dados.servico_id) {
+      const selWrap = document.getElementById('nag-servico-select-wrap');
+      const txtWrap = document.getElementById('nag-servico-text-wrap');
+      if (selWrap) selWrap.style.display = '';
+      if (txtWrap) txtWrap.style.display = 'none';
       const sel = document.getElementById('nag-servico');
-      if (sel) sel.value = dados.servico_id;
+      if (sel) sel.value = String(dados.servico_id);
+    } else if (dados.servico_nome) {
+      const selWrap = document.getElementById('nag-servico-select-wrap');
+      const txtWrap = document.getElementById('nag-servico-text-wrap');
+      if (selWrap) selWrap.style.display = 'none';
+      if (txtWrap) txtWrap.style.display = '';
+      const inp = document.getElementById('nag-servico-nome');
+      if (inp) inp.value = dados.servico_nome;
+      if (dados.duracao_min) {
+        const dur = document.getElementById('nag-servico-dur');
+        if (dur) dur.value = dados.duracao_min;
+      }
     }
+
+    // ── RESPONSÁVEL ───────────────────────────────────
     if (dados.usuario_id) {
       const sel = document.getElementById('nag-resp');
-      if (sel) sel.value = dados.usuario_id;
+      if (sel) sel.value = String(dados.usuario_id);
     }
+
+    // ── DATA ──────────────────────────────────────────
     if (dados.data) {
       const inp = document.getElementById('nag-data');
       if (inp) inp.value = dados.data;
     }
+
+    // ── HORA ──────────────────────────────────────────
     if (dados.hora) {
       const inp = document.getElementById('nag-hora');
       if (inp) inp.value = dados.hora;
     }
+
+    // ── OBS ───────────────────────────────────────────
     if (dados.obs) {
       const inp = document.getElementById('nag-obs');
       if (inp) inp.value = dados.obs;
     }
 
-    // Banner de confiança
+    // ── BANNER DE CONFIANÇA ───────────────────────────
     const body = document.getElementById('modal-body');
     if (body) {
       const corConf = { alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[dados.confianca] || 'var(--text-3)';
       const banner = document.createElement('div');
       banner.style.cssText = `padding:8px 12px;background:${corConf}18;border:1px solid ${corConf}44;border-radius:7px;margin-bottom:12px;font-size:12px;color:${corConf}`;
-      banner.innerHTML = `🎤 Interpretado: <em>"${textoOriginal}"</em> &nbsp;·&nbsp; Confiança: <strong>${dados.confianca||'—'}</strong> &nbsp;·&nbsp; Revise os campos antes de salvar.`;
+      banner.innerHTML = `🎤 <em>"${textoOriginal}"</em> &nbsp;·&nbsp; Confiança: <strong>${dados.confianca||'—'}</strong> &nbsp;·&nbsp; Revise antes de salvar.`;
       body.prepend(banner);
     }
-  }, 150);
+  }, 400); // 400ms — suficiente para mobile renderizar o modal
 }
 
 document.addEventListener('keydown', e => {
