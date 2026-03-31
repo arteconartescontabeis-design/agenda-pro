@@ -861,8 +861,19 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
   /* Detail panel: largura total */
   .detail-panel { width: 100%; }
 
-  /* Modal: largura total */
-  .modal { width: calc(100vw - 24px) !important; margin: 12px; }
+  /* Modal: bottom sheet no mobile */
+  .modal {
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 92vh !important;
+  }
+  .modal-overlay { align-items: flex-end !important; }
+  .modal-header { padding: 16px 18px 0 !important; margin-bottom: 14px !important; }
+  .modal-body { padding: 0 18px 16px !important; }
+  .modal-footer { padding: 12px 18px !important; }
+  .form-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .form-input, .form-select, .form-textarea { font-size: 16px !important; padding: 10px 12px !important; }
 
   /* Rel tabs: scroll horizontal */
   .rel-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
@@ -1088,6 +1099,10 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
 
     <div class="sidebar-footer">
       <!-- Ações secundárias: Relatórios, Config, Sair -->
+      <button onclick="closeSidebar();setTimeout(iniciarVoz,250)" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-family:var(--font);font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        🎤 Agendar por Voz
+      </button>
       <div style="display:flex;gap:4px;margin-bottom:10px">
         <button class="nav-item" onclick="go('relatorios')" data-page="relatorios" style="flex:1;padding:7px 8px;justify-content:center" title="Relatórios">
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -1123,6 +1138,7 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
           <span id="btn-voz-label">Voz</span>
         </button>
+        <style>@media(max-width:768px){#btn-voz{display:none!important}}</style>
         <div class="topbar-actions" id="topbar-actions"></div>
       </div>
     </header>
@@ -1353,7 +1369,8 @@ function setLoadingMsg(msg) {
 }
 
 async function safeQuery(db, method, table, opts) {
-  try { return await db(method, table, opts); } catch(e) { console.warn(`Falha ao carregar ${table}:`, e.message); return []; }
+  try { return await db(method, table, opts); }
+  catch(e) { console.warn('Falha ao carregar ' + table + ':', e.message); return []; }
 }
 
 async function carregarTodosDados() {
@@ -1496,11 +1513,12 @@ async function tentarRestaurarSessao() {
 
 // Inicialização — aguarda carregamento completo
 window.addEventListener('load', async function() {
-  // Botão de retry após 20s se loading travar (mobile)
+  // Botão retry após 20s se loading travar (comum em mobile com 4G fraco)
   const retryTimer = setTimeout(() => {
-    const btn = document.getElementById('loading-retry-btn');
-    const msg = document.getElementById('loading-msg');
-    if (document.getElementById('loading-screen').style.display !== 'none') {
+    const ls = document.getElementById('loading-screen');
+    if (ls && ls.style.display !== 'none') {
+      const btn = document.getElementById('loading-retry-btn');
+      const msg = document.getElementById('loading-msg');
       if (btn) btn.style.display = 'block';
       if (msg) msg.textContent = 'Conexão lenta. Verifique o Wi-Fi ou dados móveis.';
     }
@@ -4561,12 +4579,9 @@ function iniciarVoz() {
     return;
   }
 
-  const apiKey = localStorage.getItem('claude_api_key');
-  if (!apiKey) {
-    const key = prompt('Informe sua chave da API Claude (Anthropic) para usar o comando de voz.\nEla será salva localmente:');
-    if (!key) return;
-    localStorage.setItem('claude_api_key', key.trim());
-  }
+  const _CLAUDE_KEY = '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';
+  if (!localStorage.getItem('claude_api_key')) localStorage.setItem('claude_api_key', _CLAUDE_KEY);
+  const apiKey = _CLAUDE_KEY;
 
   _vozRec = new SpeechRecognition();
   _vozRec.lang = 'pt-BR';
@@ -4612,8 +4627,7 @@ function iniciarVoz() {
 }
 
 async function interpretarVoz(texto) {
-  const apiKey = localStorage.getItem('claude_api_key');
-  if (!apiKey) return;
+  const apiKey = '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';
 
   const hoje = TODAY.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
   const todayISO = todayStr;
@@ -4623,10 +4637,7 @@ async function interpretarVoz(texto) {
   const servicosCtx = SERVICOS.filter(s=>s.ativo).map(s => `id:${s.id} nome:"${s.nome}" dur:${s.duracao_min}min`).join(' | ');
   const usuariosCtx = USUARIOS.filter(u=>u.ativo).map(u => `id:${u.id} nome:"${u.nome}"`).join(' | ');
 
-  // Calcular amanhã antes do prompt
-  const amanha = new Date(TODAY.getTime() + 86400000).toISOString().slice(0,10);
-
-  const promptFinal = `Você é um assistente de agendamento. Hoje é ${hoje} (${todayISO}).
+  const prompt = `Você é um assistente de agendamento. Hoje é ${hoje} (${todayISO}).
 Interprete o comando de voz e retorne APENAS um JSON com os campos abaixo.
 
 Clientes disponíveis: ${clientesCtx}
@@ -4647,7 +4658,7 @@ Retorne SOMENTE este JSON (sem texto extra, sem markdown):
 }
 
 Regras:
-- "amanhã" = ${amanha}
+- "amanhã" = ${new Date(TODAY.getTime()+86400000).toISOString().slice(0,10)}
 - Use fuzzy match nos nomes (ex: "João" pode ser "João da Silva")
 - Se não encontrar cliente/serviço, retorne null
 - data deve ser YYYY-MM-DD`;
@@ -4667,7 +4678,7 @@ Regras:
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 300,
         system: 'Responda APENAS com JSON válido, sem markdown, sem texto extra.',
-        messages: [{ role: 'user', content: promptFinal }]
+        messages: [{ role: 'user', content: prompt }]
       })
     });
 
