@@ -908,6 +908,59 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
   <button id="loading-retry-btn" onclick="location.reload()" style="display:none;margin-top:8px;padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-2);font-size:13px;cursor:pointer">🔄 Tentar novamente</button>
 </div>
 
+<!-- ═══════════════ ONBOARDING PERMISSÕES ═══════════════ -->
+<div id="perm-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:8000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;box-shadow:var(--shadow-lg);text-align:center">
+
+    <!-- Ícone / logo -->
+    <div style="width:60px;height:60px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <svg viewBox="0 0 24 24" fill="#fff" style="width:32px;height:32px"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+    </div>
+
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px">Configurar permissões</div>
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6">
+      Para usar <strong>voz</strong> e receber <strong>lembretes de agendamentos</strong>, o app precisa de acesso ao microfone e às notificações.<br>
+      <span style="font-size:12px;color:var(--text-3)">Você só verá isso uma vez.</span>
+    </div>
+
+    <!-- Cartão Microfone -->
+    <div id="perm-mic-card" style="border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;text-align:left;transition:border-color .2s">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div id="perm-mic-icon" style="width:44px;height:44px;background:var(--bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">🎤</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">Microfone</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Para agendar por voz com reconhecimento automático</div>
+        </div>
+        <div id="perm-mic-status" style="font-size:12px;font-weight:600;color:var(--text-3);flex-shrink:0">—</div>
+      </div>
+      <button id="btn-perm-mic" onclick="permPedirMicrofone()" style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">
+        ✔ Permitir microfone
+      </button>
+    </div>
+
+    <!-- Cartão Notificações -->
+    <div id="perm-notif-card" style="border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left;transition:border-color .2s">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div id="perm-notif-icon" style="width:44px;height:44px;background:var(--bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">🔔</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">Notificações</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Para receber lembretes antes dos agendamentos</div>
+        </div>
+        <div id="perm-notif-status" style="font-size:12px;font-weight:600;color:var(--text-3);flex-shrink:0">—</div>
+      </div>
+      <button id="btn-perm-notif" onclick="permPedirNotificacao()" style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">
+        ✔ Permitir notificações
+      </button>
+    </div>
+
+    <!-- Botão continuar -->
+    <button onclick="permConcluir()" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:var(--transition)">
+      Continuar para o app →
+    </button>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-3)">Você pode alterar essas permissões depois nas configurações do navegador.</div>
+  </div>
+</div>
+
 <!-- ═══════════════ AUTH SCREEN ═══════════════ -->
 <div id="auth-screen">
   <div class="auth-box">
@@ -923,13 +976,18 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
     <div id="tab-login">
       <div class="field">
         <label>E-mail</label>
-        <input type="email" id="login-email" value="" placeholder="seu@email.com">
+        <input type="email" id="login-email" value="" placeholder="seu@email.com" autocomplete="username">
       </div>
       <div class="field">
         <label>Senha</label>
-        <input type="password" id="login-pass" value="" placeholder="••••••••">
+        <input type="password" id="login-pass" value="" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:-4px">
+        <input type="checkbox" id="login-remember" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <label for="login-remember" style="font-size:13px;color:var(--text-2);cursor:pointer;user-select:none">Salvar usuário e senha</label>
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
+      <p id="login-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none"></p>
     </div>
 
     <!-- REGISTER -->
@@ -1138,6 +1196,9 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
         <span class="page-title" id="page-title">Dashboard</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
+        <button id="btn-notif" onclick="toggleNotificacao()" title="Ativar notificações" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;transition:var(--transition);color:var(--text-3)">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.11 0 2-.89 2-2h-4c0 1.11.89 2 2 2zm6-7.32V11c0-3.08-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.24.06-.47.15-.69.23l6.19 6.2V14.68z"/></svg>
+        </button>
         <button id="btn-voz" onclick="iniciarVoz()" title="Agendar por voz" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-family:var(--font);font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:var(--transition)">
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
           <span id="btn-voz-label">🎤 Voz</span>
@@ -1324,14 +1385,22 @@ function switchAuthTab(tab) {
 }
 
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-pass').value;
-  const btn   = document.querySelector('#tab-login .btn-primary');
+  const email    = document.getElementById('login-email').value.trim();
+  const pass     = document.getElementById('login-pass').value;
+  const remember = document.getElementById('login-remember').checked;
+  const btn      = document.querySelector('#tab-login .btn-primary');
+  const errEl    = document.getElementById('login-err');
+  if (errEl) errEl.style.display = 'none';
+  if (!email || !pass) { toast('Preencha e-mail e senha.', 'error'); return; }
   btn.textContent = 'Entrando...'; btn.disabled = true;
   try {
     const res = await supaSignIn(email, pass);
-    if (res.error) { toast('E-mail ou senha incorretos.', 'error'); return; }
-    // Supabase pode retornar user em res.user ou direto em res
+    if (res.error) {
+      const msg = 'E-mail ou senha incorretos.';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      toast(msg, 'error');
+      return;
+    }
     const authUser = res.user || res;
     if (!authUser || !authUser.id) { toast('Erro na autenticação. Tente novamente.', 'error'); return; }
     APP.authToken = res.access_token;
@@ -1340,6 +1409,16 @@ async function doLogin() {
     // Salvar sessão
     localStorage.setItem('agenda_token', res.access_token);
     localStorage.setItem('agenda_user_email', email);
+    // Salvar ou limpar credenciais conforme checkbox
+    if (remember) {
+      localStorage.setItem('agenda_saved_email', email);
+      localStorage.setItem('agenda_saved_pass', btoa(pass));
+      localStorage.setItem('agenda_remember', '1');
+    } else {
+      localStorage.removeItem('agenda_saved_email');
+      localStorage.removeItem('agenda_saved_pass');
+      localStorage.removeItem('agenda_remember');
+    }
     await carregarDadosUsuario(authUser.id, email);
   } catch(e) {
     toast('Erro ao conectar: ' + e.message, 'error');
@@ -1489,9 +1568,34 @@ function showApp() {
   document.getElementById('sidebar-role').textContent   = { admin:'Administrador', gerente:'Gerente', colaborador:'Colaborador', visualizador:'Visualizador' }[APP.user.perfil] || APP.user.perfil;
   document.getElementById('sidebar-avatar').textContent = APP.user.nome[0].toUpperCase();
   go('dashboard');
-  // Notificações
-  pedirPermissaoNotificacao();
-  setTimeout(lembreteInicializarTodos, 1000);
+  // Permissões: mostrar onboarding na 1ª vez, senão só atualizar botão
+  if (permDeveExibir()) {
+    setTimeout(permExibir, 600);
+  } else {
+    _atualizarBtnNotificacao();
+  }
+  setTimeout(() => {
+    lembreteInicializarTodos();
+    if (!window._lembreteInterval) {
+      window._lembreteInterval = setInterval(() => {
+        lembreteInicializarTodos();
+      }, 60 * 1000);
+    }
+  }, 1000);
+}
+
+function carregarCredenciaisSalvas() {
+  const saved = localStorage.getItem('agenda_remember') === '1';
+  if (saved) {
+    const email = localStorage.getItem('agenda_saved_email') || '';
+    const pass  = localStorage.getItem('agenda_saved_pass')  || '';
+    const emailEl    = document.getElementById('login-email');
+    const passEl     = document.getElementById('login-pass');
+    const rememberEl = document.getElementById('login-remember');
+    if (emailEl)    emailEl.value   = email;
+    if (passEl)     passEl.value    = pass ? atob(pass) : '';
+    if (rememberEl) rememberEl.checked = true;
+  }
 }
 
 // Tentar restaurar sessão salva
@@ -1547,6 +1651,7 @@ window.addEventListener('load', async function() {
     if (!APP.authToken) {
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('auth-screen').classList.add('visible');
+      carregarCredenciaisSalvas();
     } else {
       document.getElementById('loading-screen').style.display = 'none';
     }
@@ -1605,8 +1710,26 @@ function go(page) {
 // ════════════════════════════════════════════════
 // HELPERS — lookup
 // ════════════════════════════════════════════════
-const getCliente = id => CLIENTES.find(c => c.id === id) || { nome: '—' };
-const getServico = id => SERVICOS.find(s => s.id === id) || { nome: '—', cor: '#888', duracao_min: 0 };
+const getCliente = (id, ag) => {
+  if (!id && ag?._cliente_avulso) return { nome: ag._cliente_avulso + ' ⚡', avulso: true };
+  if (!id) {
+    // Tenta extrair nome avulso da observação
+    const obs = ag?.observacao_interna || '';
+    const match = obs.match(/Cliente \(avulso\): ([^\n]+)/);
+    if (match) return { nome: match[1] + ' ⚡', avulso: true };
+  }
+  return CLIENTES.find(c => c.id === id) || { nome: '—' };
+};
+const getServico = (id, ag) => {
+  if (!id && ag?._servico_avulso) return { nome: ag._servico_avulso + ' ⚡', cor: '#888', duracao_min: 0, avulso: true };
+  if (!id) {
+    const obs = ag?.observacao_interna || '';
+    const match = obs.match(/Serviço \(avulso\): ([^\n(]+)/);
+    const durMatch = obs.match(/Serviço \(avulso\): [^(]+\((\d+) min\)/);
+    if (match) return { nome: match[1].trim() + ' ⚡', cor: '#888', duracao_min: durMatch ? parseInt(durMatch[1]) : 0, avulso: true };
+  }
+  return SERVICOS.find(s => s.id === id) || { nome: '—', cor: '#888', duracao_min: 0 };
+};
 const getUsuario = id => USUARIOS.find(u => u.id === id) || { nome: '—' };
 const getAgToday = () => AGENDAMENTOS.filter(a => a.data_inicio.startsWith(todayStr));
 
@@ -2702,22 +2825,53 @@ async function cancelarAg(id) {
 // ════════════════════════════════════════════════
 function openNovoAgendamento() {
   document.getElementById('modal-title').textContent = 'Novo Agendamento';
+  const temClientes = CLIENTES.filter(c=>c.ativo).length > 0;
+  const temServicos = SERVICOS.filter(s=>s.ativo).length > 0;
+
   document.getElementById('modal-body').innerHTML = `
     <div class="form-grid">
+
+      <!-- CLIENTE -->
       <div class="form-field full">
-        <label class="form-label">Cliente</label>
-        <select class="form-select" id="nag-cliente">
-          <option value="">Selecione...</option>
-          ${CLIENTES.filter(c=>c.ativo).map(c=>`<option value="${c.id}">${c.nome}</option>`).join('')}
-        </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label class="form-label" style="margin:0">Cliente</label>
+          <button type="button" onclick="nagToggleCliente()" id="btn-toggle-cliente" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text-2);cursor:pointer;font-family:var(--font)">
+            ${temClientes ? '✏️ Digitar nome' : '➕ Cadastrar depois'}
+          </button>
+        </div>
+        <div id="nag-cliente-select-wrap" style="${temClientes ? '' : 'display:none'}">
+          <select class="form-select" id="nag-cliente">
+            <option value="">Selecione...</option>
+            ${CLIENTES.filter(c=>c.ativo).map(c=>`<option value="${c.id}">${c.nome}</option>`).join('')}
+          </select>
+        </div>
+        <div id="nag-cliente-text-wrap" style="${temClientes ? 'display:none' : ''}">
+          <input type="text" class="form-input" id="nag-cliente-nome" placeholder="Nome do cliente (sem cadastro)">
+        </div>
       </div>
+
+      <!-- SERVIÇO -->
       <div class="form-field full">
-        <label class="form-label">Serviço</label>
-        <select class="form-select" id="nag-servico">
-          <option value="">Selecione...</option>
-          ${SERVICOS.filter(s=>s.ativo).map(s=>`<option value="${s.id}">${s.nome} (${s.duracao_min} min)</option>`).join('')}
-        </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label class="form-label" style="margin:0">Serviço</label>
+          <button type="button" onclick="nagToggleServico()" id="btn-toggle-servico" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text-2);cursor:pointer;font-family:var(--font)">
+            ${temServicos ? '✏️ Digitar nome' : '➕ Cadastrar depois'}
+          </button>
+        </div>
+        <div id="nag-servico-select-wrap" style="${temServicos ? '' : 'display:none'}">
+          <select class="form-select" id="nag-servico">
+            <option value="">Selecione...</option>
+            ${SERVICOS.filter(s=>s.ativo).map(s=>`<option value="${s.id}">${s.nome} (${s.duracao_min} min)</option>`).join('')}
+          </select>
+        </div>
+        <div id="nag-servico-text-wrap" style="${temServicos ? 'display:none' : ''}">
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-input" id="nag-servico-nome" placeholder="Nome do serviço" style="flex:1">
+            <input type="number" class="form-input" id="nag-servico-dur" placeholder="Duração (min)" style="width:130px" min="5" max="480" value="60">
+          </div>
+        </div>
       </div>
+
       <div class="form-field">
         <label class="form-label">Data</label>
         <input type="date" class="form-input" id="nag-data" value="${todayStr}">
@@ -2753,58 +2907,157 @@ function openNovoAgendamento() {
     <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-accent" onclick="salvarNovoAgendamento()">Criar agendamento</button>`;
   openModal();
-  // Init lembretes temp
   window._lembretes = [];
 }
 
+function nagToggleCliente() {
+  const selWrap  = document.getElementById('nag-cliente-select-wrap');
+  const txtWrap  = document.getElementById('nag-cliente-text-wrap');
+  const btn      = document.getElementById('btn-toggle-cliente');
+  const modoTexto = selWrap.style.display === 'none';
+  if (modoTexto) {
+    // voltar para select
+    selWrap.style.display = '';
+    txtWrap.style.display = 'none';
+    btn.textContent = '✏️ Digitar nome';
+  } else {
+    // ir para texto livre
+    selWrap.style.display = 'none';
+    txtWrap.style.display = '';
+    btn.textContent = '📋 Usar cadastrado';
+  }
+}
+
+function nagToggleServico() {
+  const selWrap  = document.getElementById('nag-servico-select-wrap');
+  const txtWrap  = document.getElementById('nag-servico-text-wrap');
+  const btn      = document.getElementById('btn-toggle-servico');
+  const modoTexto = selWrap.style.display === 'none';
+  if (modoTexto) {
+    selWrap.style.display = '';
+    txtWrap.style.display = 'none';
+    btn.textContent = '✏️ Digitar nome';
+  } else {
+    selWrap.style.display = 'none';
+    txtWrap.style.display = '';
+    btn.textContent = '📋 Usar cadastrado';
+  }
+}
+
 async function salvarNovoAgendamento() {
-  const clienteId = parseInt(document.getElementById('nag-cliente').value);
-  const servicoId = parseInt(document.getElementById('nag-servico').value);
-  const data      = document.getElementById('nag-data').value;
-  const hora      = document.getElementById('nag-hora').value;
-  const respId    = parseInt(document.getElementById('nag-resp').value);
-  const obs       = document.getElementById('nag-obs').value;
+  const btnSalvar = document.querySelector('#modal-footer .btn-accent');
+  if (btnSalvar) { btnSalvar.disabled = true; btnSalvar.textContent = 'Salvando...'; }
 
-  if (!clienteId || !servicoId || !data || !hora) {
-    toast('Preencha todos os campos obrigatórios.', 'error');
-    return;
-  }
-  const sv = getServico(servicoId);
-  const inicio = `${data}T${hora}:00`;
-  const fimDate = new Date(inicio);
-  fimDate.setMinutes(fimDate.getMinutes() + sv.duracao_min);
-  const fim = fimDate.toISOString().slice(0,16) + ':00';
-
-  // Verificar conflito simples
-  const conflito = AGENDAMENTOS.find(a =>
-    a.usuario_responsavel_id === respId &&
-    !['cancelado_cliente','cancelado_escritorio'].includes(a.status) &&
-    a.data_inicio < fim && a.data_fim > inicio
-  );
-  if (conflito) {
-    toast('Conflito de horário com outro agendamento!', 'error');
-    return;
-  }
-
-  const lembretes = (window._lembretes || []).slice();
-  const novoAg = {
-    tenant_id: APP.tenantId,
-    cliente_id: clienteId,
-    servico_id: servicoId,
-    usuario_responsavel_id: respId,
-    data_inicio: inicio,
-    data_fim: fim,
-    status: 'confirmado',
-    origem_agendamento: 'interno',
-    observacao_interna: obs,
-    observacao_cliente: '',
-    confirmado_em: new Date().toISOString(),
-    criado_por: APP.user.id,
-    atualizado_por: APP.user.id,
-    lembretes_min: lembretes.length > 0 ? JSON.stringify(lembretes) : null
+  const reativarBtn = () => {
+    if (btnSalvar) { btnSalvar.disabled = false; btnSalvar.textContent = 'Criar agendamento'; }
   };
 
   try {
+    const data   = document.getElementById('nag-data').value;
+    const hora   = document.getElementById('nag-hora').value;
+    const respId = parseInt(document.getElementById('nag-resp').value);
+    const obs    = document.getElementById('nag-obs').value;
+
+    // ── CLIENTE ──────────────────────────────────────────
+    const clienteSelectWrap = document.getElementById('nag-cliente-select-wrap');
+    const modoClienteSelect = clienteSelectWrap && clienteSelectWrap.style.display !== 'none';
+    let clienteId   = null;
+    let clienteNome = null;
+
+    if (modoClienteSelect) {
+      clienteId = parseInt(document.getElementById('nag-cliente')?.value);
+      if (!clienteId) { toast('Selecione um cliente.', 'error'); reativarBtn(); return; }
+    } else {
+      clienteNome = document.getElementById('nag-cliente-nome')?.value.trim();
+      if (!clienteNome) { toast('Informe o nome do cliente.', 'error'); reativarBtn(); return; }
+      // Criar cliente avulso no banco para satisfazer NOT NULL
+      try {
+        const cliCriado = await APP.db('POST', 'agenda_clientes', {
+          body: { tenant_id: APP.tenantId, nome: clienteNome, ativo: true, noshow_count: 0, score: 100, obs_interna: '⚡ Cadastro avulso — criado automaticamente no agendamento' },
+          returning: true
+        });
+        if (cliCriado && cliCriado[0]) {
+          clienteId = cliCriado[0].id;
+          CLIENTES.push(cliCriado[0]);
+        } else {
+          toast('Erro ao registrar cliente avulso.', 'error'); reativarBtn(); return;
+        }
+      } catch(e) {
+        toast('Erro ao criar cliente: ' + e.message, 'error'); reativarBtn(); return;
+      }
+    }
+
+    // ── SERVIÇO ───────────────────────────────────────────
+    const servicoSelectWrap = document.getElementById('nag-servico-select-wrap');
+    const modoServicoSelect = servicoSelectWrap && servicoSelectWrap.style.display !== 'none';
+    let servicoId   = null;
+    let servicoNome = null;
+    let duracaoMin  = 60;
+
+    if (modoServicoSelect) {
+      servicoId = parseInt(document.getElementById('nag-servico')?.value);
+      if (!servicoId) { toast('Selecione um serviço.', 'error'); reativarBtn(); return; }
+      duracaoMin = getServico(servicoId).duracao_min || 60;
+    } else {
+      servicoNome = document.getElementById('nag-servico-nome')?.value.trim();
+      duracaoMin  = parseInt(document.getElementById('nag-servico-dur')?.value) || 60;
+      if (!servicoNome) { toast('Informe o nome do serviço.', 'error'); reativarBtn(); return; }
+      // Criar serviço avulso no banco para satisfazer NOT NULL
+      try {
+        const svCriado = await APP.db('POST', 'agenda_servicos', {
+          body: { tenant_id: APP.tenantId, nome: servicoNome, duracao_min: duracaoMin, valor: 0, antecedencia_min: 0, max_reagendamentos: 0, cor: '#9E9C96', ativo: true },
+          returning: true
+        });
+        if (svCriado && svCriado[0]) {
+          servicoId = svCriado[0].id;
+          SERVICOS.push(svCriado[0]);
+        } else {
+          toast('Erro ao registrar serviço avulso.', 'error'); reativarBtn(); return;
+        }
+      } catch(e) {
+        toast('Erro ao criar serviço: ' + e.message, 'error'); reativarBtn(); return;
+      }
+    }
+
+    if (!data || !hora) { toast('Preencha data e hora.', 'error'); reativarBtn(); return; }
+
+    const inicio  = `${data}T${hora}:00`;
+    const fimDate = new Date(inicio);
+    fimDate.setMinutes(fimDate.getMinutes() + duracaoMin);
+    const fim = fimDate.toISOString().slice(0,16) + ':00';
+
+    // Verificar conflito
+    const conflito = AGENDAMENTOS.find(a =>
+      a.usuario_responsavel_id === respId &&
+      !['cancelado_cliente','cancelado_escritorio'].includes(a.status) &&
+      a.data_inicio < fim && a.data_fim > inicio
+    );
+    if (conflito) { toast('Conflito de horário com outro agendamento!', 'error'); reativarBtn(); return; }
+
+    const lembretes   = (window._lembretes || []).slice();
+    const obsCompleta = [
+      obs,
+      !modoClienteSelect ? `⚡ Cliente avulso: ${clienteNome}` : null,
+      !modoServicoSelect ? `⚡ Serviço avulso: ${servicoNome} (${duracaoMin} min)` : null,
+    ].filter(Boolean).join('\n');
+
+    const novoAg = {
+      tenant_id:              APP.tenantId,
+      cliente_id:             clienteId,
+      servico_id:             servicoId,
+      usuario_responsavel_id: respId,
+      data_inicio:            inicio,
+      data_fim:               fim,
+      status:                 'confirmado',
+      origem_agendamento:     'interno',
+      observacao_interna:     obsCompleta || '',
+      observacao_cliente:     '',
+      confirmado_em:          new Date().toISOString(),
+      criado_por:             APP.user.id,
+      atualizado_por:         APP.user.id,
+      lembretes_min:          lembretes.length > 0 ? JSON.stringify(lembretes) : null
+    };
+
     const criado = await APP.db('POST', 'agenda_agendamentos', { body: novoAg, returning: true });
     if (criado && criado[0]) {
       criado[0].lembretes_min = novoAg.lembretes_min;
@@ -2813,10 +3066,12 @@ async function salvarNovoAgendamento() {
     }
     window._lembretes = [];
     closeModal();
-    toast('Agendamento criado com sucesso!', 'success');
+    toast(`Agendamento criado com sucesso!`, 'success');
     go(APP.page);
+
   } catch(e) {
     toast('Erro ao salvar: ' + e.message, 'error');
+    reativarBtn();
   }
 }
 
@@ -4405,11 +4660,194 @@ function relAbaServicos(wrap, ags) {
 // ════════════════════════════════════════════════
 
 // Pedir permissão de notificação ao logar
+// ════════════════════════════════════════════════
+// ONBOARDING DE PERMISSÕES (aparece 1x após login)
+// ════════════════════════════════════════════════
+function permDeveExibir() {
+  if (localStorage.getItem('agenda_perm_ok') === '1') return false;
+  const micOk   = localStorage.getItem('agenda_perm_mic')   === 'granted';
+  const notifOk = localStorage.getItem('agenda_perm_notif') === 'granted';
+  return !micOk || !notifOk;
+}
+
+function permExibir() {
+  const scr = document.getElementById('perm-screen');
+  if (!scr) return;
+  scr.style.display = 'flex';
+  permAtualizarCards();
+}
+
+function permAtualizarCards() {
+  const micSalvo = localStorage.getItem('agenda_perm_mic');
+  _permSetCard('mic', micSalvo);
+  const notifPerm = ('Notification' in window) ? Notification.permission : 'denied';
+  if (notifPerm === 'granted') localStorage.setItem('agenda_perm_notif', 'granted');
+  const notifSalvo = localStorage.getItem('agenda_perm_notif');
+  _permSetCard('notif', notifSalvo);
+}
+
+function _permSetCard(tipo, estado) {
+  const card   = document.getElementById('perm-' + tipo + '-card');
+  const status = document.getElementById('perm-' + tipo + '-status');
+  const btn    = document.getElementById('btn-perm-' + tipo);
+  const icon   = document.getElementById('perm-' + tipo + '-icon');
+  if (!card) return;
+  if (estado === 'granted') {
+    card.style.borderColor = 'var(--green)'; card.style.background = 'var(--green-lt)';
+    if (status) { status.textContent = '✅ Permitido'; status.style.color = 'var(--green)'; }
+    if (btn)    { btn.textContent = '✔ Permitido'; btn.style.background = 'var(--green)'; btn.disabled = true; }
+    if (icon)   icon.style.background = '#d4f0e3';
+  } else if (estado === 'denied') {
+    card.style.borderColor = 'var(--red)'; card.style.background = 'var(--red-lt)';
+    if (status) { status.textContent = '❌ Bloqueado'; status.style.color = 'var(--red)'; }
+    if (btn)    { btn.textContent = '⚙ Ver instruções'; btn.style.background = 'var(--red)'; btn.disabled = false; }
+    if (icon)   icon.style.background = '#fde8e7';
+  } else {
+    card.style.borderColor = 'var(--border)'; card.style.background = '';
+    if (status) { status.textContent = 'Pendente'; status.style.color = 'var(--text-3)'; }
+    if (btn)    { btn.textContent = tipo === 'mic' ? '✔ Permitir microfone' : '✔ Permitir notificações'; btn.style.background = 'var(--accent)'; btn.disabled = false; }
+    if (icon)   icon.style.background = 'var(--bg)';
+  }
+}
+
+async function permPedirMicrofone() {
+  const btn = document.getElementById('btn-perm-mic');
+  if (btn) { btn.textContent = '⏳ Aguardando...'; btn.disabled = true; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
+    localStorage.setItem('agenda_perm_mic', 'granted');
+    _permSetCard('mic', 'granted');
+  } catch(err) {
+    const estado = (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') ? 'denied' : 'default';
+    if (estado === 'denied') localStorage.setItem('agenda_perm_mic', 'denied');
+    _permSetCard('mic', estado);
+    if (estado === 'denied') {
+      const card = document.getElementById('perm-mic-card');
+      if (card && !card.querySelector('.perm-dica')) {
+        const dica = document.createElement('div');
+        dica.className = 'perm-dica';
+        dica.style.cssText = 'margin-top:10px;font-size:12px;color:var(--red);background:rgba(192,57,43,.08);border-radius:7px;padding:8px 10px;line-height:1.5';
+        dica.innerHTML = '⚙ Vá em <strong>Configurações do Chrome → Configurações do site → Microfone</strong> e permita este site, depois recarregue.';
+        card.appendChild(dica);
+      }
+    }
+  }
+}
+
+async function permPedirNotificacao() {
+  const btn = document.getElementById('btn-perm-notif');
+  if (btn) { btn.textContent = '⏳ Aguardando...'; btn.disabled = true; }
+  if (!('Notification' in window)) { _permSetCard('notif', 'denied'); return; }
+  try {
+    const result = await Notification.requestPermission();
+    localStorage.setItem('agenda_perm_notif', result);
+    _permSetCard('notif', result);
+    if (result === 'granted') {
+      setTimeout(() => new Notification('✅ Agenda Pro', { body: 'Notificações ativadas! Você receberá lembretes.', icon: _notifIcon() }), 500);
+    } else if (result === 'denied') {
+      const card = document.getElementById('perm-notif-card');
+      if (card && !card.querySelector('.perm-dica')) {
+        const dica = document.createElement('div');
+        dica.className = 'perm-dica';
+        dica.style.cssText = 'margin-top:10px;font-size:12px;color:var(--red);background:rgba(192,57,43,.08);border-radius:7px;padding:8px 10px;line-height:1.5';
+        dica.innerHTML = '⚙ Vá em <strong>Configurações do Chrome → Configurações do site → Notificações</strong> e permita este site, depois recarregue.';
+        card.appendChild(dica);
+      }
+    }
+  } catch(e) { _permSetCard('notif', 'default'); }
+}
+
+function permConcluir() {
+  localStorage.setItem('agenda_perm_ok', '1');
+  const scr = document.getElementById('perm-screen');
+  if (scr) scr.style.display = 'none';
+  _atualizarBtnNotificacao();
+  lembreteInicializarTodos();
+}
+
 async function pedirPermissaoNotificacao() {
   if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    await Notification.requestPermission();
+  if (Notification.permission === 'granted') return;
+  if (Notification.permission === 'denied') return;
+  try { await Notification.requestPermission(); } catch(e) {}
+  _atualizarBtnNotificacao();
+}
+
+function _atualizarBtnNotificacao() {
+  const btn = document.getElementById('btn-notif');
+  if (!btn) return;
+  if (!('Notification' in window)) { btn.style.display = 'none'; return; }
+  const p = Notification.permission;
+  if (p === 'granted') {
+    btn.title = 'Notificações ativas';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`;
+  } else {
+    btn.title = 'Ativar notificações de lembretes';
+    btn.style.color = 'var(--text-3)';
+    btn.style.borderColor = 'var(--border)';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.11 0 2-.89 2-2h-4c0 1.11.89 2 2 2zm6-7.32V11c0-3.08-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.24.06-.47.15-.69.23l6.19 6.2V14.68z"/></svg>`;
   }
+}
+
+async function toggleNotificacao() {
+  if (!('Notification' in window)) {
+    toast('Notificações não suportadas neste navegador.', 'error');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    toast('🔔 Notificações já estão ativas!', 'success');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) {
+      document.getElementById('modal-title').textContent = '🔔 Ativar Notificações';
+      document.getElementById('modal-body').innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:14px;padding-bottom:8px">
+          <div style="background:var(--amber-lt);border:1px solid var(--amber);border-radius:10px;padding:12px;font-size:13px;color:var(--amber)">
+            <strong>Notificações bloqueadas.</strong> Siga os passos para liberar.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="min-width:26px;height:26px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">1</div>
+              <div style="font-size:13px">No Chrome: toque em <strong>⋮</strong> → <strong>Configurações</strong> → <strong>Configurações do site</strong> → <strong>Notificações</strong></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="min-width:26px;height:26px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">2</div>
+              <div style="font-size:13px">Encontre <strong>github.io</strong> na lista de bloqueados e mude para <strong>Permitir</strong></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="min-width:26px;height:26px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">3</div>
+              <div style="font-size:13px">Recarregue o app e toque no <strong>🔔</strong> novamente</div>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('modal-footer').innerHTML = `
+        <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+        <button class="btn btn-accent" onclick="closeModal();location.reload()">🔄 Recarregar app</button>`;
+      openModal();
+    } else {
+      toast('❌ Notificações bloqueadas. Clique no 🔒 na barra de endereços → Notificações → Permitir.', 'error');
+    }
+    return;
+  }
+  // permission === 'default' — pedir
+  const result = await Notification.requestPermission();
+  if (result === 'granted') {
+    toast('🔔 Notificações ativadas! Você receberá lembretes dos agendamentos.', 'success');
+    // Testar notificação imediatamente
+    new Notification('✅ Agenda Pro', { body: 'Notificações ativadas com sucesso!', icon: _notifIcon() });
+  } else {
+    toast('Permissão de notificação negada.', 'error');
+  }
+  _atualizarBtnNotificacao();
+}
+
+function _notifIcon() {
+  return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%232B5CE6"/><text x="16" y="22" text-anchor="middle" font-size="18" fill="white">📅</text></svg>';
 }
 
 // Renderizar chips dos lembretes de um agendamento
@@ -4530,23 +4968,26 @@ function lembreteRegistrar(ag) {
 
 // Disparar notificação + toast
 function dispararLembrete(ag, minAntes) {
-  const cl = getCliente(ag.cliente_id);
-  const sv = getServico(ag.servico_id);
+  const cl = getCliente(ag.cliente_id, ag);
+  const sv = getServico(ag.servico_id, ag);
   const titulo = `🔔 Agendamento em ${minAntes} min`;
   const corpo  = `${cl.nome} — ${sv.nome} às ${fmtTime(ag.data_inicio)}`;
 
-  // Toast na tela
+  // Toast na tela (sempre)
   toast(`${titulo}: ${corpo}`, 'success');
 
   // Notificação nativa do navegador
   if ('Notification' in window && Notification.permission === 'granted') {
-    const n = new Notification(titulo, {
-      body: corpo,
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%232B5CE6"/><text x="16" y="22" text-anchor="middle" font-size="18" fill="white">📅</text></svg>',
-      tag: `ag-${ag.id}-${minAntes}`,
-      requireInteraction: minAntes <= 10,
-    });
-    n.onclick = () => { window.focus(); openDetail(ag.id); n.close(); };
+    try {
+      const n = new Notification(titulo, {
+        body: corpo,
+        icon: _notifIcon(),
+        tag: `ag-${ag.id}-${minAntes}`,
+        requireInteraction: minAntes <= 10,
+        vibrate: [200, 100, 200],
+      });
+      n.onclick = () => { window.focus(); openDetail(ag.id); n.close(); };
+    } catch(e) { console.warn('Notification error:', e); }
   }
 }
 
@@ -4592,19 +5033,50 @@ async function iniciarVoz() {
     return;
   }
 
-  // Verificar permissão de microfone antes de iniciar
-  try {
-    if (navigator.permissions) {
-      const perm = await navigator.permissions.query({ name: 'microphone' });
-      if (perm.state === 'denied') {
-        toast('❌ Permissão de microfone bloqueada. Clique no 🔒 da barra de endereços para liberar.', 'error');
-        return;
-      }
-    }
-  } catch(e) { /* permissions API não disponível em todos browsers */ }
-
   const btn = document.getElementById('btn-voz');
   const lbl = document.getElementById('btn-voz-label');
+  if (btn) { btn.disabled = true; }
+  if (lbl) lbl.textContent = '⏳ Aguarde...';
+
+  // Verificar permissão de microfone — só chama getUserMedia se ainda não foi concedida
+  const micJaConcedido = localStorage.getItem('agenda_perm_mic') === 'granted';
+  let micPermState = 'prompt';
+  try {
+    if (navigator.permissions) {
+      const p = await navigator.permissions.query({ name: 'microphone' });
+      micPermState = p.state; // 'granted' | 'denied' | 'prompt'
+    }
+  } catch(e) {}
+
+  if (micPermState === 'denied') {
+    _vozResetBtn();
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) { _vozMostrarInstrucoesMobile(); }
+    else { toast('❌ Microfone bloqueado. Clique no 🔒 na barra de endereços → Microfone → Permitir.', 'error'); }
+    return;
+  }
+
+  // Só chama getUserMedia se permissão ainda não foi concedida nesta sessão
+  if (micPermState !== 'granted' && !micJaConcedido) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+      localStorage.setItem('agenda_perm_mic', 'granted');
+    } catch(err) {
+      _vozResetBtn();
+      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        localStorage.setItem('agenda_perm_mic', 'denied');
+        if (isMobile) { _vozMostrarInstrucoesMobile(); }
+        else { toast('❌ Microfone bloqueado. Clique no 🔒 na barra de endereços → Microfone → Permitir.', 'error'); }
+      } else if (err.name === 'NotFoundError') {
+        toast('❌ Nenhum microfone encontrado neste dispositivo.', 'error');
+      } else {
+        toast('❌ Erro ao acessar microfone: ' + err.message, 'error');
+      }
+      return;
+    }
+  }
 
   // Destruir instância anterior se existir
   if (_vozRec) {
@@ -4620,9 +5092,9 @@ async function iniciarVoz() {
 
   _vozRec.onstart = () => {
     _vozAtivo = true;
-    if (btn) { btn.style.background = 'var(--red-lt)'; btn.style.borderColor = 'var(--red)'; btn.style.color = 'var(--red)'; }
+    if (btn) { btn.style.background = 'var(--red-lt)'; btn.style.borderColor = 'var(--red)'; btn.style.color = 'var(--red)'; btn.disabled = false; }
     if (lbl) lbl.textContent = '🔴 Ouvindo...';
-    toast('🎤 Fale agora: "Agendar [cliente] [serviço] [data] às [hora]"');
+    toast('🎤 Fale: "Agendar [cliente] [serviço] [data] às [hora]"');
   };
 
   _vozRec.onend = () => { _vozResetBtn(); };
@@ -4630,16 +5102,16 @@ async function iniciarVoz() {
   _vozRec.onerror = (e) => {
     _vozResetBtn();
     const msgs = {
-      'not-allowed':  '❌ Permissão de microfone negada. Libere nas configurações do navegador.',
+      'not-allowed':  null, // já tratado no getUserMedia
       'no-speech':    '⚠️ Nenhuma fala detectada. Tente novamente.',
-      'audio-capture':'❌ Microfone não encontrado ou em uso por outro app.',
-      'network':      '❌ Erro de rede no reconhecimento de voz. Verifique a conexão.',
-      'aborted':      null, // ignorar — usuário cancelou
-      'service-not-allowed': '❌ Serviço de voz não permitido. Use HTTPS ou Chrome.',
+      'audio-capture':'❌ Microfone em uso por outro aplicativo.',
+      'network':      '❌ Erro de rede no reconhecimento de voz.',
+      'aborted':      null,
+      'service-not-allowed': '❌ Serviço de voz indisponível. Verifique se está em HTTPS.',
     };
     const msg = msgs[e.error];
     if (msg) toast(msg, 'error');
-    else if (!msgs.hasOwnProperty(e.error)) toast('Erro no microfone: ' + e.error, 'error');
+    else if (!msgs.hasOwnProperty(e.error)) toast('Erro: ' + e.error, 'error');
   };
 
   _vozRec.onresult = async (event) => {
@@ -4652,8 +5124,58 @@ async function iniciarVoz() {
     _vozRec.start();
   } catch(e) {
     _vozResetBtn();
-    toast('Não foi possível iniciar o microfone: ' + e.message, 'error');
+    toast('Não foi possível iniciar: ' + e.message, 'error');
   }
+}
+
+function _vozMostrarInstrucoesMobile() {
+  // Modal com instruções visuais para liberar microfone no Android/iOS
+  document.getElementById('modal-title').textContent = '🎤 Liberar Microfone';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:16px;padding-bottom:8px">
+      <div style="background:var(--amber-lt);border:1px solid var(--amber);border-radius:10px;padding:14px;font-size:13px;color:var(--amber)">
+        <strong>Permissão de microfone bloqueada.</strong><br>Siga os passos abaixo para liberar.
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">1</div>
+          <div>
+            <div style="font-weight:600;font-size:13px">Abra as Configurações do Chrome</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Toque nos <strong>⋮ três pontos</strong> no canto superior direito do Chrome → <strong>Configurações</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">2</div>
+          <div>
+            <div style="font-weight:600;font-size:13px">Acesse Configurações do site</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Role até <strong>Avançado</strong> → <strong>Configurações do site</strong> → <strong>Microfone</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">3</div>
+          <div>
+            <div style="font-weight:600;font-size:13px">Localize este site e permita</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Encontre <strong>github.io</strong> na lista de bloqueados e mude para <strong>Permitir</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="min-width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">4</div>
+          <div>
+            <div style="font-weight:600;font-size:13px">Recarregue o app e tente novamente</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Após liberar, volte ao app e toque em <strong>🎤 Voz</strong> novamente.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text-3)">
+        💡 <strong>iOS (Safari):</strong> Vá em <strong>Ajustes → Safari → Microfone</strong> e permita para este site.
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+    <button class="btn btn-accent" onclick="closeModal();location.reload()">🔄 Recarregar app</button>`;
+  openModal();
 }
 
 async function interpretarVoz(texto) {
