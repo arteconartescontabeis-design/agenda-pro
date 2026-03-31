@@ -2864,8 +2864,14 @@ function openNovoAgendamento(prefill) {
     `<option value="${u.id}" ${String(u.id) === String(pf.usuario_id) ? 'selected' : ''}>${u.nome}</option>`
   ).join('');
 
+  // Calcular cor do banner fora do template — evita nested objects em template literals (bug mobile)
+  const _bannerCor = { alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[pf.confianca] || 'var(--accent)';
+  const _bannerHtml = pf.textoOriginal
+    ? `<div style="padding:8px 12px;background:${_bannerCor}18;border:1px solid ${_bannerCor}44;border-radius:7px;margin-bottom:14px;font-size:12px;color:${_bannerCor}">🎤 <em>"${pf.textoOriginal}"</em> &nbsp;·&nbsp; Confiança: <strong>${pf.confianca||'—'}</strong> &nbsp;·&nbsp; Revise antes de salvar.</div>`
+    : '';
+
   document.getElementById('modal-body').innerHTML = `
-    ${pf.textoOriginal ? `<div style="padding:8px 12px;background:${{ alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[pf.confianca]||'var(--accent)'}18;border:1px solid ${{ alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[pf.confianca]||'var(--accent)'}44;border-radius:7px;margin-bottom:14px;font-size:12px;color:${{ alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[pf.confianca]||'var(--accent)'}">🎤 <em>"${pf.textoOriginal}"</em> &nbsp;·&nbsp; Confiança: <strong>${pf.confianca||'—'}</strong> &nbsp;·&nbsp; Revise antes de salvar.</div>` : ''}
+    ${_bannerHtml}
     <div class="form-grid">
 
       <!-- CLIENTE -->
@@ -5358,6 +5364,11 @@ Regras:
     const data = await res.json();
     const txt = data.content?.[0]?.text || '{}';
     const clean = txt.replace(/```json|```/g,'').trim();
+
+    // Log visual para debug — mostra o JSON retornado pela IA
+    console.log('[Voz] IA retornou:', clean);
+    toast('🔍 IA: ' + clean.slice(0, 120), 'success');
+
     const parsed = JSON.parse(clean);
 
     btn.style.background = '';
