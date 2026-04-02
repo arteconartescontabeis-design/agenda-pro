@@ -918,14 +918,14 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
       <svg viewBox="0 0 24 24" fill="#fff" style="width:32px;height:32px"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
     </div>
 
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px">Configurar permissões</div>
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px">Permitir microfone</div>
     <div style="font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6">
-      Para usar <strong>voz</strong> e receber <strong>lembretes de agendamentos</strong>, o app precisa de acesso ao microfone e às notificações.<br>
-      <span style="font-size:12px;color:var(--text-3)">Você só verá isso uma vez.</span>
+      Para usar o <strong>agendamento por voz</strong>, o app precisa de acesso ao microfone.<br>
+      <span style="font-size:12px;color:var(--text-3)">Os lembretes aparecem como alertas visuais na tela.</span>
     </div>
 
     <!-- Cartão Microfone -->
-    <div id="perm-mic-card" style="border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;text-align:left;transition:border-color .2s">
+    <div id="perm-mic-card" style="border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left;transition:border-color .2s">
       <div style="display:flex;align-items:center;gap:14px">
         <div id="perm-mic-icon" style="width:44px;height:44px;background:var(--bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">🎤</div>
         <div style="flex:1;min-width:0">
@@ -939,26 +939,21 @@ tbody td { padding: 12px 14px; font-size: 13.5px; }
       </button>
     </div>
 
-    <!-- Cartão Notificações -->
-    <div id="perm-notif-card" style="border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left;transition:border-color .2s">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div id="perm-notif-icon" style="width:44px;height:44px;background:var(--bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">🔔</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:14px">Notificações</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Para receber lembretes antes dos agendamentos</div>
-        </div>
-        <div id="perm-notif-status" style="font-size:12px;font-weight:600;color:var(--text-3);flex-shrink:0">—</div>
-      </div>
-      <button id="btn-perm-notif" onclick="permPedirNotificacao()" style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">
-        ✔ Permitir notificações
-      </button>
+    <!-- Cartão Notificações (oculto, mantido para compatibilidade) -->
+    <div id="perm-notif-card" style="display:none">
+      <div id="perm-notif-icon"></div>
+      <div id="perm-notif-status"></div>
+      <button id="btn-perm-notif" onclick="permPedirNotificacao()"></button>
     </div>
 
     <!-- Botão continuar -->
     <button onclick="permConcluir()" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:var(--transition)">
       Continuar para o app →
     </button>
-    <div style="margin-top:12px;font-size:11px;color:var(--text-3)">Você pode alterar essas permissões depois nas configurações do navegador.</div>
+    <button onclick="permConcluir()" style="margin-top:10px;width:100%;padding:10px;background:transparent;color:var(--text-3);border:none;font-family:var(--font);font-size:13px;cursor:pointer">
+      Pular — usar sem voz
+    </button>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-3)">Os alertas de agendamento aparecem como pop-up visual na tela, sem necessidade de notificação do navegador.</div>
   </div>
 </div>
 
@@ -3082,39 +3077,62 @@ function openNovoAgendamento(prefill) {
   window._lembretes = [];
 
   // Forçar valores via JS após render (Android Chrome ignora value= em inputs date/time)
-  if (pf && (pf.data || pf.hora || pf.cliente_id || pf.servico_id || pf.usuario_id)) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (pf.data) {
-          const el = document.getElementById('nag-data');
-          if (el) { el.value = ''; el.value = pf.data; }
+  // Usa setTimeout escalonado para garantir que o DOM esteja pronto
+  if (pf && (pf.data || pf.hora || pf.cliente_id || pf.servico_id || pf.usuario_id || pf.cliente_nome || pf.servico_nome)) {
+    const _aplicarPrefill = () => {
+      if (pf.data) {
+        const el = document.getElementById('nag-data');
+        if (el) {
+          el.setAttribute('value', pf.data);
+          el.value = pf.data;
+          el.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        if (pf.hora) {
-          const el = document.getElementById('nag-hora');
-          if (el) { el.value = ''; el.value = pf.hora; }
+      }
+      if (pf.hora) {
+        const el = document.getElementById('nag-hora');
+        if (el) {
+          el.setAttribute('value', pf.hora);
+          el.value = pf.hora;
+          el.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        if (pf.cliente_id) {
-          const el = document.getElementById('nag-cliente');
-          if (el) { el.value = String(pf.cliente_id); }
-        }
-        if (pf.servico_id) {
-          const el = document.getElementById('nag-servico');
-          if (el) { el.value = String(pf.servico_id); }
-        }
-        if (pf.usuario_id) {
-          const el = document.getElementById('nag-resp');
-          if (el) { el.value = String(pf.usuario_id); }
-        }
-        if (pf.cliente_nome) {
-          const el = document.getElementById('nag-cliente-nome');
-          if (el) { el.value = pf.cliente_nome; }
-        }
-        if (pf.servico_nome) {
-          const el = document.getElementById('nag-servico-nome');
-          if (el) { el.value = pf.servico_nome; }
-        }
-      });
-    });
+      }
+      if (pf.cliente_id) {
+        const el = document.getElementById('nag-cliente');
+        if (el) el.value = String(pf.cliente_id);
+      }
+      if (pf.servico_id) {
+        const el = document.getElementById('nag-servico');
+        if (el) el.value = String(pf.servico_id);
+      }
+      if (pf.usuario_id) {
+        const el = document.getElementById('nag-resp');
+        if (el) el.value = String(pf.usuario_id);
+      }
+      if (pf.cliente_nome) {
+        const el = document.getElementById('nag-cliente-nome');
+        if (el) el.value = pf.cliente_nome;
+      }
+      if (pf.servico_nome) {
+        const el = document.getElementById('nag-servico-nome');
+        if (el) el.value = pf.servico_nome;
+      }
+    };
+    // Aplicar em 3 momentos distintos para garantir no Android
+    requestAnimationFrame(() => { _aplicarPrefill(); });
+    setTimeout(_aplicarPrefill, 80);
+    setTimeout(_aplicarPrefill, 250);
+  }
+
+  // Auto-salvar se voz com confiança alta
+  if (pf && pf.confianca === 'alta' && pf.textoOriginal && pf.data && pf.hora) {
+    setTimeout(() => {
+      // Garantir que prefill foi aplicado antes de salvar
+      const _runAutoSalvar = () => {
+        toast('🎤 Confiança alta — salvando automaticamente...', 'success');
+        salvarNovoAgendamento();
+      };
+      setTimeout(_runAutoSalvar, 350);
+    }, 0);
   }
 }
 
@@ -4916,9 +4934,8 @@ function relAbaServicos(wrap, ags) {
 // ════════════════════════════════════════════════
 function permDeveExibir() {
   if (localStorage.getItem('agenda_perm_ok') === '1') return false;
-  const micOk   = localStorage.getItem('agenda_perm_mic')   === 'granted';
-  const notifOk = localStorage.getItem('agenda_perm_notif') === 'granted';
-  return !micOk || !notifOk;
+  const micOk = localStorage.getItem('agenda_perm_mic') === 'granted';
+  return !micOk; // só exibe se microfone ainda não concedido
 }
 
 function permExibir() {
@@ -5587,7 +5604,10 @@ Regras:
 - Use fuzzy match nos nomes (ex: "João" pode ser "João da Silva")
 - Se encontrar o cliente/serviço na lista, use o id. Se não encontrar, coloque null no id e o nome dito em cliente_nome/servico_nome
 - data deve ser YYYY-MM-DD
-- hora deve ser HH:MM (24h)`;
+- hora deve ser HH:MM (24h) — "19:35" deve ser retornado como "19:35", não como "09:00"
+- confianca = "alta" APENAS quando data E hora forem mencionados explicitamente e extraídos com certeza
+- confianca = "media" quando data ou hora foram inferidos/aproximados
+- confianca = "baixa" quando falta informação importante`;
 
   const btn = document.getElementById('btn-voz');
   const lbl = document.getElementById('btn-voz-label');
