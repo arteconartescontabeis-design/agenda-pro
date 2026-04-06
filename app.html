@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agenda Pro">
+<meta name="theme-color" content="#6366f1">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0"><title>Agenda Pro v5</title>
@@ -477,12 +484,14 @@ function go(page) {
 const getCliente = (id, ag) => {
   if (!id && ag?._cliente_avulso) return { nome: ag._cliente_avulso + ' ⚡', avulso: true };
   if (!id) {
-    // Tenta extrair nome avulso da observação
     const obs = ag?.observacao_interna || '';
     const match = obs.match(/Cliente \(avulso\): ([^\n]+)/);
     if (match) return { nome: match[1] + ' ⚡', avulso: true }
+    return { nome: '—' }
   }
-  return CLIENTES.find(c => c.id === id) || { nome: '—' }
+  const found = CLIENTES.find(c => c.id === id);
+  if (found && found.nome === '— Sem cliente —') return { nome: '—' };
+  return found || { nome: '—' }
 };
 const getServico = (id, ag) => {
   if (!id && ag?._servico_avulso) return { nome: ag._servico_avulso + ' ⚡', cor: '#888', duracao_min: 0, avulso: true };
@@ -491,8 +500,11 @@ const getServico = (id, ag) => {
     const match = obs.match(/Serviço \(avulso\): ([^\n(]+)/);
     const durMatch = obs.match(/Serviço \(avulso\): [^(]+\((\d+) min\)/);
     if (match) return { nome: match[1].trim() + ' ⚡', cor: '#888', duracao_min: durMatch ? parseInt(durMatch[1]) : 0, avulso: true }
+    return { nome: '—', cor: '#C8C5BC', duracao_min: 0 }
   }
-  return SERVICOS.find(s => s.id === id) || { nome: '—', cor: '#888', duracao_min: 0 }
+  const found = SERVICOS.find(s => s.id === id);
+  if (found && found.nome === '— Sem serviço —') return { nome: '—', cor: '#C8C5BC', duracao_min: 60 };
+  return found || { nome: '—', cor: '#888', duracao_min: 0 }
 };
 const getUsuario = id => USUARIOS.find(u => u.id === id) || { nome: '—' };
 const getAgToday = () => AGENDAMENTOS.filter(a => a.data_inicio.startsWith(todayStr));
@@ -1313,8 +1325,10 @@ function openDetail(agId) {
   const sv = getServico(a.servico_id);
   const us = getUsuario(a.usuario_responsavel_id);
   $id('detail-title').textContent = 'Agendamento #' + a.id;
-  $id('detail-body').innerHTML = `<div style="padding:12px;background:${sv.cor}15;border-radius:8px;border-left:3px solid ${sv.cor};margin-bottom:20px">
-<div style="font-size:15px;font-weight:600">${sv.nome}</div>
+  const svCor = (sv.cor && sv.cor !== '#C8C5BC') ? sv.cor : 'var(--border-strong)';
+  const svNome = sv.nome !== '—' ? sv.nome : 'Sem serviço';
+  $id('detail-body').innerHTML = `<div style="padding:12px;background:${svCor}18;border-radius:8px;border-left:3px solid ${svCor};margin-bottom:20px">
+<div style="font-size:15px;font-weight:600">${svNome}</div>
 <div style="font-size:13px;color:var(--text-2)">${fmtDateTime(a.data_inicio)} → ${fmtTime(a.data_fim)}</div>
 </div>
 <div class="detail-row">
@@ -1323,7 +1337,7 @@ function openDetail(agId) {
 </div>
 <div class="detail-row">
 <div class="detail-label">Cliente</div>
-<div class="detail-value"><strong>${cl.nome}</strong><br><span class="text-muted">${cl.email} · ${cl.telefone}</span></div>
+<div class="detail-value"><strong>${cl.nome}</strong>${(cl.email||cl.telefone) ? `<br><span class="text-muted">${[cl.email,cl.telefone].filter(Boolean).join(' · ')}</span>` : ''}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Responsável</div>
@@ -1355,23 +1369,21 @@ ${a.motivo_cancelamento ?`<div class="detail-row">
 <div id="detail-lembretes-lista">${lembreteRenderChips(a)}</div>`;
   const footer = $id('detail-footer');
   footer.innerHTML = '';
+  const finalizado = ['concluido','cancelado_cliente','cancelado_escritorio','nao_compareceu'].includes(a.status);
   if (['solicitado','pendente_confirmacao'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="confirmarAg(${a.id})">✓ Confirmar</button>`
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="confirmarAg(${a.id})">✓ Confirmar</button>`;
+  }
+  if (!finalizado) {
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="concluirAg(${a.id})">✓ Concluído</button>`;
   }
   if (a.status === 'confirmado') {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="concluirAg(${a.id})">✓ Concluído</button>`;
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple)" onclick="noShowAg(${a.id})">Não compareceu</button>`
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple)" onclick="noShowAg(${a.id})">Não compareceu</button>`;
   }
-  // Botão Concluído também para solicitado/pendente
-  if (['solicitado','pendente_confirmacao'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="concluirAg(${a.id})">✓ Concluído</button>`
-  }
-  // Reagendar — disponível para qualquer status não-finalizado
   if (!['cancelado_cliente','cancelado_escritorio'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="reagendarAg(${a.id})">📅 Reagendar</button>`
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="reagendarAg(${a.id})">📅 Reagendar</button>`;
   }
-  if (!['concluido','cancelado_cliente','cancelado_escritorio','nao_compareceu'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-danger btn-sm" onclick="cancelarAg(${a.id})">Cancelar</button>`
+  if (!finalizado) {
+    footer.innerHTML += `<button class="btn btn-danger btn-sm" onclick="cancelarAg(${a.id})">Cancelar</button>`;
   }
   $id('detail-panel').classList.add('open')
 }
@@ -3971,6 +3983,16 @@ async function checkSuperadminMode() {
     $id('sa-dashboard').style.display = 'none'
   }
   return true
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/agenda-pro/service-worker.js')
+      .then(reg => console.log('SW registrado:', reg.scope))
+      .catch(err => console.warn('SW erro:', err));
+  });
 }
 </script>
 </body>
