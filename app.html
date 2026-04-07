@@ -2709,6 +2709,17 @@ async function removerBloqueio(id) {
 // PAGE: DASHBOARD — melhorado com gráfico de barras
 // (já existia; apenas adicionamos mini-chart de serviços)
 // PAGE: CONFIGURAÇÕES
+
+function salvarChaveClaudeLocal() {
+  const val = ($id('cfg-claude-api-key') || {}).value || '';
+  if (!val.startsWith('sk-ant-')) { toast('Chave inválida. Deve começar com sk-ant-', 'error'); return; }
+  localStorage.setItem('agenda_api_key', val);
+  // Atualizar CONFIG em memória
+  let cfg = CONFIG.find(x => x.chave === 'claude_api_key');
+  if (cfg) { cfg.valor = val; } else { CONFIG.push({ chave: 'claude_api_key', valor: val, categoria: 'integracao' }); }
+  toast('✅ Chave API salva! Agendamento por voz ativado.', 'success');
+}
+
 function renderConfiguracoes() {
   $id('topbar-actions').innerHTML = '';
   const categorias = ['operacional','notificacao','integracao','aparencia'];
@@ -2728,6 +2739,12 @@ ${cfgs.map(c =>`
           ${renderConfigInput(c)}
         </div>`).join('')}
 <button class="btn btn-accent btn-sm" style="width:100%;margin-top:4px" onclick="salvarConfig('${cat}')">Salvar ${catLabel[cat]}</button>
+${cat==='integracao'?`<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+<label class="form-label" style="margin-bottom:6px;display:block">🤖 Chave API Claude (agendamento por voz)</label>
+<input type="password" class="form-input" id="cfg-claude-api-key" placeholder="sk-ant-..." value="${localStorage.getItem('agenda_api_key')||''}" style="font-family:var(--mono);font-size:13px;margin-bottom:6px">
+<div style="font-size:11px;color:var(--text-3);margin-bottom:8px">Obtenha em console.anthropic.com — salva somente neste dispositivo.</div>
+<button onclick="salvarChaveClaudeLocal()" class="btn btn-outline btn-sm" style="width:100%">💾 Salvar chave</button>
+</div>`:''}
 </div>`
   });
   html += `</div>
@@ -3635,14 +3652,17 @@ Ver agendamento
 }
 // Notificação imediata ao criar agendamento
 function notifAgendamentoCriado(ag) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const cl = getCliente(ag.cliente_id, ag);
   const sv = getServico(ag.servico_id, ag);
   const dataFmt = ag.data_inicio ? new Date(ag.data_inicio).toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }) : '';
   const horaFmt = ag.data_inicio ? fmtTime(ag.data_inicio) : '';
+  // Alerta visual — funciona sempre, independente de permissão
+  _mostrarAlertaLembrete(ag, '✅ Agendamento criado', cl.nome + ' · ' + sv.nome + '\n📅 ' + dataFmt + ' às ' + horaFmt);
+  // Notificação nativa — só se tiver permissão
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
     const n = new Notification('✅ Agendamento confirmado', {
-      body: `${cl.nome} · ${sv.nome}\n📅 ${dataFmt} às ${horaFmt}`,
+      body: cl.nome + ' · ' + sv.nome + '\n📅 ' + dataFmt + ' às ' + horaFmt,
       icon: _notifIcon(),
       tag: 'ag-criado-' + Date.now(),
     });
@@ -3799,6 +3819,75 @@ function _vozMostrarAbrirChrome() {
 }
 function _vozMostrarInstrucoesMobile() {
   toast('Microfone bloqueado. Vá em Configurações do Chrome → Permissões do site → Microfone → Permitir para este site.', 'error')
+}
+
+async function interpretarVoz(texto) {
+  // Busca chave API salva (campo nas configurações de Integração)
+  const apiKey = (CONFIG.find(x => x.chave === 'claude_api_key') || {}).valor
+               || localStorage.getItem('agenda_api_key') || '';
+  if (!apiKey) {
+    toast('⚠️ Configure a chave API do Claude em Configurações → Integração para usar agendamento por voz.', 'error');
+    // Mesmo sem API, abrir modal com data de hoje para o usuário preencher manualmente
+    vozPreencherModal({ confianca: 'baixa' }, texto);
+    return;
+  }
+  toast('🤖 Interpretando...', 'success');
+  // Montar lista de clientes e colaboradores para o Claude identificar
+  const listaClientes   = CLIENTES.map(c => `${c.id}|${c.nome}`).join(', ') || 'nenhum';
+  const listaServicos   = SERVICOS.map(s => `${s.id}|${s.nome}`).join(', ') || 'nenhum';
+  const listaUsuarios   = USUARIOS.map(u => `${u.id}|${u.nome}`).join(', ') || 'nenhum';
+  const hoje = new Date().toISOString().slice(0, 10);
+  const prompt = `Você é um assistente de agendamento para escritório de contabilidade.
+Hoje é ${hoje}. Extraia as informações do texto de voz abaixo e retorne SOMENTE um JSON válido, sem explicações.
+
+Clientes cadastrados: ${listaClientes}
+Serviços cadastrados: ${listaServicos}
+Colaboradores: ${listaUsuarios}
+
+Regras:
+- "data": formato YYYY-MM-DD. "hoje"=hoje, "amanhã"=amanhã, "segunda"=próxima segunda, etc.
+- "hora": formato HH:MM (24h). "de tarde" implica +12h se < 12.
+- "cliente_id": ID numérico se encontrar nome parecido na lista, senão null.
+- "cliente_nome": nome exato como falado, sempre preencher.
+- "servico_id": ID numérico se encontrar na lista, senão null.
+- "servico_nome": nome do serviço como falado.
+- "usuario_id": ID do colaborador se mencionado, senão null.
+- "confianca": "alta" se data E hora foram explicitamente mencionadas, "media" se só data, "baixa" se nenhuma.
+
+Texto de voz: "${texto}"
+
+Responda APENAS com o JSON, exemplo:
+{"data":"2025-04-07","hora":"14:00","cliente_id":3,"cliente_nome":"João Silva","servico_id":2,"servico_nome":"Declaração IR","usuario_id":null,"obs":null,"confianca":"alta"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    const data = await res.json();
+    const raw  = (data.content || []).map(b => b.text || '').join('').trim();
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const dados = JSON.parse(clean);
+    vozPreencherModal(dados, texto);
+  } catch(e) {
+    toast('Erro ao interpretar voz: ' + e.message, 'error');
+    // Abrir modal mesmo assim para preenchimento manual
+    vozPreencherModal({ confianca: 'baixa' }, texto);
+  }
 }
 function vozPreencherModal(dados, textoOriginal) {
   // Passar tudo direto para openNovoAgendamento — sem setTimeout, sem timing issues
