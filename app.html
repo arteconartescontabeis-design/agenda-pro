@@ -405,6 +405,7 @@ async function tentarRestaurarSessao() {
 }
 // Inicialização — aguarda carregamento completo
 window.addEventListener('load', async function() {
+  _tratarHashNotificacao();
   // Botão retry após 20s se loading travar (comum em mobile com 4G fraco)
   const retryTimer = setTimeout(() => {
     const ls = $id('loading-screen');
@@ -1385,6 +1386,11 @@ ${a.motivo_cancelamento ?`<div class="detail-row">
   if (!finalizado) {
     footer.innerHTML += `<button class="btn btn-danger btn-sm" onclick="cancelarAg(${a.id})">Cancelar</button>`;
   }
+  // Botão excluir — admin OU responsável pelo agendamento
+  const podeExcluir = APP.user && (APP.user.perfil === 'admin' || a.usuario_responsavel_id === APP.user.id);
+  if (podeExcluir) {
+    footer.innerHTML += `<button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="excluirAg(${a.id})">🗑️ Excluir</button>`;
+  }
   $id('detail-panel').classList.add('open')
 }
 function closeDetail() {
@@ -1445,6 +1451,31 @@ async function cancelarAg(id) {
   })) {
     toast('Agendamento cancelado.', 'error');
     closeDetail(); go(APP.page)
+  }
+}
+async function _alertaConcluir(id) {
+  if (await atualizarStatusAg(id, 'concluido')) {
+    toast('Agendamento concluído!', 'success');
+    go(APP.page);
+  }
+}
+async function excluirAg(id) {
+  const a = AGENDAMENTOS.find(x => x.id === id);
+  if (!a) return;
+  const cl = getCliente(a.cliente_id);
+  const confirmou = confirm('Excluir definitivamente o agendamento de ' + cl.nome + '?\nEsta ação não pode ser desfeita.');
+  if (!confirmou) return;
+  try {
+    await APP.db('DELETE', 'agenda_agendamentos', {
+      params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }
+    });
+    const idx = AGENDAMENTOS.findIndex(x => x.id === id);
+    if (idx !== -1) AGENDAMENTOS.splice(idx, 1);
+    toast('Agendamento excluído.', 'error');
+    closeDetail();
+    go(APP.page);
+  } catch(e) {
+    toast('Erro ao excluir: ' + e.message, 'error');
   }
 }
 async function reagendarAg(id) {
@@ -2815,6 +2846,19 @@ function _cfgAtualizarNotifBadge() {
     if (btn) { btn.textContent = '🔔 Ativar notificações'; btn.style.background = 'var(--accent)'; btn.disabled = false; }
   }
 }
+async function _registrarPushSW() {
+  // Registra push subscription para notificações com app fechado (Android Chrome PWA)
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    // Verificar se já tem subscription
+    const existente = await reg.pushManager.getSubscription();
+    if (existente) return; // já registrado
+    // VAPID key pública (sem servidor: apenas disparo local via SW message)
+    // Usamos postMessage para o SW armazenar agendamentos e disparar
+    reg.active && reg.active.postMessage({ type: 'INIT_PUSH' });
+  } catch(e) {}
+}
 async function cfgPedirNotificacao() {
   if (!('Notification' in window)) { toast('Notificações não suportadas neste navegador.', 'error'); return; }
   if (Notification.permission === 'denied') {
@@ -3471,6 +3515,7 @@ async function toggleNotificacao() {
   const result = await Notification.requestPermission();
   if (result === 'granted') {
     toast('🔔 Notificações ativadas! Você receberá lembretes dos agendamentos.', 'success');
+    _registrarPushSW();
     // Testar notificação imediatamente
     new Notification('✅ Agenda Pro', { body: 'Notificações ativadas com sucesso!', icon: _notifIcon() })
   } else {
@@ -3571,22 +3616,72 @@ async function lembreteRemoverDetalhe(agId, min) {
   } catch(e) { toast('Erro: ' + e.message, 'error'); }
 }
 // Registrar timers para os lembretes de um agendamento
+function _enviarLembretesParaSW() {
+  // Envia todos os lembretes programados ao Service Worker
+  // para que ele dispare mesmo com o app fechado
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.ready.then(reg => {
+    if (!reg.active) return;
+    const lembretes = [];
+    const agora = Date.now();
+    AGENDAMENTOS.forEach(ag => {
+      if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(ag.status)) return;
+      const agInicio = new Date(ag.data_inicio).getTime();
+      if (agInicio < agora) return;
+      const cl = getCliente(ag.cliente_id);
+      const sv = getServico(ag.servico_id);
+      const mins = ag.lembretes_min ? JSON.parse(ag.lembretes_min) : [30];
+      mins.forEach(m => {
+        const disparo = agInicio - m * 60000;
+        if (disparo > agora && disparo - agora < 24*60*60*1000) {
+          lembretes.push({
+            key:    ag.id + '_' + m + '_' + agInicio,
+            agId:   ag.id,
+            disparo: disparo,
+            titulo: '🔔 Agendamento em ' + m + ' min',
+            corpo:  cl.nome + ' — ' + sv.nome + ' às ' + fmtTime(ag.data_inicio),
+          });
+        }
+      });
+    });
+    reg.active.postMessage({ type: 'AGENDAR_LEMBRETES', lembretes });
+  }).catch(() => {});
+}
+// Tratar ação vinda da notificação (hash na URL ao abrir pelo SW)
+function _tratarHashNotificacao() {
+  const hash = window.location.hash;
+  if (hash.startsWith('#concluir-')) {
+    const id = parseInt(hash.replace('#concluir-', ''));
+    history.replaceState(null, '', window.location.pathname);
+    if (id) setTimeout(() => _alertaConcluir(id), 1000);
+  } else if (hash.startsWith('#reagendar-')) {
+    const id = parseInt(hash.replace('#reagendar-', ''));
+    history.replaceState(null, '', window.location.pathname);
+    if (id) setTimeout(() => reagendarAg(id), 1000);
+  }
+}
 function lembreteRegistrar(ag) {
   if (!window._lembreteTimers) window._lembreteTimers = {};
+  if (!window._lembreteDisparados) window._lembreteDisparados = new Set();
   if (!ag.lembretes_min) return;
-  const mins = JSON.parse(ag.lembretes_min);
+  let mins;
+  try { mins = JSON.parse(ag.lembretes_min); } catch(e) { return; }
   const agInicio = new Date(ag.data_inicio).getTime();
   const agora = Date.now();
   mins.forEach(m => {
     const disparo = agInicio - m * 60000;
     const delay = disparo - agora;
-    const key = `${ag.id}_${m}`;
-    if (window._lembreteTimers[key]) clearTimeout(window._lembreteTimers[key]);
-    if (delay > 0 && delay < 24*60*60*1000) { // só registra se for nas próximas 24h
+    // Chave única inclui timestamp do disparo — evita reregistrar se já agendado
+    const key = ag.id + '_' + m + '_' + agInicio;
+    // Não registrar se já disparou ou já está agendado
+    if (window._lembreteDisparados.has(key)) return;
+    if (window._lembreteTimers[key]) return; // já agendado, não sobrescreve
+    if (delay > 0 && delay < 24*60*60*1000) {
       window._lembreteTimers[key] = setTimeout(() => {
+        window._lembreteDisparados.add(key);
         dispararLembrete(ag, m);
-        delete window._lembreteTimers[key]
-      }, delay)
+        delete window._lembreteTimers[key];
+      }, delay);
     }
   })
 }
@@ -3634,17 +3729,22 @@ function _mostrarAlertaLembrete(ag, titulo, corpo) {
  box-shadow:0 16px 48px rgba(0,0,0,.22);text-align:center;
  animation:slideUp .3s ease;
  `;
+  const _agId = ag.id;
   card.innerHTML = `<div style="font-size:44px;margin-bottom:10px">🔔</div>
 <div style="font-size:17px;font-weight:700;color:#1A1916;margin-bottom:6px">${titulo}</div>
 <div style="font-size:14px;color:#6B6860;margin-bottom:22px">${corpo}</div>
-<div style="display:flex;gap:10px;justify-content:center">
+<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
 <button onclick="$id('alerta-lembrete-overlay').remove()"
-style="padding:10px 20px;border:1px solid #E2E0DA;border-radius:9px;background:#F5F4F0;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
+style="padding:9px 16px;border:1px solid #E2E0DA;border-radius:9px;background:#F5F4F0;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 Dispensar
 </button>
-<button onclick="$id('alerta-lembrete-overlay').remove();openDetail(${ag.id})"
-style="padding:10px 20px;border:none;border-radius:9px;background:#2B5CE6;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
-Ver agendamento
+<button onclick="$id('alerta-lembrete-overlay').remove();_alertaConcluir(${_agId})"
+style="padding:9px 16px;border:none;border-radius:9px;background:#1A8C5B;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
+✓ Concluído
+</button>
+<button onclick="$id('alerta-lembrete-overlay').remove();reagendarAg(${_agId})"
+style="padding:9px 16px;border:none;border-radius:9px;background:#2B5CE6;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
+📅 Reagendar
 </button>
 </div>`;
   overlay.appendChild(card);
@@ -3683,8 +3783,9 @@ function lembreteInicializarTodos() {
       const disparo30 = agInicio - 30 * 60000;
       const delay30 = disparo30 - agora;
       if (delay30 > 0 && delay30 < 24 * 60 * 60 * 1000) {
-        const key = ag.id + '_30_auto';
-        if (!window._lembreteTimers[key]) {
+        const key = ag.id + '_30_auto_' + agInicio;
+        if (!window._lembreteDisparados) window._lembreteDisparados = new Set();
+        if (!window._lembreteDisparados.has(key) && !window._lembreteTimers[key]) {
           window._lembreteTimers[key] = setTimeout(() => {
             dispararLembrete(ag, 30);
             delete window._lembreteTimers[key]
@@ -3696,7 +3797,9 @@ function lembreteInicializarTodos() {
     }
     lembreteRegistrar(ag);
     count++
-  })
+  });
+  // Sincronizar com SW para notificações com app fechado
+  setTimeout(_enviarLembretesParaSW, 500);
 }
 // AGENDAMENTO POR VOZ (Speech Recognition + Claude)
 let _vozRec = null;
