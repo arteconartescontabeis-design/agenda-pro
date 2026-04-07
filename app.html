@@ -1876,12 +1876,17 @@ async function salvarNovoAgendamento() {
     const fimDate = new Date(inicio);
     fimDate.setMinutes(fimDate.getMinutes() + duracaoMin);
     const fim = fimDate.toISOString().slice(0,16) + ':00';
-    // Verificar conflito
-    const conflito = AGENDAMENTOS.find(a =>
-      a.usuario_responsavel_id === respId &&
-      !['cancelado_cliente','cancelado_escritorio'].includes(a.status) &&
-      a.data_inicio < fim && a.data_fim > inicio
-    );
+    // Verificar conflito — comparar timestamps numéricos (evita problema de timezone em strings)
+    const _tsInicio = new Date(inicio).getTime();
+    const _tsFim    = new Date(fim).getTime();
+    const conflito = AGENDAMENTOS.find(a => {
+      if (a.usuario_responsavel_id !== respId) return false;
+      if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(a.status)) return false;
+      const _aInicio = new Date(a.data_inicio).getTime();
+      const _aFim    = new Date(a.data_fim).getTime();
+      if (isNaN(_aInicio) || isNaN(_aFim)) return false;
+      return _aInicio < _tsFim && _aFim > _tsInicio;
+    });
     if (conflito) { toast('Conflito de horário com outro agendamento!', 'error'); reativarBtn(); return; }
     const lembretes   = (window._lembretes || []).slice();
     const obsCompleta = [
