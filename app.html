@@ -1694,6 +1694,7 @@ ${[10,30,60].map(m=>`<button type="button" class="btn btn-ghost btn-sm" onclick=
         if (el) {
           el.setAttribute('value', pf.hora);
           el.value = pf.hora;
+          el.dispatchEvent(new Event('input',  { bubbles: true }));
           el.dispatchEvent(new Event('change', { bubbles: true }))
         }
       }
@@ -1718,10 +1719,11 @@ ${[10,30,60].map(m=>`<button type="button" class="btn btn-ghost btn-sm" onclick=
         if (el) el.value = pf.servico_nome
       }
     };
-    // Aplicar em 3 momentos distintos para garantir no Android
+    // Aplicar em 4 momentos distintos para garantir no Android (campo time é lento)
     requestAnimationFrame(() => { _aplicarPrefill(); });
     setTimeout(_aplicarPrefill, 80);
-    setTimeout(_aplicarPrefill, 250)
+    setTimeout(_aplicarPrefill, 250);
+    setTimeout(_aplicarPrefill, 500)
   }
   // Auto-salvar se voz com confiança alta
   if (pf && pf.confianca === 'alta' && pf.textoOriginal && pf.data && pf.hora) {
@@ -1876,14 +1878,22 @@ async function salvarNovoAgendamento() {
     const fimDate = new Date(inicio);
     fimDate.setMinutes(fimDate.getMinutes() + duracaoMin);
     const fim = fimDate.toISOString().slice(0,16) + ':00';
-    // Verificar conflito — comparar timestamps numéricos (evita problema de timezone em strings)
-    const _tsInicio = new Date(inicio).getTime();
-    const _tsFim    = new Date(fim).getTime();
+    // Verificar conflito — normalizar timezone antes de comparar
+    // inicio/fim são strings locais sem offset; Supabase retorna com offset → normalizar ambos para UTC
+    const _normTs = (s) => {
+      if (!s) return NaN;
+      // Se já tem offset (+HH:MM ou Z), deixa o Date parsear normalmente
+      if (/[Z+]/.test(s.slice(10))) return new Date(s).getTime();
+      // Sem offset: tratar como UTC (Supabase armazena em UTC)
+      return new Date(s + 'Z').getTime();
+    };
+    const _tsInicio = _normTs(inicio);
+    const _tsFim    = _normTs(fim);
     const conflito = AGENDAMENTOS.find(a => {
       if (a.usuario_responsavel_id !== respId) return false;
       if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(a.status)) return false;
-      const _aInicio = new Date(a.data_inicio).getTime();
-      const _aFim    = new Date(a.data_fim).getTime();
+      const _aInicio = _normTs(a.data_inicio);
+      const _aFim    = _normTs(a.data_fim);
       if (isNaN(_aInicio) || isNaN(_aFim)) return false;
       return _aInicio < _tsFim && _aFim > _tsInicio;
     });
@@ -3622,8 +3632,7 @@ async function lembreteRemoverDetalhe(agId, min) {
 }
 // Registrar timers para os lembretes de um agendamento
 function _enviarLembretesParaSW() {
-  // Envia todos os lembretes programados ao Service Worker
-  // para que ele dispare mesmo com o app fechado
+  // Envia lembretes ao SW para disparo mesmo com app fechado
   if (!('serviceWorker' in navigator)) return;
   navigator.serviceWorker.ready.then(reg => {
     if (!reg.active) return;
@@ -3631,11 +3640,16 @@ function _enviarLembretesParaSW() {
     const agora = Date.now();
     AGENDAMENTOS.forEach(ag => {
       if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(ag.status)) return;
-      const agInicio = new Date(ag.data_inicio).getTime();
-      if (agInicio < agora) return;
+      const _normTs = (s) => {
+        if (!s) return NaN;
+        if (/[Z+]/.test(s.slice(10))) return new Date(s).getTime();
+        return new Date(s + 'Z').getTime();
+      };
+      const agInicio = _normTs(ag.data_inicio);
+      if (isNaN(agInicio) || agInicio < agora) return;
       const cl = getCliente(ag.cliente_id);
       const sv = getServico(ag.servico_id);
-      const mins = ag.lembretes_min ? JSON.parse(ag.lembretes_min) : [30];
+      const mins = ag.lembretes_min ? (() => { try { return JSON.parse(ag.lembretes_min); } catch(e) { return [30]; } })() : [30];
       mins.forEach(m => {
         const disparo = agInicio - m * 60000;
         if (disparo > agora && disparo - agora < 24*60*60*1000) {
