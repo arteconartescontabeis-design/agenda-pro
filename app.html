@@ -2895,8 +2895,14 @@ async function cfgPedirNotificacao() {
 }
 function cfgTestarNotificacao() {
   // Testa o alerta visual (sempre funciona) + notificação nativa se disponível
-  const agFake = { id: 0, data_inicio: new Date().toISOString(), cliente_id: null, servico_id: null };
-  _mostrarAlertaLembrete(agFake, '🔔 Teste de alerta', 'Este é um teste do sistema de lembretes!');
+  // Usar o próximo agendamento real para teste — botões funcionam de verdade
+  const agFakeCandidato = AGENDAMENTOS.filter(a =>
+    !['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(a.status)
+  ).sort((a,b) => a.data_inicio.localeCompare(b.data_inicio))[0];
+  const agFake = agFakeCandidato || { id: null, data_inicio: new Date().toISOString(), cliente_id: null, servico_id: null };
+  _mostrarAlertaLembrete(agFake, '🔔 Teste de alerta', agFake.id
+    ? (getCliente(agFake.cliente_id, agFake).nome + ' · ' + getServico(agFake.servico_id, agFake).nome + ' · Teste dos botões')
+    : 'Nenhum agendamento ativo para testar os botões.');
   if ('Notification' in window && Notification.permission === 'granted') {
     try { new Notification('🔔 Agenda Pro — Teste', { body: 'Notificação nativa funcionando!', icon: _notifIcon() }); } catch(e) {}
   }
@@ -3749,22 +3755,23 @@ function _mostrarAlertaLembrete(ag, titulo, corpo) {
  animation:slideUp .3s ease;
  `;
   const _agId = ag.id;
+  const _temId = !!_agId;
   card.innerHTML = `<div style="font-size:44px;margin-bottom:10px">🔔</div>
 <div style="font-size:17px;font-weight:700;color:#1A1916;margin-bottom:6px">${titulo}</div>
 <div style="font-size:14px;color:#6B6860;margin-bottom:22px">${corpo}</div>
 <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-<button onclick="$id('alerta-lembrete-overlay').remove()"
+<button onclick="document.getElementById('alerta-lembrete-overlay').remove()"
 style="padding:9px 16px;border:1px solid #E2E0DA;border-radius:9px;background:#F5F4F0;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 Dispensar
 </button>
-<button onclick="$id('alerta-lembrete-overlay').remove();_alertaConcluir(${_agId})"
+${_temId ? `<button onclick="document.getElementById('alerta-lembrete-overlay').remove();_alertaConcluir(${_agId})"
 style="padding:9px 16px;border:none;border-radius:9px;background:#1A8C5B;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 ✓ Concluído
 </button>
-<button onclick="$id('alerta-lembrete-overlay').remove();reagendarAg(${_agId})"
+<button onclick="document.getElementById('alerta-lembrete-overlay').remove();reagendarAg(${_agId})"
 style="padding:9px 16px;border:none;border-radius:9px;background:#2B5CE6;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 📅 Reagendar
-</button>
+</button>` : ''}
 </div>`;
   overlay.appendChild(card);
   document.body.appendChild(overlay)
