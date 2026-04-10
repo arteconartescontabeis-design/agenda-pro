@@ -1,7 +1,14 @@
-const CACHE = 'agenda-pro-v3';
-const SUPA_PATTERNS = ['supabase.co', 'supabase.io'];
+// Agenda Pro — Service Worker v3
+// Suporta: cache offline + notificações com app fechado
 
-// Instalar SW
+const CACHE_NAME = 'agenda-pro-v3';
+const SUPA_HOSTS = ['hwvguqfprbjfqtxkmgiz.supabase.co', 'vuwgxndahrzinfdlapxz.supabase.co'];
+
+// Lembretes agendados: { key: { disparo, titulo, corpo, agId } }
+let _lembretes = {};
+let _timerHandle = null;
+
+// ── Instalar ──────────────────────────────────────────────
 self.addEventListener('install', e => {
   self.skipWaiting();
 });
@@ -9,97 +16,136 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch — cache para assets estáticos, network-first para Supabase
+// ── Cache offline ─────────────────────────────────────────
 self.addEventListener('fetch', e => {
-  const url = e.request.url;
-  const isSupa = SUPA_PATTERNS.some(p => url.includes(p));
-  if (isSupa) {
-    e.respondWith(fetch(e.request).catch(() => new Response('{"error":"offline"}', { headers: { 'Content-Type': 'application/json' } })));
-    return;
+  const url = new URL(e.request.url);
+
+  // Não interceptar Supabase
+  if (SUPA_HOSTS.some(h => url.hostname.includes(h))) return;
+
+  // Cache-first para assets estáticos
+  if (e.request.method === 'GET') {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          if (res && res.status === 200 && res.type !== 'opaque') {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => cached);
+      })
+    );
   }
-  // Assets estáticos — cache first
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res && res.status === 200 && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => cached);
-    })
-  );
 });
 
-// ── NOTIFICAÇÕES COM APP FECHADO ──────────────────────────────────
-// Armazena agendamentos enviados pelo app
-let _agendamentosPendentes = [];
-
+// ── Receber mensagens do app ──────────────────────────────
 self.addEventListener('message', e => {
   if (!e.data) return;
-  // App envia lista de lembretes programados
+
   if (e.data.type === 'AGENDAR_LEMBRETES') {
-    _agendamentosPendentes = e.data.lembretes || [];
-    // Limpar alarmes anteriores e reagendar
-    _agendamentosPendentes.forEach(item => {
-      const delay = item.disparo - Date.now();
-      if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
-        setTimeout(() => {
-          self.registration.showNotification(item.titulo, {
-            body: item.corpo,
-            icon: '/agenda-pro/icons/icon-192.png',
-            badge: '/agenda-pro/icons/icon-192.png',
-            tag: item.key,
-            requireInteraction: true,
-            vibrate: [200, 100, 200],
-            actions: [
-              { action: 'concluir',  title: '✓ Concluído' },
-              { action: 'reagendar', title: '📅 Reagendar' },
-            ],
-            data: { agId: item.agId, url: '/agenda-pro/app.html' }
-          });
-        }, delay);
-      }
-    });
+    _registrarLembretes(e.data.lembretes || []);
   }
+
   if (e.data.type === 'INIT_PUSH') {
-    // Confirmação que SW está ativo
-    e.source && e.source.postMessage({ type: 'SW_PRONTO' });
+    // App abriu — limpar timers (app vai gerenciar enquanto aberto)
+    _limparTimers();
   }
 });
 
-// Clique na notificação
+function _registrarLembretes(lista) {
+  _limparTimers();
+  _lembretes = {};
+
+  const agora = Date.now();
+  lista.forEach(l => {
+    const delay = l.disparo - agora;
+    if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
+      _lembretes[l.key] = l;
+    }
+  });
+
+  _agendarProximo();
+}
+
+function _agendarProximo() {
+  const agora = Date.now();
+  const pendentes = Object.values(_lembretes)
+    .filter(l => l.disparo > agora)
+    .sort((a, b) => a.disparo - b.disparo);
+
+  if (pendentes.length === 0) return;
+
+  const proximo = pendentes[0];
+  const delay = proximo.disparo - agora;
+
+  _timerHandle = setTimeout(async () => {
+    // Verificar se há cliente aberto — se sim, deixa o app tratar
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const appAberto = clients.some(c => c.visibilityState === 'visible');
+
+    if (!appAberto) {
+      // App fechado ou em background — disparar notificação nativa
+      try {
+        await self.registration.showNotification(proximo.titulo, {
+          body: proximo.corpo,
+          icon: '/agenda-pro/icon-192.png',
+          badge: '/agenda-pro/icon-192.png',
+          tag: proximo.key,
+          requireInteraction: true,
+          vibrate: [200, 100, 200],
+          data: { agId: proximo.agId },
+          actions: [
+            { action: 'concluir',   title: '✓ Concluído' },
+            { action: 'reagendar',  title: '📅 Reagendar' },
+          ]
+        });
+      } catch(err) {
+        console.warn('[SW] showNotification falhou:', err);
+      }
+    }
+
+    // Remover da fila e agendar próximo
+    delete _lembretes[proximo.key];
+    _agendarProximo();
+  }, delay);
+}
+
+function _limparTimers() {
+  if (_timerHandle) {
+    clearTimeout(_timerHandle);
+    _timerHandle = null;
+  }
+}
+
+// ── Clique na notificação ─────────────────────────────────
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const data = e.notification.data || {};
-  const agId = data.agId;
-  const url  = data.url || '/agenda-pro/app.html';
+  const agId = e.notification.data?.agId;
+  const action = e.action;
 
-  if (e.action === 'concluir' && agId) {
-    // Abrir app e sinalizar conclusão
-    e.waitUntil(
-      clients.openWindow(url + '#concluir-' + agId)
-    );
-    return;
-  }
-  if (e.action === 'reagendar' && agId) {
-    e.waitUntil(
-      clients.openWindow(url + '#reagendar-' + agId)
-    );
-    return;
-  }
-  // Clique no corpo — abrir app
   e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      const existing = list.find(w => w.url.includes('agenda-pro'));
-      if (existing) { existing.focus(); return; }
-      return clients.openWindow(url);
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      // Tentar focar janela existente
+      const existing = clients.find(c => c.url.includes('agenda-pro'));
+      const hash = action === 'concluir'  ? `#concluir-${agId}`
+                 : action === 'reagendar' ? `#reagendar-${agId}`
+                 : agId ? `#ag-${agId}` : '';
+
+      if (existing) {
+        existing.focus();
+        if (hash) existing.navigate(existing.url.split('#')[0] + hash);
+        return;
+      }
+
+      // Abrir nova janela
+      return self.clients.openWindow('/agenda-pro/app.html' + hash);
     })
   );
 });
