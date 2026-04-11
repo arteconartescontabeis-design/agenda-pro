@@ -1874,21 +1874,21 @@ async function salvarNovoAgendamento() {
       }
     }
     if (!data || !hora) { toast('Preencha data e hora.', 'error'); reativarBtn(); return; }
-    const inicio  = `${data}T${hora}:00`;
-    const fimDate = new Date(inicio);
-    fimDate.setMinutes(fimDate.getMinutes() + duracaoMin);
-    const fim = fimDate.toISOString().slice(0,16) + ':00';
-    // Verificar conflito — normalizar timezone antes de comparar
-    // inicio/fim são strings locais sem offset; Supabase retorna com offset → normalizar ambos para UTC
+    // Montar inicio como Date local → salvar em UTC com Z para evitar ambiguidade no Supabase
+    const inicioDate = new Date(`${data}T${hora}:00`);
+    const fimDate    = new Date(inicioDate.getTime() + duracaoMin * 60000);
+    const inicio = inicioDate.toISOString(); // ex: "2026-04-11T17:00:00.000Z" (UTC)
+    const fim    = fimDate.toISOString();    // ex: "2026-04-11T18:00:00.000Z" (UTC)
+    // Verificar conflito — todos os timestamps agora em UTC (getTime) → comparação direta
     const _normTs = (s) => {
       if (!s) return NaN;
-      // Se já tem offset (+HH:MM ou Z), deixa o Date parsear normalmente
-      if (/[Z+]/.test(s.slice(10))) return new Date(s).getTime();
-      // Sem offset: tratar como UTC (Supabase armazena em UTC)
-      return new Date(s + 'Z').getTime();
+      // Strings com Z ou offset: parseadas corretamente pelo Date
+      if (/Z|[+-]\d{2}:\d{2}$/.test(s)) return new Date(s).getTime();
+      // Sem offset (legado): tratar como local
+      return new Date(s).getTime();
     };
-    const _tsInicio = _normTs(inicio);
-    const _tsFim    = _normTs(fim);
+    const _tsInicio = inicioDate.getTime();
+    const _tsFim    = fimDate.getTime();
     const conflito = AGENDAMENTOS.find(a => {
       if (a.usuario_responsavel_id !== respId) return false;
       if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(a.status)) return false;
