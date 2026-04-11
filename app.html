@@ -1874,28 +1874,30 @@ async function salvarNovoAgendamento() {
       }
     }
     if (!data || !hora) { toast('Preencha data e hora.', 'error'); reativarBtn(); return; }
-    // Montar inicio como Date local → salvar em UTC com Z para evitar ambiguidade no Supabase
+    // Montar inicio/fim como strings locais sem offset
     const inicioDate = new Date(`${data}T${hora}:00`);
     const fimDate    = new Date(inicioDate.getTime() + duracaoMin * 60000);
-    const inicio = inicioDate.toISOString(); // ex: "2026-04-11T17:00:00.000Z" (UTC)
-    const fim    = fimDate.toISOString();    // ex: "2026-04-11T18:00:00.000Z" (UTC)
-    // Verificar conflito — todos os timestamps agora em UTC (getTime) → comparação direta
-    const _normTs = (s) => {
-      if (!s) return NaN;
-      // Strings com Z ou offset: parseadas corretamente pelo Date
-      if (/Z|[+-]\d{2}:\d{2}$/.test(s)) return new Date(s).getTime();
-      // Sem offset (legado): tratar como local
-      return new Date(s).getTime();
+    // Representação local YYYY-MM-DDTHH:MM (sem offset) para comparar com dados do banco
+    const pad2 = n => String(n).padStart(2,'0');
+    const _toLocal = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    const inicio = _toLocal(inicioDate);
+    const fim    = _toLocal(fimDate);
+    // Normalizar timestamp do Supabase para string local YYYY-MM-DDTHH:MM
+    // Supabase retorna: "2026-04-11T14:00:00+00:00" (UTC) ou "2026-04-11T14:00:00" (sem offset)
+    const _normStr = (s) => {
+      if (!s) return '';
+      const d = new Date(s); // browser converte para local automaticamente se tiver offset
+      if (isNaN(d.getTime())) return s.slice(0,16); // fallback: usar string crua
+      return _toLocal(d);
     };
-    const _tsInicio = inicioDate.getTime();
-    const _tsFim    = fimDate.getTime();
+    // Verificar conflito — comparação em string local, sem ambiguidade de timezone
     const conflito = AGENDAMENTOS.find(a => {
       if (a.usuario_responsavel_id !== respId) return false;
       if (['cancelado_cliente','cancelado_escritorio','concluido','nao_compareceu'].includes(a.status)) return false;
-      const _aInicio = _normTs(a.data_inicio);
-      const _aFim    = _normTs(a.data_fim);
-      if (isNaN(_aInicio) || isNaN(_aFim)) return false;
-      return _aInicio < _tsFim && _aFim > _tsInicio;
+      const aIni = _normStr(a.data_inicio);
+      const aFim = _normStr(a.data_fim);
+      if (!aIni || !aFim) return false;
+      return aIni < fim && aFim > inicio;
     });
     if (conflito) { toast('Conflito de horário com outro agendamento!', 'error'); reativarBtn(); return; }
     const lembretes   = (window._lembretes || []).slice();
@@ -3736,7 +3738,7 @@ function dispararLembrete(ag, minAntes) {
   }
 }
 // Alerta visual de lembrete — aparece sobre tudo, persiste até fechar
-function _mostrarAlertaLembrete(ag, titulo, corpo) {
+function _mostrarAlertaLembrete(ag, titulo, corpo, somenteDispensar) {
   // Remover alerta anterior se houver
   const anterior = $id('alerta-lembrete-overlay');
   if (anterior) anterior.remove();
@@ -3755,7 +3757,7 @@ function _mostrarAlertaLembrete(ag, titulo, corpo) {
  animation:slideUp .3s ease;
  `;
   const _agId = ag.id;
-  const _temId = !!_agId;
+  const _temId = !!_agId && !somenteDispensar;
   card.innerHTML = `<div style="font-size:44px;margin-bottom:10px">🔔</div>
 <div style="font-size:17px;font-weight:700;color:#1A1916;margin-bottom:6px">${titulo}</div>
 <div style="font-size:14px;color:#6B6860;margin-bottom:22px">${corpo}</div>
@@ -3783,7 +3785,7 @@ function notifAgendamentoCriado(ag) {
   const dataFmt = ag.data_inicio ? new Date(ag.data_inicio).toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }) : '';
   const horaFmt = ag.data_inicio ? fmtTime(ag.data_inicio) : '';
   // Alerta visual — funciona sempre, independente de permissão
-  _mostrarAlertaLembrete(ag, '✅ Agendamento criado', cl.nome + ' · ' + sv.nome + '\n📅 ' + dataFmt + ' às ' + horaFmt);
+  _mostrarAlertaLembrete(ag, '✅ Agendamento criado', cl.nome + ' · ' + sv.nome + '\n📅 ' + dataFmt + ' às ' + horaFmt, true);
   // Notificação nativa — só se tiver permissão
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
