@@ -1415,6 +1415,8 @@ async function atualizarStatusAg(id, novoStatus, extra = {}) {
 }
 async function confirmarAg(id) {
   if (await atualizarStatusAg(id, 'confirmado', { confirmado_em: new Date().toISOString() })) {
+    const ag = AGENDAMENTOS.find(x=>x.id===id);
+    if (ag) _enviarWhatsApp(_waMsgAgendamento(ag, 'confirmado'));
     toast('Agendamento confirmado!', 'success');
     closeDetail(); go(APP.page)
   }
@@ -1429,6 +1431,7 @@ async function noShowAg(id) {
   const a = AGENDAMENTOS.find(x=>x.id===id);
   if (!a) return;
   if (await atualizarStatusAg(id, 'nao_compareceu')) {
+    _enviarWhatsApp(_waMsgAgendamento(a, 'noshow'));
     // O trigger do Supabase atualiza o score — recarregar cliente
     try {
       const cli = await APP.db('GET', 'agenda_clientes', {
@@ -1445,10 +1448,12 @@ async function noShowAg(id) {
 }
 async function cancelarAg(id) {
   const motivo = prompt('Motivo do cancelamento (opcional):') || '';
+  const ag = AGENDAMENTOS.find(x=>x.id===id);
   if (await atualizarStatusAg(id, 'cancelado_escritorio', {
     cancelado_em: new Date().toISOString(),
     motivo_cancelamento: motivo
   })) {
+    if (ag) _enviarWhatsApp(_waMsgAgendamento(ag, 'cancelado'));
     toast('Agendamento cancelado.', 'error');
     closeDetail(); go(APP.page)
   }
@@ -1933,6 +1938,7 @@ async function salvarNovoAgendamento() {
     toast(`Agendamento criado com sucesso!`, 'success');
     // Notificação imediata de confirmação do agendamento
     notifAgendamentoCriado(criado && criado[0] ? criado[0] : novoAg);
+    _enviarWhatsApp(_waMsgAgendamento(criado && criado[0] ? criado[0] : novoAg, 'criado'));
     go(APP.page)
   } catch(e) {
     toast('Erro ao salvar: ' + e.message, 'error');
@@ -2758,6 +2764,32 @@ async function removerBloqueio(id) {
 // (já existia; apenas adicionamos mini-chart de serviços)
 // PAGE: CONFIGURAÇÕES
 
+function salvarCallmebot() {
+  const numero = ($id('cfg-callmebot-numero')||{}).value?.trim() || '';
+  const apikey = ($id('cfg-callmebot-apikey')||{}).value?.trim() || '';
+  const ativo  = ($id('cfg-callmebot-ativo')||{}).checked || false;
+  if (numero && !/^\d{10,15}$/.test(numero)) {
+    toast('Número inválido. Use apenas dígitos com DDI. Ex: 5531999999999', 'error'); return;
+  }
+  localStorage.setItem('callmebot_numero', numero);
+  localStorage.setItem('callmebot_apikey', apikey);
+  localStorage.setItem('callmebot_ativo', ativo ? 'true' : 'false');
+  toast('✅ Configuração WhatsApp salva!', 'success');
+  const st = $id('cfg-callmebot-status');
+  if (st) st.innerHTML = ativo && numero && apikey
+    ? `<span style="color:var(--green)">✅ Ativo — notificações serão enviadas para +${numero}</span>`
+    : `<span style="color:var(--text-3)">⚠️ Inativo ou configuração incompleta</span>`;
+}
+async function testarCallmebot() {
+  salvarCallmebot();
+  const { numero, apikey, ativo } = _callmebotCfg();
+  if (!numero || !apikey) { toast('Preencha número e API Key antes de testar.', 'error'); return; }
+  const st = $id('cfg-callmebot-status');
+  if (st) st.innerHTML = `<span style="color:var(--amber)">⏳ Enviando mensagem de teste...</span>`;
+  await _enviarWhatsApp('🔔 Agenda Pro\nTeste de notificação WhatsApp funcionando! ✅');
+  if (st) st.innerHTML = `<span style="color:var(--green)">✅ Mensagem enviada! Verifique seu WhatsApp em alguns segundos.</span>`;
+  toast('Mensagem de teste enviada!', 'success');
+}
 function salvarChaveClaudeLocal() {
   const val = ($id('cfg-claude-api-key') || {}).value || '';
   if (!val.startsWith('sk-ant-')) { toast('Chave inválida. Deve começar com sk-ant-', 'error'); return; }
@@ -2813,7 +2845,32 @@ Testar agora
 </div>
 </div>
 <div class="card" style="margin-top:20px">
-<div style="font-size:15px;font-weight:600;margin-bottom:4px">🗄️ Banco de Dados</div>
+<div style="font-size:15px;font-weight:600;margin-bottom:4px">📲 WhatsApp (CallMeBot)</div>
+<div class="text-muted" style="margin-bottom:16px;font-size:13px">Receba notificações automáticas no WhatsApp ao criar, confirmar, cancelar agendamentos e lembretes.</div>
+<div style="margin-bottom:12px">
+  <label class="form-label">Número WhatsApp (com DDI, sem + ou espaços)</label>
+  <input type="tel" class="form-input" id="cfg-callmebot-numero" placeholder="5531999999999" value="${localStorage.getItem('callmebot_numero')||''}" style="font-family:var(--mono)">
+  <div style="font-size:11px;color:var(--text-3);margin-top:4px">Ex: 5531999999999 (55 = Brasil, 31 = DDD, número)</div>
+</div>
+<div style="margin-bottom:12px">
+  <label class="form-label">API Key CallMeBot</label>
+  <input type="text" class="form-input" id="cfg-callmebot-apikey" placeholder="123456" value="${localStorage.getItem('callmebot_apikey')||''}" style="font-family:var(--mono)">
+  <div style="font-size:11px;color:var(--text-3);margin-top:4px">Recebida após enviar "I allow callmebot to send me messages" para +34 644 59 72 81</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+  <label style="position:relative;display:inline-block;width:44px;height:22px">
+    <input type="checkbox" id="cfg-callmebot-ativo" ${localStorage.getItem('callmebot_ativo')==='true'?'checked':''} style="opacity:0;width:0;height:0">
+    <span id="cfg-callmebot-ativo-track" style="position:absolute;inset:0;background:${localStorage.getItem('callmebot_ativo')==='true'?'var(--accent)':'var(--border)'};border-radius:22px;transition:.2s;cursor:pointer" onclick="this.style.background=document.getElementById('cfg-callmebot-ativo').checked?'var(--border)':'var(--accent)';document.getElementById('cfg-callmebot-ativo').checked=!document.getElementById('cfg-callmebot-ativo').checked"></span>
+    <span style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none"></span>
+  </label>
+  <span style="font-size:13px;color:var(--text-2)">Ativar notificações WhatsApp</span>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+  <button onclick="salvarCallmebot()" class="btn btn-accent btn-sm" style="flex:1">💾 Salvar</button>
+  <button onclick="testarCallmebot()" class="btn btn-outline btn-sm" style="flex:1">📲 Testar agora</button>
+</div>
+<div id="cfg-callmebot-status" style="margin-top:10px;font-size:13px"></div>
+</div>
 <div class="text-muted" style="margin-bottom:16px">Status da integração com Supabase</div>
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <div class="ui-stat-box">
@@ -3720,6 +3777,8 @@ function dispararLembrete(ag, minAntes) {
   const corpo  = `${cl.nome} — ${sv.nome} às ${fmtTime(ag.data_inicio)}`;
   // Toast na tela
   toast(`${titulo}: ${corpo}`, 'success');
+  // WhatsApp via CallMeBot
+  _enviarWhatsApp(_waMsgAgendamento(ag, 'lembrete'));
   // Alerta visual persistente (funciona mesmo sem permissão de Notification)
   _mostrarAlertaLembrete(ag, titulo, corpo);
   // Notificação nativa do navegador
@@ -3779,6 +3838,40 @@ style="padding:9px 16px;border:none;border-radius:9px;background:#2B5CE6;color:#
   document.body.appendChild(overlay)
 }
 // Notificação imediata ao criar agendamento
+// ─── CALLMEBOT WHATSAPP ───────────────────────────────────────────────────────
+function _callmebotCfg() {
+  return {
+    numero: localStorage.getItem('callmebot_numero') || '',
+    apikey: localStorage.getItem('callmebot_apikey') || '',
+    ativo:  localStorage.getItem('callmebot_ativo') === 'true',
+  };
+}
+async function _enviarWhatsApp(mensagem) {
+  const { numero, apikey, ativo } = _callmebotCfg();
+  if (!ativo || !numero || !apikey) return;
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
+    await fetch(url, { mode: 'no-cors' });
+  } catch(e) {}
+}
+function _waMsgAgendamento(ag, evento) {
+  const cl = getCliente(ag.cliente_id, ag);
+  const sv = getServico(ag.servico_id, ag);
+  const dt = ag.data_inicio ? new Date(ag.data_inicio).toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }) : '';
+  const hr = ag.data_inicio ? fmtTime(ag.data_inicio) : '';
+  const base = `${cl.nome} | ${sv.nome} | ${dt} às ${hr}`;
+  const msgs = {
+    criado:     `✅ Novo agendamento\n${base}`,
+    confirmado: `✔️ Agendamento confirmado\n${base}`,
+    cancelado:  `❌ Agendamento cancelado\n${base}`,
+    concluido:  `🏁 Agendamento concluído\n${base}`,
+    noshow:     `⚠️ Não compareceu\n${base}`,
+    lembrete:   `🔔 Lembrete: agendamento em breve\n${base}`,
+  };
+  return msgs[evento] || base;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function notifAgendamentoCriado(ag) {
   const cl = getCliente(ag.cliente_id, ag);
   const sv = getServico(ag.servico_id, ag);
