@@ -1687,14 +1687,35 @@ ${[10,30,60].map(m=>`<button type="button" class="btn btn-ghost btn-sm" onclick=
   }
   // Auto-salvar se voz com confiança alta
   if (pf && pf.confianca === 'alta' && pf.textoOriginal && pf.data && pf.hora) {
-    setTimeout(() => {
-      // Garantir que prefill foi aplicado antes de salvar
-      const _runAutoSalvar = () => {
-        toast('🎤 Confiança alta — salvando automaticamente...', 'success');
-        salvarNovoAgendamento()
-      };
-      setTimeout(_runAutoSalvar, 350)
-    }, 0)
+    // Aguardar modal abrir e prefill ser aplicado antes de salvar
+    const _tentarAutoSalvar = (tentativa) => {
+      if (tentativa > 20) return; // desistir após 2s
+      const campoData = $id('nag-data');
+      const campoHora = $id('nag-hora');
+      if (!campoData || !campoHora || !campoData.value || !campoHora.value) {
+        setTimeout(() => _tentarAutoSalvar(tentativa + 1), 100);
+        return;
+      }
+      // Expandir painel opcional se houver cliente ou serviço preenchido por voz
+      if (pf.cliente_id || pf.cliente_nome || pf.servico_id || pf.servico_nome) {
+        const wrap = $id('nag-opcional-wrap');
+        const icon = $id('nag-opcional-icon');
+        if (wrap && wrap.style.display === 'none') {
+          wrap.style.display = 'contents';
+          if (icon) icon.textContent = '▲ Recolher';
+          // Re-aplicar prefill após expandir
+          _aplicarPrefill();
+          setTimeout(() => {
+            toast('🎤 Confiança alta — salvando automaticamente...', 'success');
+            salvarNovoAgendamento();
+          }, 150);
+          return;
+        }
+      }
+      toast('🎤 Confiança alta — salvando automaticamente...', 'success');
+      salvarNovoAgendamento();
+    };
+    setTimeout(() => _tentarAutoSalvar(0), 200);
   }
 }
 function nagToggleCliente() {
