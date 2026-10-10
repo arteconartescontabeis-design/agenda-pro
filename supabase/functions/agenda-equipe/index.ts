@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     let authId: string | null = null, senha: string | null = null, jaTinhaLogin = false;
     const nova = senhaProvisoria();
     const { data: criado, error: eCriar } = await db.auth.admin.createUser({
-      email, password: nova, email_confirm: true, user_metadata: { nome },
+      email, password: nova, email_confirm: true, user_metadata: { nome, trocar_senha: true },   // o app pede a senha da pessoa no 1º acesso (v2.2.0)
     });
     if (criado?.user) { authId = criado.user.id; senha = nova; }
     else {
