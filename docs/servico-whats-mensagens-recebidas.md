@@ -6,7 +6,40 @@ tabela `cob_whatsapp_recebidas` (projeto Supabase do Cobrança). O resto já
 está pronto: a função `agenda-whats` lê essa tabela a cada 30 s, só considera
 os números da equipe cadastrados no Agenda Pro e responde pela fila de sempre.
 
-## O que acrescentar no serviço (Baileys)
+## Versão pronta: artecon-whats v1.4.0 (10/10/2026)
+
+O arquivo completo está no OneDrive, em
+`Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.4.0/artecon-whats.js`.
+Foi feito a partir da v1.3.1 (a da pasta `Versão Atual`), então também leva o
+Pix copia e cola e a conferência da chave Pix (v1.3.0 e v1.3.1).
+
+O que muda na v1.4.0:
+- guarda as mensagens de **texto** recebidas em conversas individuais (grupos,
+  status, canais, fotos, áudios e figurinhas ficam de fora);
+- contatos que chegam como `@lid` têm o número buscado em `remoteJidAlt` /
+  `senderPn` ou no mapa da biblioteca (`signalRepository.lidMapping`);
+- mensagens que chegam com o serviço reconectando (`append`) só entram se
+  forem dos últimos 30 minutos;
+- grava com o mesmo usuário do robô (política `cob_whatsapp_recebidas_ins`;
+  conferido em 10/10/2026 que esse usuário tem permissão);
+- respostas aos comandos da equipe (`contexto.tipo = "resposta_comando"`)
+  saem só em texto, sem o logotipo;
+- erro ao guardar uma mensagem recebida nunca atrapalha o envio (só um aviso no log).
+
+### Como instalar no ARTEDB01
+1. Parar o serviço (fechar a janela do `node artecon-whats.js` ou parar o que o liga).
+2. Na pasta do serviço, renomear o `artecon-whats.js` atual para `artecon-whats-antigo.js` (cópia de segurança).
+3. Copiar o novo `artecon-whats.js` da pasta do OneDrive para a pasta do serviço.
+4. **Não apagar** a pasta `sessao` (é o pareamento), nem `config.json` e `logo.jpg`.
+5. (Opcional) `node artecon-whats.js --checar` para conferir o acesso ao banco.
+6. Ligar o serviço como sempre. Não é preciso ler o QR Code de novo.
+7. Conferir no Cobrança Pro → Robô → WhatsApp: "Conectado" e versão **1.4.0**.
+
+O serviço só envia entre `hora_inicio` e `hora_fim` do `config.json` (padrão 8h–20h).
+Uma mensagem de comando mandada fora desse horário é registrada no Agenda, mas a
+resposta só sairia no horário de envio, e a fila expira à meia-noite.
+
+## Trecho genérico (para outro serviço Baileys)
 
 Logo depois de criar a conexão (`sock`), junto dos outros `sock.ev.on(...)`.
 Os nomes `supabase`, `TENANT_ID` e `log` devem ser trocados pelos que o
