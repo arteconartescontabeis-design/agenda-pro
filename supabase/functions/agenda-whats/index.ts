@@ -1,7 +1,7 @@
 // Agenda Pro — envio dos avisos de WhatsApp
 // Projeto Supabase do Agenda (vuwgxndahrzinfdlapxz).
 //
-// A cada chamada (pg_cron a cada 2 min, ou o app logo após salvar):
+// A cada chamada (pg_cron a cada 30 s, o gatilho de mensagem recebida no Cobrança, ou o app logo após salvar):
 //   1. gera os lembretes que venceram (agenda_whats_gerar_lembretes);
 //   2. reserva os avisos pendentes (agenda_whats_reservar), monta o texto e
 //      coloca na fila do WhatsApp do Cobrança Pro (cob_agenda_enfileirar);
@@ -19,6 +19,7 @@ const COB_URL = "https://yeujqjtjqtegsnzwwazb.supabase.co";
 const COB_ANON =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlldWpxanRqcXRlZ3Nuend3YXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NDE0OTksImV4cCI6MjEwMTExNzQ5OX0.5p1_wJ_aApJpRrN6tFu8qmAytK5FMXWt1soCubpzqao";
 const MAX_TENTATIVAS = 3;
+const MARCA_AUDIO = "🎤 "; // o serviço artecon-whats (v1.5.0+) põe esta marca no texto de áudio transcrito
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -359,6 +360,9 @@ async function processarComandos(token: string) {
   const { data: eq } = await db.from("agenda_usuarios").select("id, tenant_id, nome, perfil, whatsapp")
     .in("tenant_id", tenants).eq("ativo", true).not("whatsapp", "is", null);
   const equipe: Membro[] = (eq || []).map((x: any) => ({ ...x, fone: fone(x.whatsapp, null) })).filter((x: Membro) => x.fone);
+  // o serviço do WhatsApp só transcreve áudio de quem está nesta lista (só grava se mudou)
+  try { await cobRpc("cob_agenda_equipe_set", { p_token: token, p_telefones: equipe.map((m) => m.fone) }); }
+  catch (e) { console.error("equipe_set:", (e as Error).message); }
   if (!equipe.length) return 0;
   const porChave = new Map(equipe.map((m) => [chaveFone(m.fone), m]));
 
@@ -381,9 +385,18 @@ async function processarComandos(token: string) {
       await db.from("agenda_whats_comandos").update({ status: "ignorado", acao: "antiga", atualizado_em: new Date().toISOString() }).eq("id", comandoId);
       continue;
     }
+    // áudio já transcrito pelo serviço do WhatsApp chega com a marca 🎤 na frente
+    const bruto = String(m.texto || "");
+    const audio = bruto.startsWith(MARCA_AUDIO);
+    const texto = audio ? bruto.slice(MARCA_AUDIO.length).trim() : bruto;
     let r: Resultado;
-    try { r = await executar(u, String(m.texto || ""), comandoId); }
+    try { r = await executar(u, texto, comandoId); }
     catch (e) { r = { status: "erro", acao: "erro", resposta: "Não consegui fazer isso agora. Tente pelo app ou mande de novo em instantes." }; console.error("comando", m.id, e); }
+    if (audio) {
+      // no áudio, sempre diz o que ouviu (texto digitado que não é comando continua sem resposta)
+      const ouvi = `🎤 _Ouvi:_ "${texto.slice(0, 300)}"`;
+      r = { ...r, resposta: r.resposta ? `${ouvi}\n\n${r.resposta}` : `${ouvi}\n\nNão entendi o pedido. Mande *ajuda* para ver os comandos.` };
+    }
     let filaId: unknown = null;
     if (r.resposta) {
       try {

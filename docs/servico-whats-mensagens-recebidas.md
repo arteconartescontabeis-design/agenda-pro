@@ -6,6 +6,32 @@ tabela `cob_whatsapp_recebidas` (projeto Supabase do Cobrança). O resto já
 está pronto: a função `agenda-whats` lê essa tabela a cada 30 s, só considera
 os números da equipe cadastrados no Agenda Pro e responde pela fila de sempre.
 
+## Versão nova: artecon-whats v1.5.0 (10/10/2026) — pendente de instalar
+
+No OneDrive: `Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.5.0/`
+(`artecon-whats.js` e `guardar-chave-azure.bat`).
+
+- **Áudio da equipe:** mensagem de voz (até 60 s) de quem está em
+  `agenda_usuarios.whatsapp` é transcrita pela Azure (REST de áudio curto,
+  `pt-BR`, OGG/Opus) e guardada com a marca `🎤 `. O Agenda responde
+  `🎤 Ouvi: "..."` e o resultado do comando; se não entender, pede para mandar
+  `ajuda`. Áudio de cliente não é transcrito.
+- **Lista da equipe:** a função `agenda-whats` publica os números no Cobrança
+  (`cob_agenda_equipe_set` → `cob_agenda_integracao.equipe_chaves`); o serviço
+  lê com `cob_whatsapp_equipe` a cada 5 min.
+- **Chave:** cofre do Windows `ArteconRobo` → `AZURE_FALA_CHAVE` (o
+  `guardar-chave-azure.bat` grava). Região em `config.json` → `azure_regiao`
+  (padrão `brazilsouth`). Sem chave, o áudio da equipe recebe "mande por texto".
+- **Custo:** a Azure cobra por segundo de áudio; o plano gratuito dá 5 h/mês.
+  Limites no `config.json`: `audio_max_seg` (60), `audio_limite_dia_min` (30),
+  `audio_limite_mes_min` (270). O uso fica em `audio.json` na pasta do serviço.
+- **Resposta rápida:** depois de uma mensagem da equipe, o serviço olha
+  `cob_whatsapp_proxima_resposta` a cada 2 s por `resposta_rapida_seg` (90 s) e
+  envia sem a pausa de 20–45 s das cobranças (também fora do horário de envio).
+- Banco: `sql/cobranca_whatsapp_equipe_audio.sql` (aplicado). Teste do lado do
+  Agenda com áudio simulado: resposta `🎤 Ouvi: "Agenda amanhã."` em 12 s, ainda
+  com a v1.4.1 no servidor.
+
 ## Versão instalada: artecon-whats v1.4.1 (10/10/2026)
 
 Instalada no ARTEDB01 em 10/10/2026 e testada de ponta a ponta: a mensagem
