@@ -263,12 +263,13 @@ async function carregarTodosDados() {
     setLoadingMsg('Carregando agendamentos...');
     const agendamentos = await safeQuery(db, 'GET', 'agenda_agendamentos', { params: { tenant_id: `eq.${tid}`, select: '*', order: 'data_inicio.desc', limit: 200 } });
     setLoadingMsg('Finalizando...');
-    const [disponibilidade, bloqueios, config, tenants, compromissos] = await Promise.all([
+    const [disponibilidade, bloqueios, config, tenants, compromissos, whatsLib] = await Promise.all([
       safeQuery(db, 'GET', 'agenda_disponibilidade', { params: { tenant_id: `eq.${tid}`, select: '*' } }),
       safeQuery(db, 'GET', 'agenda_bloqueios',       { params: { tenant_id: `eq.${tid}`, select: '*', order: 'data_inicio.asc' } }),
       safeQuery(db, 'GET', 'agenda_config',          { params: { tenant_id: `eq.${tid}`, select: '*' } }),
       safeQuery(db, 'GET', 'agenda_tenants',         { params: { id: `eq.${tid}`, select: '*' } }),
       safeQuery(db, 'GET', 'agenda_compromissos',    { params: { tenant_id: `eq.${tid}`, usuario_id: `eq.${APP.user?.id}`, select: '*', order: 'data_inicio.desc', limit: 200 } }),
+      safeQuery(db, 'GET', 'agenda_whats_tenants',   { params: { tenant_id: `eq.${tid}`, select: 'ativo' } }),
     ]);
     CLIENTES.length       = 0; clientes.forEach(x => CLIENTES.push(x));
     SERVICOS.length       = 0; servicos.forEach(x => SERVICOS.push(x));
@@ -279,6 +280,7 @@ async function carregarTodosDados() {
     CONFIG.length         = 0; config.forEach(x => CONFIG.push(x));
     if (tenants && tenants[0]) { TENANT.id = tenants[0].id; TENANT.nome = tenants[0].nome; TENANT.plano = tenants[0].plano; }
     if (compromissos) { COMPROMISSOS.length = 0; compromissos.forEach(x => COMPROMISSOS.push(x)); }
+    WHATS.liberado = !!(whatsLib && whatsLib[0] && whatsLib[0].ativo);
   } catch(e) {
     toast('Erro ao carregar dados: ' + e.message, 'error')
   }
@@ -1098,6 +1100,7 @@ function renderClientes() {
     return c.nome.toLowerCase().includes(q) ||
            (c.email||'').toLowerCase().includes(q) ||
            (c.telefone||'').includes(q) ||
+           (c.whatsapp||'').includes(q) ||
            (c.cpf_cnpj||'').includes(q)
   }).sort((a,b) => a.nome.localeCompare(b.nome));
   $id('page-content').innerHTML = `<div class="card" style="padding:0;overflow:hidden">
@@ -1129,7 +1132,7 @@ ${list.length === 0 ?`<tr><td colspan="8"><div class="empty-state"><h3>Nenhum cl
                   </td>
                   <td style="padding:10px 14px">
                     <div style="font-size:13px">${c.email||'—'}</div>
-                    <div class="text-muted">${c.telefone||'—'}</div>
+                    <div class="text-muted">${c.telefone||'—'}${c.whatsapp ? ` · 💬 ${whatsEsc(c.whatsapp)}` : ''}</div>
                   </td>
                   <td style="padding:10px 14px;font-size:13px;color:var(--text-2)">${getUsuario(c.responsavel_id).nome.split(' ')[0]}</td>
                   <td style="padding:10px 14px">
@@ -1610,6 +1613,7 @@ ${clienteOpts}
 </div>
 <div id="nag-cliente-text-wrap" style="${clienteTextoVis}">
 <input type="text" class="form-input" id="nag-cliente-nome" placeholder="Nome do cliente (sem cadastro)" value="${pf.cliente_nome||''}">
+${WHATS.liberado ? `<input type="tel" class="form-input" id="nag-cliente-whats" placeholder="WhatsApp do cliente (opcional) — (48) 99999-9999" style="margin-top:6px">` : ''}
 </div>
 </div>
 <div class="form-field full">
@@ -1791,13 +1795,15 @@ async function salvarNovoAgendamento() {
     } else {
       clienteNome = $id('nag-cliente-nome')?.value.trim() || null
     }
+    const clienteWhats = (!clienteId && $id('nag-cliente-whats')?.value.trim()) || '';
+    if (clienteWhats && !whatsFone(clienteWhats, null)) { toast('WhatsApp inválido: informe DDD + número.', 'error'); reativarBtn(); return; }
     // Se ainda sem cliente, criar/reutilizar registro genérico
     if (!clienteId) {
       if (clienteNome) {
         // Criar cliente avulso
         try {
           const cliCriado = await APP.db('POST', 'agenda_clientes', {
-            body: { tenant_id: APP.tenantId, nome: clienteNome, ativo: true, noshow_count: 0, score: 100, obs_interna: '⚡ Cadastro avulso — criado automaticamente no agendamento' },
+            body: { tenant_id: APP.tenantId, nome: clienteNome, whatsapp: clienteWhats || null, ativo: true, noshow_count: 0, score: 100, obs_interna: '⚡ Cadastro avulso — criado automaticamente no agendamento' },
             returning: true
           });
           if (cliCriado && cliCriado[0]) { clienteId = cliCriado[0].id; CLIENTES.push(cliCriado[0]); }
@@ -1933,6 +1939,14 @@ function openNovoCliente() {
 <label class="form-label">Telefone</label>
 <input type="text" class="form-input" id="nc-tel" placeholder="(11) 99999-9999">
 </div>
+<div class="form-field">
+<label class="form-label">WhatsApp</label>
+<input type="tel" class="form-input" id="nc-whats" placeholder="(48) 99999-9999">
+</div>
+<div class="form-field">
+<label class="form-label">Avisos da agenda</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;min-height:38px;cursor:pointer"><input type="checkbox" id="nc-whats-avisos" checked style="width:16px;height:16px;accent-color:var(--accent)"> Enviar por WhatsApp</label>
+</div>
 <div class="form-field full">
 <label class="form-label">E-mail</label>
 <input type="email" class="form-input" id="nc-email" placeholder="cliente@email.com">
@@ -1947,12 +1961,16 @@ ${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}">${u.nome}</option>
 async function salvarNovoCliente() {
   const nome = $id('nc-nome').value.trim();
   if (!nome) { toast('Nome é obrigatório.', 'error'); return; }
+  const whats = $id('nc-whats').value.trim();
+  if (whats && !whatsFone(whats, null)) { toast('WhatsApp inválido: informe DDD + número.', 'error'); return; }
   const novoCli = {
     tenant_id: APP.tenantId,
     nome,
     cpf_cnpj:      $id('nc-doc').value.replace(/\D/g,'') || null,
     email:         $id('nc-email').value || null,
     telefone:      $id('nc-tel').value || null,
+    whatsapp:      whats || null,
+    whatsapp_avisos: $id('nc-whats-avisos').checked,
     responsavel_id:parseInt($id('nc-resp').value) || null,
     obs_interna:   $id('nc-obs').value || null,
     noshow_count: 0, score: 100, ativo: true
@@ -2000,6 +2018,14 @@ function openEditCliente(id) {
 <label class="form-label">Telefone</label>
 <input type="text" class="form-input" id="ec-tel" value="${c.telefone||''}">
 </div>
+<div class="form-field">
+<label class="form-label">WhatsApp</label>
+<input type="tel" class="form-input" id="ec-whats" value="${whatsEsc(c.whatsapp||'')}" placeholder="(48) 99999-9999">
+</div>
+<div class="form-field">
+<label class="form-label">Avisos da agenda</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;min-height:38px;cursor:pointer"><input type="checkbox" id="ec-whats-avisos" ${c.whatsapp_avisos === false ? '' : 'checked'} style="width:16px;height:16px;accent-color:var(--accent)"> Enviar por WhatsApp</label>
+</div>
 <div class="form-field full">
 <label class="form-label">E-mail</label>
 <input type="email" class="form-input" id="ec-email" value="${c.email||''}">
@@ -2022,6 +2048,8 @@ ${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}" ${c.responsavel_id
 async function salvarEditCliente(id) {
   const c = CLIENTES.find(x => x.id === id);
   if (!c) return;
+  const whats = $id('ec-whats').value.trim();
+  if (whats && !whatsFone(whats, null)) { toast('WhatsApp inválido: informe DDD + número.', 'error'); return; }
   const btn = document.querySelector('#modal-footer .btn-accent');
   if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
   try {
@@ -2029,6 +2057,8 @@ async function salvarEditCliente(id) {
       nome:          $id('ec-nome').value.trim() || c.nome,
       cpf_cnpj:      $id('ec-doc').value.replace(/\D/g,'') || null,
       telefone:      $id('ec-tel').value || null,
+      whatsapp:      whats || null,
+      whatsapp_avisos: $id('ec-whats-avisos').checked,
       email:         $id('ec-email').value || null,
       responsavel_id:parseInt($id('ec-resp').value) || null,
       obs_interna:   $id('ec-obs').value || null,
@@ -2167,6 +2197,10 @@ function openDetalheCliente(id) {
 <div class="detail-row">
 <div class="detail-label">Telefone</div>
 <div class="detail-value">${c.telefone||'—'}</div>
+</div>
+<div class="detail-row">
+<div class="detail-label">WhatsApp</div>
+<div class="detail-value">${c.whatsapp ? whatsEsc(c.whatsapp) : '—'}${c.whatsapp_avisos === false ? ' <span class="text-muted">(não recebe avisos da agenda)</span>' : ''}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Responsável</div>
