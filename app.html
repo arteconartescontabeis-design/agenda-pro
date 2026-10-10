@@ -86,6 +86,15 @@ body.modo-simples .nav-item[data-page="bloqueios"],body.modo-simples .nav-item[d
   .pn-kpis{grid-template-columns:repeat(2,1fr)}
   .hj-atalhos{gap:8px}
 }
+  /* v2.2.0: troca da senha provisória */
+  .troca-senha{position:fixed;inset:0;z-index:9500;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+  .troca-senha-box{background:var(--surface);color:inherit;border-radius:14px;padding:22px;width:100%;max-width:400px;box-shadow:0 20px 50px rgba(0,0,0,.3);font-family:var(--font)}
+  .troca-senha-box h2{font-size:18px;margin:0 0 8px}
+  .troca-senha-box p{font-size:13px;color:var(--text-2);margin:0 0 10px;line-height:1.45}
+  .troca-senha-box .ts-obs{font-size:12px;color:var(--text-3)}
+  .troca-senha-box .form-input{width:100%;margin:4px 0 10px;box-sizing:border-box}
+  .troca-senha-box .ts-erro{color:#b91c1c;font-size:13px;margin:0 0 10px}
+  .troca-senha-box .ts-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
 </style>
 </head>
 <body><div id="loading-screen" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px"><div style="font-size:22px;font-weight:700;color:var(--text-1)">Agenda<span style="color:var(--accent)">Pro</span></div><div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div><div id="loading-msg" style="font-size:13px;color:var(--text-2);min-height:20px">Iniciando...</div><button id="loading-retry-btn" onclick="location.reload()" style="display:none;margin-top:8px;padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-2);font-size:13px;cursor:pointer">🔄 Tentar novamente</button>
@@ -310,14 +319,17 @@ async function carregarDadosUsuario(authId, email) {
     const users = await APP.db('GET', 'agenda_usuarios', {
       params: { 'auth_id': `eq.${authId}`, 'select': '*' }
     });
-    if (!users || users.length === 0) {
-      toast('Usuário não encontrado no sistema. Contate o administrador.', 'error');
+    // v2.2.0: a segurança do banco só mostra o próprio cadastro a quem está ATIVO (desativado pelo app ou pelo Portal Artecon)
+    if (!users || users.length === 0 || users[0].ativo === false) {
+      toast('Seu acesso ao Agenda Pro não está ativo. Fale com o administrador do escritório.', 'error');
+      await doLogout();
       return
     }
     APP.user = users[0];
     APP.tenantId = users[0].tenant_id;
     await carregarTodosDados();
-    showApp()
+    showApp();
+    if (APP.authUser && APP.authUser.user_metadata && APP.authUser.user_metadata.trocar_senha) senhaPedirTroca()
   } catch(e) {
     toast('Erro ao carregar dados: ' + e.message, 'error')
   }
@@ -426,6 +438,58 @@ async function doLogout() {
   $id('app').classList.remove('visible');
   $id('auth-screen').classList.add('visible');
   $id('app').style.display = 'none'
+}
+// v2.2.0: senha provisória (do convite em Colaboradores ou do Portal Artecon): a pessoa cria a própria senha antes de usar o app
+function senhaPedirTroca() {
+  if ($id('troca-senha')) return;
+  const el = document.createElement('div');
+  el.id = 'troca-senha';
+  el.className = 'troca-senha';
+  el.innerHTML = `<div class="troca-senha-box" role="dialog" aria-modal="true" aria-labelledby="ts-tit">
+    <h2 id="ts-tit">Crie a sua senha</h2>
+    <p>Você entrou com uma senha provisória. Escolha a sua senha, com pelo menos 8 caracteres, para continuar.</p>
+    <p class="ts-obs">Ela vale também para o Financeiro Pro, que usa o mesmo login.</p>
+    <label class="form-label" for="ts-s1">Nova senha</label>
+    <input class="form-input" id="ts-s1" type="password" autocomplete="new-password">
+    <label class="form-label" for="ts-s2">Repita a nova senha</label>
+    <input class="form-input" id="ts-s2" type="password" autocomplete="new-password" onkeydown="if(event.key==='Enter')senhaSalvarTroca()">
+    <div class="ts-erro" id="ts-erro" hidden></div>
+    <div class="ts-acoes"><button class="btn btn-ghost" onclick="senhaSairTroca()">Sair</button>
+    <button class="btn btn-primary" id="ts-ok" onclick="senhaSalvarTroca()">Salvar senha</button></div>
+  </div>`;
+  document.body.appendChild(el);
+  setTimeout(() => { const i = $id('ts-s1'); if (i) i.focus(); }, 50)
+}
+async function senhaSairTroca() {
+  const el = $id('troca-senha'); if (el) el.remove();
+  await doLogout()
+}
+async function senhaSalvarTroca() {
+  const s1 = $id('ts-s1').value, s2 = $id('ts-s2').value, erro = $id('ts-erro'), btn = $id('ts-ok');
+  const falha = (m) => { erro.textContent = m; erro.hidden = false };
+  if (s1.length < 8) return falha('A senha precisa de pelo menos 8 caracteres.');
+  if (s1 !== s2) return falha('As duas senhas não são iguais.');
+  erro.hidden = true; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${APP.authToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: s1, data: { trocar_senha: false } })
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const det = j.msg || j.error_description || j.message || ('erro ' + res.status);
+      return falha(/different from the old/i.test(det) ? 'Escolha uma senha diferente da provisória.' : 'Não foi possível salvar: ' + det)
+    }
+    APP.authUser = j.user || (j.id ? j : APP.authUser);
+    if (localStorage.getItem('agenda_remember') === '1') { try { localStorage.setItem('agenda_saved_pass', btoa(s1)) } catch(e) { localStorage.removeItem('agenda_saved_pass') } }
+    const el = $id('troca-senha'); if (el) el.remove();
+    toast('Senha criada. Use-a nas próximas entradas.', 'success')
+  } catch(e) {
+    falha('Erro de conexão: ' + e.message)
+  } finally {
+    if ($id('ts-ok')) { btn.disabled = false; btn.textContent = 'Salvar senha' }
+  }
 }
 function showApp() {
   $id('loading-screen').style.display = 'none';
@@ -3743,8 +3807,12 @@ async function interpretarVoz(texto) {
 // VERSÃO E ATUALIZAÇÕES
 // A cada atualização: subir APP_VERSAO, acrescentar a versão no topo de VERSOES,
 // trocar o número em version.json e o CACHE_NAME do service-worker.js.
-const APP_VERSAO = '2.1.0';
+const APP_VERSAO = '2.2.0';
 const VERSOES = [
+  { v: '2.2.0', data: '10/10/2026', itens: [
+    'O acesso ao Agenda Pro pode ser liberado e revogado pelo Portal Artecon, na tela Acessos (Leitura, Operador ou Administrador).',
+    'Quem recebe uma senha provisória (pelo portal ou pelo convite em Colaboradores) cria a própria senha no primeiro acesso.',
+    'Pessoa desativada não consegue mais entrar no Agenda (antes ela só sumia das listas).' ] },
   { v: '2.1.0', data: '10/10/2026', itens: [
     'Número da versão no topo da tela; tocando nele aparece este histórico.',
     'Aviso automático quando sai uma versão nova, com botão para atualizar.',

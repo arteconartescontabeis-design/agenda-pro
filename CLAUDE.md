@@ -29,6 +29,14 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
 - Edge Functions:
   - `agenda-whats` (index.ts + comandos.ts): avisos ao cliente e comandos da equipe por WhatsApp. Roda pelo pg_cron a cada 30 s.
   - `agenda-equipe`: cadastra pessoa da equipe (cria o login com senha provisória ou reaproveita o existente).
+  - `portal-provisionar` (index.ts + provisionar.ts; Verify JWT **desligado**): chamada pelo Portal Artecon (Acessos). Confere a
+    sessão e o papel de administrador no núcleo do portal (projeto `fbxelwhdiisfmnwrerbl`), acha o escritório em `agenda_portal_orgs`
+    (Artecon = org `a47ec000-…0001` → tenant 2) e cria/reativa/desativa a pessoa em `agenda_usuarios`. Níveis do portal:
+    leitura → visualizador, operador → colaborador (gerente continua gerente), admin → admin. Nunca bloqueia o login (é o mesmo do
+    Financeiro Pro) e só troca a senha de quem já tem login com `redefinir: true`. Protege o último administrador.
+- Senha provisória: login criado pelo portal ou pelo convite leva `user_metadata.trocar_senha = true`; o app (v2.2.0+) pede a senha nova.
+- Pessoa com `agenda_usuarios.ativo = false` não vê dados: `agenda_meu_tenant_id/perfil/usuario_id` só olham cadastros ativos
+  (`sql/agenda_portal_controle.sql`).
 
 ## WhatsApp (mesmo número do Cobrança Pro)
 - O serviço `artecon-whats` (servidor ARTEDB01, código fora do GitHub) envia o que está em `cob_whatsapp_fila` no projeto do Cobrança (`yeujqjtjqtegsnzwwazb`).
@@ -46,7 +54,9 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
    `guardar-chave-azure.bat`. As 5 h/mês grátis de transcrição são do recurso inteiro (dividem com outros usos da mesma chave,
    como o Corretor de Vídeos do Radar, que usa a CHAVE 2). A avaliação grátis da Azure vence por volta de **08/11/2026**: antes
    disso, passar a assinatura para pagamento conforme o uso (o F0 continua grátis), senão o recurso para — também pendente no Projeto Criança.
-2. **Agenda Pro no Portal Artecon, com o controle de acesso** (pedido em 10/10/2026).
+2. ~~**Agenda Pro no Portal Artecon, com o controle de acesso**~~ **Feito em 10/10/2026** (portal v1.5.0 + Agenda v2.2.0 +
+   função `portal-provisionar`). Ficou como o Cobrança: login próprio com senha provisória. Em aberto, se o usuário quiser:
+   entrar no Agenda direto pelo portal (sem digitar a senha de novo) e cadastrar o WhatsApp da pessoa pelo portal. Anotações originais:
    - Hoje: o Agenda já está no catálogo do portal (núcleo, projeto Supabase `fbxelwhdiisfmnwrerbl`: `core.apps` id `agenda`,
      destino `https://arteconartescontabeis-design.github.io/agenda-pro/`, papéis `leitura`/`operador`/`admin` em `core.app_roles`,
      liberações em `core.app_access`). Mas liberar ou revogar no portal **não** mexe no login do Agenda.
