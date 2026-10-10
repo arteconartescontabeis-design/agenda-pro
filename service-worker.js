@@ -1,7 +1,7 @@
-// Agenda Pro — Service Worker v4
+// Agenda Pro — Service Worker (acompanha a versão do app: APP_VERSAO no app.html)
 // Suporta: cache offline + notificações com app fechado
 
-const CACHE_NAME = 'agenda-pro-v4';
+const CACHE_NAME = 'agenda-pro-v2.1.0';   // trocar a cada versão nova
 const SUPA_HOSTS = ['hwvguqfprbjfqtxkmgiz.supabase.co', 'vuwgxndahrzinfdlapxz.supabase.co'];
 
 // Lembretes agendados: { key: { disparo, titulo, corpo, agId } }
@@ -25,11 +25,29 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Não interceptar Supabase
+  // Não interceptar Supabase, outros sites (fontes, bibliotecas) nem envios
   if (SUPA_HOSTS.some(h => url.hostname.includes(h))) return;
+  if (url.origin !== self.location.origin || e.request.method !== 'GET') return;
+  // version.json: sempre da internet (é o que avisa que saiu versão nova)
+  if (url.pathname.endsWith('version.json')) return;
 
-  // Cache-first para assets estáticos
-  if (e.request.method === 'GET') {
+  // Páginas: primeiro a internet (versão mais nova); a cópia guardada só sem conexão
+  const ehPagina = e.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+  if (ehPagina) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Ícones e demais arquivos do próprio app: cópia guardada primeiro
+  {
     e.respondWith(
       caches.match(e.request).then(cached => {
         if (cached) return cached;
