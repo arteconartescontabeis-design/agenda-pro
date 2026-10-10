@@ -2350,9 +2350,9 @@ async function salvarNotasCliente(cliId) {
   }
 }
 function openNovoColaborador() {
-  $id('modal-title').textContent = 'Convidar Colaborador';
-  $id('modal-body').innerHTML = `<p style="color:var(--text-2);font-size:13px;margin-bottom:16px">Um convite será enviado para o e-mail informado. O colaborador definirá sua própria senha.</p> <div class="form-grid"> <div class="form-field full"> <label class="form-label">Nome</label> <input type="text" class="form-input" id="ncol-nome" placeholder="Nome do colaborador"> </div> <div class="form-field full"> <label class="form-label">E-mail</label> <input type="email" class="form-input" id="ncol-email" placeholder="colaborador@escritorio.com.br"> </div> <div class="form-field full"> <label class="form-label">Perfil de acesso</label> <select class="form-select" id="ncol-perfil"> <option value="colaborador">Colaborador</option> <option value="gerente">Gerente</option> <option value="visualizador">Visualizador</option> <option value="admin">Administrador</option> </select> </div> </div>`;
-  $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button> <button class="btn btn-accent" onclick="salvarColaborador()">Enviar convite</button>`;
+  $id('modal-title').textContent = 'Novo colaborador';
+  $id('modal-body').innerHTML = `<p style="color:var(--text-2);font-size:13px;margin-bottom:16px">O acesso é criado na hora, com uma senha provisória que aparece ao salvar para você repassar. Se o e-mail já tiver login (por exemplo, do Financeiro Pro), a pessoa entra com a senha que já usa.</p> <div class="form-grid"> <div class="form-field full"> <label class="form-label">Nome</label> <input type="text" class="form-input" id="ncol-nome" placeholder="Nome do colaborador"> </div> <div class="form-field full"> <label class="form-label">E-mail</label> <input type="email" class="form-input" id="ncol-email" placeholder="colaborador@escritorio.com.br"> </div> <div class="form-field full"> <label class="form-label">WhatsApp <span style="color:var(--text-3);font-weight:400">(opcional — para agendar mandando mensagem)</span></label> <input type="tel" class="form-input" id="ncol-whats" placeholder="(48) 99999-9999"> </div> <div class="form-field full"> <label class="form-label">Perfil de acesso</label> <select class="form-select" id="ncol-perfil"> <option value="colaborador">Colaborador</option> <option value="gerente">Gerente</option> <option value="visualizador">Visualizador</option> <option value="admin">Administrador</option> </select> </div> </div>`;
+  $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button> <button class="btn btn-accent" onclick="salvarColaborador()">Cadastrar</button>`;
   openModal()
 }
 function editColaborador(id) {
@@ -2442,27 +2442,45 @@ async function salvarColaborador() {
   const nome  = $id('ncol-nome').value.trim();
   const email = $id('ncol-email').value.trim();
   const perfil= $id('ncol-perfil').value;
+  const whats = ($id('ncol-whats')?.value || '').trim();
   if (!nome || !email) { toast('Preencha nome e e-mail.', 'error'); return; }
+  if (whats && !whatsFone(whats, null)) { toast('WhatsApp inválido: informe DDD + número.', 'error'); return; }
   const btn = document.querySelector('#modal-footer .btn-accent');
-  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Cadastrando...'; }
   try {
-    const novoUsuario = {
-      tenant_id: APP.tenantId,
-      auth_id:   crypto.randomUUID(),
-      nome,
-      email,
-      perfil,
-      ativo: true,
-    };
-    const criado = await APP.db('POST', 'agenda_usuarios', { body: novoUsuario, returning: true });
-    USUARIOS.push(criado[0] ?? { ...novoUsuario, id: Date.now() });
-    closeModal();
-    toast('Colaborador ' + nome + ' adicionado!', 'success');
-    go('colaboradores')
+    // o login precisa ser criado no servidor (Edge Function agenda-equipe)
+    const res = await fetchWithTimeout(`${SUPA_URL}/functions/v1/agenda-equipe`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${APP.authToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, email, perfil, whatsapp: whats || null })
+    }, 20000);
+    const r = await res.json().catch(() => ({}));
+    if (!res.ok || !r.ok) throw new Error(r.erro || r.message || ('HTTP ' + res.status));
+    USUARIOS.push(r.usuario);
+    colaboradorMostrarAcesso(r.usuario, r.senha, r.ja_tinha_login)
   } catch(e) {
-    toast('Erro ao salvar colaborador: ' + e.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Enviar convite'; }
+    toast('Erro ao cadastrar: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Cadastrar'; }
   }
+}
+// Mostra os dados de acesso da pessoa recém-cadastrada, para repassar
+function colaboradorMostrarAcesso(u, senha, jaTinhaLogin) {
+  const link = location.href.split('#')[0];
+  const texto = `Olá, ${u.nome.split(' ')[0]}! Seu acesso ao Agenda Pro:\n${link}\nE-mail: ${u.email}` + (senha ? `\nSenha provisória: ${senha}` : '\nSenha: a mesma que você já usa');
+  const wpp = whatsFone(u.whatsapp, null);
+  $id('modal-title').textContent = '✅ ' + u.nome.split(' ')[0] + ' foi cadastrado(a)';
+  $id('modal-body').innerHTML = `<div style="font-size:13px;color:var(--text-2);margin-bottom:12px">${jaTinhaLogin
+      ? 'Esse e-mail já tinha login no sistema: a pessoa entra com a senha que já usa.'
+      : 'Repasse estes dados. A senha aparece só agora; guarde ou envie em seguida.'}</div>
+<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;line-height:1.8">
+<div><span class="text-muted">Endereço</span><br><b style="word-break:break-all">${whatsEsc(link)}</b></div>
+<div><span class="text-muted">E-mail</span><br><b>${whatsEsc(u.email)}</b></div>
+${senha ? `<div><span class="text-muted">Senha provisória</span><br><b style="font-family:var(--mono);font-size:18px;letter-spacing:1px">${whatsEsc(senha)}</b></div>` : ''}
+</div>`;
+  $id('modal-footer').innerHTML = `${wpp ? `<a class="btn btn-outline" href="https://wa.me/55${wpp}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">💬 Enviar pelo WhatsApp</a>` : ''}
+<button class="btn btn-outline" onclick="navigator.clipboard && navigator.clipboard.writeText(${whatsEsc(JSON.stringify(texto))}).then(() => toast('Copiado!', 'success'))">Copiar</button>
+<button class="btn btn-accent" onclick="closeModal();go('colaboradores')">Concluir</button>`;
+  openModal()
 }
 // MODAL ENGINE
 function openModal() {
