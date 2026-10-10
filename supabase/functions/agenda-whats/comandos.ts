@@ -55,9 +55,6 @@ class Palavras {
     for (let i = ini; i <= fim; i++) this.usada[i] = true;
     return m;
   }
-  restoOrig(ateIndice = this.orig.length) {
-    return this.orig.filter((_, i) => i < ateIndice && !this.usada[i]);
-  }
 }
 
 function lerData(p: Palavras, h: Hoje): string | null {
@@ -120,18 +117,18 @@ function lerDuracao(p: Palavras): number | null {
   return m ? Math.max(5, Math.min(600, +m[1])) : null;
 }
 
-function acharServico(p: Palavras, servicos: Servico[]): Servico | null {
-  const livres = p.norm.map((w, i) => (p.usada[i] ? "" : w)).join(" ");
-  let melhor: Servico | null = null, tam = 0;
+// Serviço cujo nome aparece inteiro, em sequência, nas palavras indicadas (o mais longo vence).
+function acharServico(p: Palavras, idx: number[], servicos: Servico[]) {
+  const ws = idx.map((i) => p.norm[i]);
+  let melhor: { s: Servico; ini: number; fim: number } | null = null;
   for (const s of servicos) {
-    const n = normalizar(s.nome);
-    if (!n || /sem servi/.test(n)) continue;
-    const re = new RegExp(`(?:^| )${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?= |$)`);
-    if (re.test(livres) && n.length > tam) { melhor = s; tam = n.length; }
-  }
-  if (melhor) {
-    const n = normalizar(melhor.nome).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    p.pegar(new RegExp(`(?:^| )${n}(?= |$)`));
+    const alvo = normalizar(s.nome).split(/\s+/).filter(Boolean);
+    if (!alvo.length || /sem servi/.test(alvo.join(" "))) continue;
+    for (let i = 0; i + alvo.length <= ws.length; i++) {
+      if (alvo.every((a, j) => ws[i + j] === a) && (!melhor || alvo.length > melhor.fim - melhor.ini)) {
+        melhor = { s, ini: i, fim: i + alvo.length };
+      }
+    }
   }
   return melhor;
 }
@@ -177,10 +174,39 @@ export function interpretar(texto: string, h: Hoje, clientes: Cliente[], servico
   const duracao = lerDuracao(p);
   if (ehLista && !hora) return { acao: "listar", data: data || somarDias(h, 0) };
 
-  const servico = acharServico(p, servicos);
-  const resto = p.restoOrig().filter((w) => !LIGACOES.has(normalizar(w))).join(" ").trim();
-  const { cliente, ambiguos } = acharCliente(resto, clientes);
-  const clienteNovo = !cliente && !ambiguos.length && resto.replace(/\s/g, "").length >= 3 ? titulo(resto) : null;
+  // Trechos de palavras que sobraram, separados pela data/hora/duração já lidas.
+  // O 1º trecho é o cliente ("agendar <cliente> amanhã 10h <serviço>"), exceto
+  // em "agendar <serviço> com <cliente> ...". O serviço só sai de dentro do
+  // nome do cliente se o que sobrar for um cliente já cadastrado.
+  const trechos: number[][] = [];
+  let atual: number[] = [];
+  p.orig.forEach((_, i) => {
+    if (p.usada[i]) { if (atual.length) trechos.push(atual); atual = []; } else atual.push(i);
+  });
+  if (atual.length) trechos.push(atual);
+  const texto_ = (idx: number[]) => idx.map((i) => p.orig[i]).filter((w) => !LIGACOES.has(normalizar(w))).join(" ").trim();
+
+  let doCliente = trechos[0] || [];
+  let servico: Servico | null = null;
+  const k = doCliente.findIndex((i, j) => j > 0 && ["com", "para", "pra"].includes(p.norm[i]));
+  if (k > 0) {
+    const sv = acharServico(p, doCliente.slice(0, k), servicos);
+    if (sv && sv.ini === 0) { servico = sv.s; doCliente = doCliente.slice(k + 1); }
+  }
+  if (!servico) {
+    for (const t of trechos.slice(1)) { const sv = acharServico(p, t, servicos); if (sv) { servico = sv.s; break; } }
+  }
+  let { cliente, ambiguos } = acharCliente(texto_(doCliente), clientes);
+  if (!cliente && !servico) {
+    const sv = acharServico(p, doCliente, servicos);
+    if (sv) {
+      const resto = doCliente.filter((_, j) => j < sv.ini || j >= sv.fim);
+      const r = acharCliente(texto_(resto), clientes);
+      if (r.cliente) { cliente = r.cliente; ambiguos = []; servico = sv.s; doCliente = resto; }
+    }
+  }
+  const nome = texto_(doCliente);
+  const clienteNovo = !cliente && !ambiguos.length && nome.replace(/\s/g, "").length >= 3 ? titulo(nome) : null;
   return { acao: "agendar", data, hora, duracao, cliente, clienteNovo, ambiguos, servico, obs };
 }
 
