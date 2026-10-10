@@ -20,7 +20,8 @@ No OneDrive: `Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização W
   (`cob_agenda_equipe_set` → `cob_agenda_integracao.equipe_chaves`); o serviço
   lê com `cob_whatsapp_equipe` a cada 5 min.
 - **Chave:** cofre do Windows `ArteconRobo` → `AZURE_FALA_CHAVE` (o
-  `guardar-chave-azure.bat` grava). Região em `config.json` → `azure_regiao`
+  `guardar-chave-azure.bat` grava). Usar o recurso de voz que já existe, do
+  Projeto Criança: `artecon-voz` (Brazil South, plano Gratuito F0). Região em `config.json` → `azure_regiao`
   (padrão `brazilsouth`). Sem chave, o áudio da equipe recebe "mande por texto".
 - **Custo:** a Azure cobra por segundo de áudio; o plano gratuito dá 5 h/mês.
   Limites no `config.json`: `audio_max_seg` (60), `audio_limite_dia_min` (30),
