@@ -6,10 +6,26 @@ tabela `cob_whatsapp_recebidas` (projeto Supabase do Cobrança). O resto já
 está pronto: a função `agenda-whats` lê essa tabela a cada 30 s, só considera
 os números da equipe cadastrados no Agenda Pro e responde pela fila de sempre.
 
-## Versão pronta: artecon-whats v1.4.0 (10/10/2026)
+## Versão instalada: artecon-whats v1.4.1 (10/10/2026)
+
+Instalada no ARTEDB01 em 10/10/2026 e testada de ponta a ponta: a mensagem
+"ajuda" mandada do celular da equipe foi guardada, entendida pelo Agenda e
+respondida em 22 segundos.
 
 O arquivo completo está no OneDrive, em
-`Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.4.0/artecon-whats.js`.
+`Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.4.1/artecon-whats.js`.
+
+O que a v1.4.1 acrescenta à v1.4.0:
+- toda mensagem de conversa individual que **não** for guardada aparece no log
+  com o motivo (o WhatsApp não conseguiu ler, sem texto, enviada pelo próprio
+  número da Artecon). A v1.4.0 descartava em silêncio e o primeiro teste real
+  não foi guardado sem deixar pista;
+- lê o texto que vem "embrulhado" (temporária, visualização única etc.);
+- o início do log mostra a versão da biblioteca `baileys` instalada.
+
+As mensagens da equipe chegam como `@lid`; o número vem em `remoteJidAlt`.
+
+### Histórico: v1.4.0
 Foi feito a partir da v1.3.1 (a da pasta `Versão Atual`), então também leva o
 Pix copia e cola e a conferência da chave Pix (v1.3.0 e v1.3.1).
 
