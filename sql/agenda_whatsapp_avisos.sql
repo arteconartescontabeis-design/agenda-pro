@@ -4,7 +4,7 @@
 --
 -- Como funciona:
 --   1. Gatilho em agenda_agendamentos cria o aviso (confirmação,
---      cancelamento, reagendamento) em agenda_notificacoes, status 'pendente'.
+--      cancelamento, reagendamento) em agenda_whats_avisos, status 'pendente'.
 --   2. agenda_whats_gerar_lembretes() cria os lembretes (24 h antes e no dia).
 --   3. A Edge Function agenda-whats (chamada pelo pg_cron a cada 2 min e
 --      pelo app logo após salvar) reserva os pendentes, monta o texto e
@@ -20,23 +20,31 @@
 alter table public.agenda_clientes
   add column if not exists whatsapp_avisos boolean not null default true;
 
--- ── 2. Notificações: campos de envio ────────────────────────
-alter table public.agenda_notificacoes
-  add column if not exists mensagem      text,
-  add column if not exists fila_id       bigint,
-  add column if not exists chave         text,
-  add column if not exists atualizado_em timestamptz not null default now();
-alter table public.agenda_notificacoes alter column agendamento_id drop not null;  -- mensagem de teste não tem agendamento
-alter table public.agenda_notificacoes drop constraint if exists agenda_notificacoes_status_check;
-alter table public.agenda_notificacoes add constraint agenda_notificacoes_status_check
-  check (status in ('pendente','enviando','na_fila','enviado','falha','cancelado'));
-alter table public.agenda_notificacoes drop constraint if exists agenda_notificacoes_tipo_check;
-alter table public.agenda_notificacoes add constraint agenda_notificacoes_tipo_check
-  check (tipo in ('lembrete_24h','lembrete_dia','confirmacao','cancelamento','reagendamento','teste'));
-create unique index if not exists agenda_notificacoes_chave_uk on public.agenda_notificacoes (chave);
-create index if not exists agenda_notificacoes_abertas_ix on public.agenda_notificacoes (status)
+-- ── 2. Avisos de WhatsApp (fila de saída do Agenda) ────────
+create table if not exists public.agenda_whats_avisos (
+  id              bigserial primary key,
+  tenant_id       bigint not null references public.agenda_tenants(id) on delete cascade,
+  agendamento_id  bigint references public.agenda_agendamentos(id) on delete cascade,  -- vazio na mensagem de teste
+  tipo            text not null check (tipo in ('confirmacao','lembrete_24h','lembrete_dia','cancelamento','reagendamento','teste')),
+  telefone        text not null,
+  status          text not null default 'pendente'
+                  check (status in ('pendente','enviando','na_fila','enviado','falha','cancelado')),
+  tentativas      integer not null default 0,
+  mensagem        text,
+  fila_id         bigint,          -- id em cob_whatsapp_fila (Cobrança Pro)
+  erro            text,
+  chave           text not null unique,  -- evita aviso repetido
+  criado_em       timestamptz not null default now(),
+  atualizado_em   timestamptz not null default now(),
+  enviado_em      timestamptz
+);
+create index if not exists agenda_whats_avisos_abertos_ix on public.agenda_whats_avisos (status)
   where status in ('pendente','enviando','na_fila');
-create index if not exists agenda_notificacoes_ag_ix on public.agenda_notificacoes (agendamento_id);
+create index if not exists agenda_whats_avisos_ag_ix on public.agenda_whats_avisos (agendamento_id);
+create index if not exists agenda_whats_avisos_tenant_ix on public.agenda_whats_avisos (tenant_id, criado_em desc);
+alter table public.agenda_whats_avisos enable row level security;
+create policy whats_avisos_select on public.agenda_whats_avisos
+  for select using (tenant_id = public.agenda_meu_tenant_id());
 
 -- ── 3. Escritórios liberados para usar o WhatsApp da Artecon ─
 create table if not exists public.agenda_whats_tenants (
@@ -45,7 +53,6 @@ create table if not exists public.agenda_whats_tenants (
   criado_em  timestamptz not null default now()
 );
 alter table public.agenda_whats_tenants enable row level security;
-drop policy if exists whats_tenants_select on public.agenda_whats_tenants;
 create policy whats_tenants_select on public.agenda_whats_tenants
   for select using (tenant_id = public.agenda_meu_tenant_id());
 
@@ -88,8 +95,8 @@ begin
   if not found or not v_cli.whatsapp_avisos then return false; end if;
   v_fone := public.agenda_whats_fone(v_cli.whatsapp, v_cli.telefone);
   if v_fone is null then return false; end if;
-  insert into public.agenda_notificacoes (tenant_id, agendamento_id, tipo, canal, destinatario, status, chave)
-  values (v_ag.tenant_id, v_ag.id, p_tipo, 'whatsapp', v_fone, 'pendente', p_chave)
+  insert into public.agenda_whats_avisos (tenant_id, agendamento_id, tipo, telefone, status, chave)
+  values (v_ag.tenant_id, v_ag.id, p_tipo, v_fone, 'pendente', p_chave)
   on conflict (chave) do nothing;
   return found;
 end $$;
@@ -108,12 +115,12 @@ begin
         end if;
       elsif new.status in ('cancelado_cliente', 'cancelado_escritorio')
             and old.status not in ('cancelado_cliente', 'cancelado_escritorio') then
-        update public.agenda_notificacoes set status = 'cancelado', erro_detalhe = 'agendamento cancelado', atualizado_em = now()
+        update public.agenda_whats_avisos set status = 'cancelado', erro = 'agendamento cancelado', atualizado_em = now()
          where agendamento_id = new.id and status = 'pendente';
         perform public.agenda_whats_criar(new.id, 'cancelamento', 'cancelamento:' || new.id || ':' || v_ep);
       elsif new.data_inicio is distinct from old.data_inicio
             and new.status not in ('cancelado_cliente', 'cancelado_escritorio', 'concluido', 'nao_compareceu') then
-        update public.agenda_notificacoes set status = 'cancelado', erro_detalhe = 'agendamento reagendado', atualizado_em = now()
+        update public.agenda_whats_avisos set status = 'cancelado', erro = 'agendamento reagendado', atualizado_em = now()
          where agendamento_id = new.id and status = 'pendente';
         perform public.agenda_whats_criar(new.id, 'reagendamento', 'reagendamento:' || new.id || ':' || v_ep);
       elsif new.status = 'confirmado' and old.status in ('solicitado', 'pendente_confirmacao') then
@@ -126,8 +133,7 @@ begin
   return new;
 end $$;
 
-drop trigger if exists trg_whats_evento on public.agenda_agendamentos;
-create trigger trg_whats_evento
+create or replace trigger trg_whats_evento
   after insert or update of status, data_inicio on public.agenda_agendamentos
   for each row execute function public.agenda_whats_evento();
 
@@ -175,19 +181,19 @@ end $$;
 
 -- ── 7. Reserva para envio (evita mandar duas vezes) ─────────
 create or replace function public.agenda_whats_reservar(p_limite integer default 20)
-returns setof public.agenda_notificacoes language plpgsql security definer set search_path = public as $$
+returns setof public.agenda_whats_avisos language plpgsql security definer set search_path = public as $$
 begin
   -- os que travaram em 'enviando' voltam para a fila (até 3 tentativas)
-  update public.agenda_notificacoes
+  update public.agenda_whats_avisos
      set status = case when tentativas >= 3 then 'falha' else 'pendente' end,
-         erro_detalhe = case when tentativas >= 3 then coalesce(erro_detalhe, 'não foi possível colocar na fila') else erro_detalhe end,
+         erro = case when tentativas >= 3 then coalesce(erro, 'não foi possível colocar na fila') else erro end,
          atualizado_em = now()
    where status = 'enviando' and atualizado_em < now() - interval '10 minutes';
   return query
-    update public.agenda_notificacoes n
+    update public.agenda_whats_avisos n
        set status = 'enviando', tentativas = n.tentativas + 1, atualizado_em = now()
-     where n.id in (select x.id from public.agenda_notificacoes x
-                     where x.status = 'pendente' and x.canal = 'whatsapp'
+     where n.id in (select x.id from public.agenda_whats_avisos x
+                     where x.status = 'pendente'
                      order by x.id for update skip locked limit p_limite)
     returning n.*;
 end $$;
@@ -214,12 +220,12 @@ begin
   end if;
   v_fone := public.agenda_whats_fone(p_telefone, null);
   if v_fone is null then raise exception 'Telefone inválido: informe DDD + número.'; end if;
-  if (select count(*) from public.agenda_notificacoes
+  if (select count(*) from public.agenda_whats_avisos
        where tenant_id = v_t and tipo = 'teste' and criado_em > now() - interval '1 day') >= 10 then
     raise exception 'Limite de 10 mensagens de teste por dia.';
   end if;
-  insert into public.agenda_notificacoes (tenant_id, agendamento_id, tipo, canal, destinatario, status, chave)
-  values (v_t, null, 'teste', 'whatsapp', v_fone, 'pendente', 'teste:' || v_t || ':' || gen_random_uuid())
+  insert into public.agenda_whats_avisos (tenant_id, agendamento_id, tipo, telefone, status, chave)
+  values (v_t, null, 'teste', v_fone, 'pendente', 'teste:' || v_t || ':' || gen_random_uuid())
   returning id into v_id;
   return v_id;
 end $$;
