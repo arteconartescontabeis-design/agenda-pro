@@ -246,3 +246,20 @@ grant execute on function public.agenda_whats_teste(text)       to authenticated
 
 -- ── 11. Artecon liberada ────────────────────────────────────
 insert into public.agenda_whats_tenants (tenant_id) values (2) on conflict do nothing;
+
+-- ── 12. Agendamento da Edge Function (a cada 2 minutos) ─────
+create extension if not exists pg_net with schema extensions;
+create extension if not exists pg_cron;
+-- a chave no cabeçalho é a anon (pública, a mesma do app.html)
+select cron.schedule('agenda-whats', '*/2 * * * *', $cron$
+  select net.http_post(
+    url := 'https://vuwgxndahrzinfdlapxz.supabase.co/functions/v1/agenda-whats',
+    headers := jsonb_build_object('Content-Type','application/json','Authorization','Bearer <SUPA_KEY do app.html>'),
+    body := '{"origem":"cron"}'::jsonb,
+    timeout_milliseconds := 60000)
+$cron$);
+
+-- ── 13. Token (gerado no cofre; só o hash vai para o Cobrança) ──
+-- select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'cob_agenda_token', 'Token do Agenda Pro para a fila de WhatsApp do Cobrança Pro');
+-- select encode(extensions.digest(decrypted_secret, 'sha256'), 'hex') from vault.decrypted_secrets where name = 'cob_agenda_token';
+--   → gravar em cob_agenda_integracao.token_hash no projeto do Cobrança.
