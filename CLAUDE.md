@@ -18,7 +18,9 @@ Publicado pelo GitHub Pages: https://arteconartescontabeis-design.github.io/agen
 O número aparece no topo de todas as telas e no login; tocar nele abre o histórico.
 
 ## Publicação
-- Desenvolver no ramo da sessão e abrir pull request para `main`. Publicar (juntar) **só com autorização do usuário**.
+- Desenvolver no ramo da sessão e abrir pull request para `main`.
+- **Autorização permanente (10/10/2026):** o usuário autorizou publicar sempre. Depois de testar, juntar o pull request
+  sem perguntar e avisar o que foi publicado (com o número da versão).
 - O GitHub Pages publica sozinho em ~1 min depois do merge.
 
 ## Supabase
