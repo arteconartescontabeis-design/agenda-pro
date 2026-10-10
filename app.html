@@ -2303,6 +2303,10 @@ Admin: acesso total · Gerente: relatórios + equipe · Colaborador: agenda pró
 </div>
 </div>
 <div class="form-field full">
+<label class="form-label">WhatsApp <span style="color:var(--text-3);font-weight:400">(para agendar mandando mensagem)</span></label>
+<input type="tel" class="form-input" id="ecol-whats" value="${whatsEsc(u.whatsapp||'')}" placeholder="(48) 99999-9999">
+</div>
+<div class="form-field full">
 <label class="form-label">Status</label>
 <select class="form-select" id="ecol-ativo">
 <option value="true" ${u.ativo?'selected':''}>Ativo</option>
@@ -2317,6 +2321,8 @@ Admin: acesso total · Gerente: relatórios + equipe · Colaborador: agenda pró
 async function salvarEditColaborador(id) {
   const u = USUARIOS.find(x=>x.id===id);
   if (!u) return;
+  const whats = ($id('ecol-whats')?.value || '').trim();
+  if (whats && !whatsFone(whats, null)) { toast('WhatsApp inválido: informe DDD + número.', 'error'); return; }
   const btn = document.querySelector('#modal-footer .btn-accent');
   if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
   try {
@@ -2325,6 +2331,7 @@ async function salvarEditColaborador(id) {
       ativo: ativoEl ? ativoEl.value === 'true' : u.ativo,
       nome:   $id('ecol-nome').value.trim() || u.nome,
       perfil: $id('ecol-perfil').value,
+      whatsapp: whats || null,
     };
     await APP.db('PATCH', 'agenda_usuarios', { params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` }, body: patch });
     Object.assign(u, patch);
@@ -2839,7 +2846,8 @@ Testar agora
   $id('page-content').innerHTML = html;
   // Atualizar badge de status de notificação após render
   _cfgAtualizarNotifBadge();
-  whatsCarregarHistorico()
+  whatsCarregarHistorico();
+  whatsCarregarComandos()
 }
 function _cfgAtualizarNotifBadge() {
   const badge = $id('cfg-notif-badge');
@@ -3035,12 +3043,48 @@ ${admin ? `<hr class="separator" style="margin:16px 0">
 <button class="btn btn-outline btn-sm" id="whats-btn-teste" onclick="whatsEnviarTeste()">Enviar teste</button>
 </div>` : ''}
 <hr class="separator" style="margin:16px 0">
+${whatsRenderEquipe()}
+<hr class="separator" style="margin:16px 0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
 <div style="font-weight:600;font-size:13px">Últimos avisos</div>
-<button class="btn btn-ghost btn-sm" onclick="whatsCarregarHistorico()">Atualizar</button>
+<button class="btn btn-ghost btn-sm" onclick="whatsCarregarHistorico();whatsCarregarComandos()">Atualizar</button>
 </div>
 <div id="whats-historico" class="text-muted" style="font-size:13px">Carregando...</div>
 </div>`
+}
+// Equipe que pode agendar mandando mensagem para o WhatsApp da Artecon
+function whatsRenderEquipe() {
+  const equipe = USUARIOS.filter(u => u.ativo);
+  const com = equipe.filter(u => whatsFone(u.whatsapp, null));
+  const admin = APP.user?.perfil === 'admin';
+  return `<div style="font-weight:600;font-size:13px;margin-bottom:4px">📲 Agendar pelo WhatsApp (equipe)</div>
+<div class="text-muted" style="font-size:13px;margin-bottom:8px">Quem da equipe tiver o WhatsApp no cadastro pode mandar para o número da Artecon, por exemplo:
+<span style="display:block;margin:6px 0;padding:8px 10px;background:var(--bg);border-radius:8px;font-family:var(--mono);font-size:12px;color:var(--text)">agendar Maria Souza amanhã 10h reunião<br>agenda hoje<br>cancelar<br>ajuda</span>
+Mensagens de outros números (clientes) são ignoradas.</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${equipe.map(u => {
+    const f = whatsFone(u.whatsapp, null);
+    return `<span class="chip" style="${f ? '' : 'opacity:.6'}">${f ? '✅' : '—'} ${whatsEsc(u.nome.split(' ')[0])}${f ? ' · ' + whatsFmtFone(f) : ''}</span>`
+  }).join('')}</div>
+<div class="text-muted">${com.length} de ${equipe.length} pessoas podem agendar por mensagem.${admin ? ' Cadastre o WhatsApp em Colaboradores → Editar.' : ''}</div>
+<div style="font-weight:600;font-size:13px;margin:12px 0 6px">Últimas mensagens da equipe</div>
+<div id="whats-comandos" class="text-muted" style="font-size:13px">Carregando...</div>`
+}
+async function whatsCarregarComandos() {
+  const el = $id('whats-comandos');
+  if (!el || !WHATS.liberado) return;
+  try {
+    const rows = await APP.db('GET', 'agenda_whats_comandos', {
+      params: { tenant_id: `eq.${APP.tenantId}`, select: 'id,usuario_id,texto,acao,status,criado_em', order: 'id.desc', limit: 10 }
+    });
+    if (!rows || !rows.length) { el.innerHTML = 'Nenhuma mensagem ainda.'; return; }
+    const ST = { feito: ['badge-confirmado', 'Feito'], pergunta: ['badge-pendente', 'Respondido com dúvida'], erro: ['badge-cancelado', 'Erro'], ignorado: ['badge-concluido', 'Ignorada'], processando: ['badge-solicitado', 'Processando'] };
+    el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Quem</th><th>Mensagem</th><th>Situação</th></tr></thead><tbody>${rows.map(r => {
+      const [cls, lab] = ST[r.status] || ['badge-pendente', r.status];
+      return `<tr><td style="white-space:nowrap">${fmtDateTime(r.criado_em)}</td><td>${whatsEsc(getUsuario(r.usuario_id).nome.split(' ')[0])}</td><td>${whatsEsc(String(r.texto || '').slice(0, 80))}</td><td><span class="badge ${cls}">${lab}</span></td></tr>`
+    }).join('')}</tbody></table></div>`
+  } catch(e) {
+    el.textContent = 'Não foi possível carregar: ' + e.message
+  }
 }
 async function whatsSalvarConfig() {
   const btn = $id('whats-btn-salvar');
