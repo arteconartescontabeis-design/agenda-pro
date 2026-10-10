@@ -180,8 +180,12 @@ begin
 end $$;
 
 -- ── 7. Reserva para envio (evita mandar duas vezes) ─────────
+-- Entre 21:00 e 07:00 só sai a mensagem de teste; o resto espera as 07:00.
 create or replace function public.agenda_whats_reservar(p_limite integer default 20)
 returns setof public.agenda_whats_avisos language plpgsql security definer set search_path = public as $$
+declare
+  v_hora time := (now() at time zone 'America/Sao_Paulo')::time;
+  v_silencio boolean := v_hora < time '07:00' or v_hora >= time '21:00';
 begin
   -- os que travaram em 'enviando' voltam para a fila (até 3 tentativas)
   update public.agenda_whats_avisos
@@ -194,6 +198,7 @@ begin
        set status = 'enviando', tentativas = n.tentativas + 1, atualizado_em = now()
      where n.id in (select x.id from public.agenda_whats_avisos x
                      where x.status = 'pendente'
+                       and (not v_silencio or x.tipo = 'teste')
                      order by x.id for update skip locked limit p_limite)
     returning n.*;
 end $$;
