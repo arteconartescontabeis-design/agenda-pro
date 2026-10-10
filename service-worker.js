@@ -1,7 +1,7 @@
-// Agenda Pro — Service Worker v3
+// Agenda Pro — Service Worker v4
 // Suporta: cache offline + notificações com app fechado
 
-const CACHE_NAME = 'agenda-pro-v3';
+const CACHE_NAME = 'agenda-pro-v4';
 const SUPA_HOSTS = ['hwvguqfprbjfqtxkmgiz.supabase.co', 'vuwgxndahrzinfdlapxz.supabase.co'];
 
 // Lembretes agendados: { key: { disparo, titulo, corpo, agId } }
