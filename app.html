@@ -141,6 +141,7 @@ const AGENDAMENTOS  = [];
 let   DISPONIBILIDADE = [];
 let   BLOQUEIOS       = [];
 let   CONFIG          = [];
+const WHATS = { liberado: false };   // avisos por WhatsApp liberados para o escritório (agenda_whats_tenants)
 // Data de hoje
 const TODAY     = new Date();
 // Usar data local (nao UTC) para evitar bug de timezone (UTC-3 vira dia seguinte apos 21h)
@@ -1369,7 +1370,9 @@ ${a.motivo_cancelamento ?`<div class="detail-row">
 <button class="btn btn-outline btn-sm" onclick="detailLembreteAdicionar(${a.id})">+ Add</button>
 <div style="display:flex;gap:3px">${[10,30,60].map(m=>`<button class="btn btn-ghost btn-sm" onclick="detailLembreteRapido(${a.id},${m})" style="font-size:10px">${m}m</button>`).join('')}</div>
 </div>
-<div id="detail-lembretes-lista">${lembreteRenderChips(a)}</div>`;
+<div id="detail-lembretes-lista">${lembreteRenderChips(a)}</div>
+${whatsRenderDetalhe(a, cl)}`;
+  whatsCarregarDetalhe(a.id);
   const footer = $id('detail-footer');
   footer.innerHTML = '';
   const finalizado = ['concluido','cancelado_cliente','cancelado_escritorio','nao_compareceu'].includes(a.status);
@@ -1403,7 +1406,8 @@ async function atualizarStatusAg(id, novoStatus, extra = {}) {
       params: { id: `eq.${id}`, tenant_id: `eq.${APP.tenantId}` },
       body: patch
     });
-    Object.assign(a, patch)
+    Object.assign(a, patch);
+    whatsPing()
   } catch(e) {
     toast('Erro ao atualizar: ' + e.message, 'error');
     return false
@@ -1523,6 +1527,7 @@ async function confirmarReagendamento(id) {
     });
     // Reregistrar lembretes
     lembreteRegistrar(a);
+    whatsPing();
     toast('Reagendado com sucesso!', 'success');
     closeModal(); closeDetail(); go(APP.page)
   } catch(e) {
@@ -1917,6 +1922,7 @@ async function salvarNovoAgendamento() {
     toast(`Agendamento criado com sucesso!`, 'success');
     // Notificação imediata de confirmação do agendamento
     notifAgendamentoCriado(criado && criado[0] ? criado[0] : novoAg);
+    whatsPing();
     go(APP.page)
   } catch(e) {
     toast('Erro ao salvar: ' + e.message, 'error');
@@ -2776,7 +2782,7 @@ function renderConfiguracoes() {
   const catIcon    = { operacional:'⚙️', notificacao:'🔔', integracao:'🔗', aparencia:'🎨' };
   let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">`;
   categorias.forEach(cat => {
-    const cfgs = CONFIG.filter(c => c.categoria === cat);
+    const cfgs = CONFIG.filter(c => c.categoria === cat && !String(c.chave).startsWith('whats_'));
     html += `<div class="card">
 <div style="font-size:15px;font-weight:600;margin-bottom:16px">${catIcon[cat]} ${catLabel[cat]}</div>
 ${cfgs.map(c =>`
@@ -2791,6 +2797,7 @@ ${cfgs.map(c =>`
 </div>`
   });
   html += `</div>
+${whatsRenderCard()}
 <div class="card" style="margin-top:20px">
 <div style="font-size:15px;font-weight:600;margin-bottom:4px">🔔 Notificações do Navegador</div>
 <div class="text-muted" style="margin-bottom:16px;font-size:13px">Ative para receber alertas nativos do navegador além dos pop-ups visuais. Funciona melhor no desktop.</div>
@@ -2831,7 +2838,8 @@ Testar agora
 </div>`;
   $id('page-content').innerHTML = html;
   // Atualizar badge de status de notificação após render
-  _cfgAtualizarNotifBadge()
+  _cfgAtualizarNotifBadge();
+  whatsCarregarHistorico()
 }
 function _cfgAtualizarNotifBadge() {
   const badge = $id('cfg-notif-badge');
@@ -2905,7 +2913,7 @@ function updateConfigToggle(chave, checked) {
   renderConfiguracoes()
 }
 async function salvarConfig(cat) {
-  const cfgs = CONFIG.filter(c => c.categoria === cat);
+  const cfgs = CONFIG.filter(c => c.categoria === cat && !String(c.chave).startsWith('whats_'));
   cfgs.forEach(c => {
     const el = $id('cfg-' + c.chave);
     if (!el) return;
@@ -2926,6 +2934,207 @@ async function salvarConfig(cat) {
     toast('Erro ao salvar configurações: ' + e.message, 'error')
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Salvar ' + ({ negocio:'Negócio', agenda:'Agenda', notificacoes:'Notificações', agendamento_publico:'Agendamento Público' }[cat] || cat); }
+  }
+}
+// WHATSAPP — avisos ao cliente
+// Saem pelo WhatsApp da Artecon (fila do Cobrança Pro). O banco cria os avisos
+// (gatilho em agenda_agendamentos + lembretes) e a Edge Function agenda-whats
+// envia a cada 2 min; o app só "cutuca" a função para sair na hora.
+const WHATS_TIPOS = [
+  { chave: 'confirmacao',   icone: '✅', titulo: 'Confirmação do agendamento', desc: 'Assim que o agendamento é criado ou confirmado.' },
+  { chave: 'lembrete_24h',  icone: '🔔', titulo: 'Lembrete 24 horas antes',    desc: 'Para agendamentos marcados com mais de um dia de antecedência.' },
+  { chave: 'lembrete_dia',  icone: '☀️', titulo: 'Lembrete no dia',             desc: 'No dia do atendimento, a partir do horário escolhido.' },
+  { chave: 'reagendamento', icone: '📅', titulo: 'Aviso de reagendamento',     desc: 'Quando a data ou o horário do agendamento muda.' },
+  { chave: 'cancelamento',  icone: '❌', titulo: 'Aviso de cancelamento',      desc: 'Quando o agendamento é cancelado.' },
+];
+const WHATS_TIPO_LABEL = { confirmacao: 'Confirmação', lembrete_24h: 'Lembrete 24 h', lembrete_dia: 'Lembrete do dia', reagendamento: 'Reagendamento', cancelamento: 'Cancelamento', teste: 'Teste' };
+const WHATS_STATUS = {
+  pendente:  ['badge-pendente',   'Aguardando'],
+  enviando:  ['badge-pendente',   'Enviando'],
+  na_fila:   ['badge-solicitado', 'Na fila do WhatsApp'],
+  enviado:   ['badge-confirmado', 'Enviado'],
+  falha:     ['badge-cancelado',  'Falhou'],
+  cancelado: ['badge-concluido',  'Não enviado'],
+};
+function whatsEsc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
+}
+// mesmo critério do banco: campo WhatsApp; senão o telefone, se for celular
+function whatsFone(whatsapp, telefone) {
+  const limpa = v => { let d = String(v || '').replace(/\D/g, ''); if ((d.length === 12 || d.length === 13) && d.startsWith('55')) d = d.slice(2); return d; };
+  const w = limpa(whatsapp), t = limpa(telefone);
+  if (w.length === 10 || w.length === 11) return w;
+  if (t.length === 11 && t[2] === '9') return t;
+  return null
+}
+function whatsFmtFone(d) {
+  d = String(d || '');
+  if (d.length === 11) return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  return d
+}
+function whatsCfg(chave) {
+  const c = CONFIG.find(x => x.chave === 'whats_' + chave);
+  return c ? c.valor : null
+}
+function whatsBadge(a) {
+  const [cls, label] = WHATS_STATUS[a.status] || ['badge-pendente', a.status];
+  return `<span class="badge ${cls}">${label}</span>${a.erro && a.status !== 'enviado' ? `<div class="text-muted" style="margin-top:2px">${whatsEsc(a.erro)}</div>` : ''}`
+}
+// Pede à Edge Function para enviar já (sem esperar o ciclo de 2 min). Falha em silêncio.
+function whatsPing() {
+  if (!WHATS.liberado) return;
+  setTimeout(() => {
+    fetch(`${SUPA_URL}/functions/v1/agenda-whats`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' },
+      body: '{"origem":"app"}'
+    }).catch(() => {})
+  }, 800)
+}
+async function whatsRpc(fn, body) {
+  const res = await fetchWithTimeout(`${SUPA_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${APP.authToken || SUPA_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  });
+  const txt = await res.text();
+  let json = null;
+  try { json = txt ? JSON.parse(txt) : null; } catch(e) {}
+  if (!res.ok) throw new Error((json && json.message) || txt || ('HTTP ' + res.status));
+  return json
+}
+function whatsRenderCard() {
+  const titulo = `<div style="font-size:15px;font-weight:600;margin-bottom:4px">💬 Avisos ao cliente por WhatsApp</div>`;
+  if (!WHATS.liberado) {
+    return `<div class="card" style="margin-top:20px">${titulo}<div class="text-muted" style="font-size:13px">O envio de avisos por WhatsApp não está liberado para este escritório.</div></div>`
+  }
+  const admin = APP.user?.perfil === 'admin';
+  const ativos = CLIENTES.filter(c => c.ativo && c.nome !== '— Sem cliente —');
+  const comWhats = ativos.filter(c => c.whatsapp_avisos !== false && whatsFone(c.whatsapp, c.telefone)).length;
+  const hora = whatsCfg('hora_lembrete_dia') || '08:00';
+  const opcoes = WHATS_TIPOS.map(t => `<div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg)">
+<label style="display:flex;gap:10px;align-items:flex-start;cursor:${admin ? 'pointer' : 'default'}">
+<input type="checkbox" id="whats-${t.chave}" ${whatsCfg(t.chave) === 'true' ? 'checked' : ''} ${admin ? '' : 'disabled'} style="margin-top:2px;width:16px;height:16px;flex-shrink:0;accent-color:var(--accent)">
+<span><span style="display:block;font-weight:600;font-size:13px">${t.icone} ${t.titulo}</span><span class="text-muted">${t.desc}</span></span>
+</label>
+${t.chave === 'lembrete_dia' ? `<div style="margin:8px 0 0 26px;font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:6px">a partir das <input type="time" id="whats-hora-dia" value="${whatsEsc(hora)}" ${admin ? '' : 'disabled'} style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:var(--font);font-size:12px;background:var(--surface);color:var(--text)"></div>` : ''}
+</div>`).join('');
+  return `<div class="card" style="margin-top:20px" id="whats-card">
+${titulo}
+<div class="text-muted" style="font-size:13px;margin-bottom:14px">Saem pelo WhatsApp da Artecon, o mesmo número do Cobrança Pro. Só recebem os clientes com WhatsApp no cadastro e com os avisos autorizados. Entre 21h e 7h nada é enviado: o que surgir nesse horário sai às 7h.</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">${opcoes}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
+<div class="text-muted">${comWhats} de ${ativos.length} clientes ativos podem receber avisos.${comWhats < ativos.length ? ' Cadastre o WhatsApp em Clientes → Editar.' : ''}</div>
+${admin ? `<button class="btn btn-accent btn-sm" id="whats-btn-salvar" onclick="whatsSalvarConfig()">Salvar avisos</button>` : '<span class="text-muted">Só o administrador altera estas opções.</span>'}
+</div>
+${admin ? `<hr class="separator" style="margin:16px 0">
+<div style="font-weight:600;font-size:13px;margin-bottom:6px">Mensagem de teste</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<input type="tel" class="form-input" id="whats-teste-fone" placeholder="(48) 99999-9999" style="width:200px;max-width:100%">
+<button class="btn btn-outline btn-sm" id="whats-btn-teste" onclick="whatsEnviarTeste()">Enviar teste</button>
+</div>` : ''}
+<hr class="separator" style="margin:16px 0">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+<div style="font-weight:600;font-size:13px">Últimos avisos</div>
+<button class="btn btn-ghost btn-sm" onclick="whatsCarregarHistorico()">Atualizar</button>
+</div>
+<div id="whats-historico" class="text-muted" style="font-size:13px">Carregando...</div>
+</div>`
+}
+async function whatsSalvarConfig() {
+  const btn = $id('whats-btn-salvar');
+  const valores = {};
+  WHATS_TIPOS.forEach(t => { valores['whats_' + t.chave] = $id('whats-' + t.chave)?.checked ? 'true' : 'false'; });
+  const hora = $id('whats-hora-dia')?.value || '';
+  valores.whats_hora_lembrete_dia = /^\d{2}:\d{2}$/.test(hora) ? hora : '08:00';
+  const descricoes = {
+    whats_confirmacao: 'WhatsApp: confirmação do agendamento', whats_lembrete_24h: 'WhatsApp: lembrete 24 h antes',
+    whats_lembrete_dia: 'WhatsApp: lembrete no dia', whats_reagendamento: 'WhatsApp: aviso de reagendamento',
+    whats_cancelamento: 'WhatsApp: aviso de cancelamento', whats_hora_lembrete_dia: 'WhatsApp: horário do lembrete do dia',
+  };
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    for (const [chave, valor] of Object.entries(valores)) {
+      const c = CONFIG.find(x => x.chave === chave);
+      if (c) {
+        if (c.valor === valor) continue;
+        await APP.db('PATCH', 'agenda_config', { params: { id: `eq.${c.id}`, tenant_id: `eq.${APP.tenantId}` }, body: { valor } });
+        c.valor = valor
+      } else {
+        const r = await APP.db('POST', 'agenda_config', {
+          body: { tenant_id: APP.tenantId, chave, valor, categoria: 'notificacao', descricao: descricoes[chave] },
+          returning: true
+        });
+        if (r && r[0]) CONFIG.push(r[0])
+      }
+    }
+    toast('Avisos de WhatsApp salvos!', 'success')
+  } catch(e) {
+    toast('Erro ao salvar: ' + e.message, 'error')
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar avisos'; }
+  }
+}
+async function whatsEnviarTeste() {
+  const el = $id('whats-teste-fone');
+  const tel = el ? el.value.trim() : '';
+  if (!whatsFone(tel, null)) { toast('Informe o WhatsApp com DDD. Ex: (48) 99999-9999', 'error'); return; }
+  const btn = $id('whats-btn-teste');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  try {
+    await whatsRpc('agenda_whats_teste', { p_telefone: tel });
+    toast('Teste colocado na fila. Deve chegar em instantes.', 'success');
+    whatsPing();
+    setTimeout(whatsCarregarHistorico, 5000)
+  } catch(e) {
+    toast('Não foi possível enviar: ' + e.message, 'error')
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar teste'; }
+  }
+}
+async function whatsCarregarHistorico() {
+  const el = $id('whats-historico');
+  if (!el || !WHATS.liberado) return;
+  try {
+    const rows = await APP.db('GET', 'agenda_whats_avisos', {
+      params: { tenant_id: `eq.${APP.tenantId}`, select: 'id,agendamento_id,tipo,telefone,status,erro,criado_em,enviado_em', order: 'id.desc', limit: 15 }
+    });
+    if (!rows || !rows.length) { el.innerHTML = 'Nenhum aviso ainda.'; return; }
+    el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Cliente</th><th>Aviso</th><th>WhatsApp</th><th>Situação</th></tr></thead><tbody>${rows.map(a => {
+      const ag = a.agendamento_id ? AGENDAMENTOS.find(x => x.id === a.agendamento_id) : null;
+      const cli = ag ? getCliente(ag.cliente_id).nome : (a.tipo === 'teste' ? '—' : 'Agendamento #' + a.agendamento_id);
+      return `<tr><td style="white-space:nowrap">${fmtDateTime(a.enviado_em || a.criado_em)}</td><td>${whatsEsc(cli)}</td><td>${WHATS_TIPO_LABEL[a.tipo] || whatsEsc(a.tipo)}</td><td style="white-space:nowrap">${whatsFmtFone(a.telefone)}</td><td>${whatsBadge(a)}</td></tr>`
+    }).join('')}</tbody></table></div>`
+  } catch(e) {
+    el.textContent = 'Não foi possível carregar: ' + e.message
+  }
+}
+// Painel do agendamento: avisos deste agendamento
+function whatsRenderDetalhe(a, cl) {
+  if (!WHATS.liberado) return '';
+  const tel = whatsFone(cl.whatsapp, cl.telefone);
+  const aviso = cl.whatsapp_avisos === false ? 'Cliente não recebe avisos por WhatsApp.'
+    : !tel ? 'Cliente sem WhatsApp no cadastro: os avisos não serão enviados.'
+    : 'Avisos para ' + whatsFmtFone(tel) + '.';
+  return `<hr class="separator">
+<div class="detail-label" style="margin-bottom:6px">💬 WhatsApp</div>
+<div class="text-muted" style="margin-bottom:8px">${whatsEsc(aviso)}</div>
+<div id="detail-whats-lista"></div>`
+}
+async function whatsCarregarDetalhe(agId) {
+  const el = $id('detail-whats-lista');
+  if (!el || !WHATS.liberado) return;
+  try {
+    const rows = await APP.db('GET', 'agenda_whats_avisos', {
+      params: { agendamento_id: `eq.${agId}`, tenant_id: `eq.${APP.tenantId}`, select: 'id,tipo,status,erro,criado_em,enviado_em', order: 'id.asc' }
+    });
+    if (!rows || !rows.length) { el.innerHTML = '<div class="text-muted">Nenhum aviso enviado para este agendamento.</div>'; return; }
+    el.innerHTML = rows.map(r => `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)">
+<div style="font-size:13px">${WHATS_TIPO_LABEL[r.tipo] || whatsEsc(r.tipo)}<div class="text-muted">${fmtDateTime(r.enviado_em || r.criado_em)}</div></div>
+<div style="text-align:right">${whatsBadge(r)}</div></div>`).join('')
+  } catch(e) {
+    el.innerHTML = ''
   }
 }
 // PAGE: MINHA AGENDA (RF-01 — Compromissos Pessoais)
