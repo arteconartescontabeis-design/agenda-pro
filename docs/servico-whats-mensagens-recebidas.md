@@ -6,7 +6,10 @@ tabela `cob_whatsapp_recebidas` (projeto Supabase do Cobrança). O resto já
 está pronto: a função `agenda-whats` lê essa tabela a cada 30 s, só considera
 os números da equipe cadastrados no Agenda Pro e responde pela fila de sempre.
 
-## Versão nova: artecon-whats v1.5.1 (11/10/2026) — pendente de instalar
+## Versão instalada: artecon-whats v1.5.1 (11/10/2026)
+
+Instalada no ARTEDB01 em 11/10/2026 e testada: áudio "agenda de hoje" do Cleiver transcrito pela Azure,
+respondido em ~12 s (`🎤 Ouvi: "Agenda de hoje."` + agenda do dia) e contado no portal (1 s).
 
 No OneDrive: `Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.5.1/`
 (`artecon-whats.js` e `guardar-chave-azure.bat`). Instalar esta no lugar da v1.5.0 (que nunca foi instalada).
