@@ -327,6 +327,11 @@ async function carregarDadosUsuario(authId, email) {
     });
     // v2.2.0: a segurança do banco só mostra o próprio cadastro a quem está ATIVO (desativado pelo app ou pelo Portal Artecon)
     if (!users || users.length === 0 || users[0].ativo === false) {
+      // v2.5.0: pessoa cadastrada só para o Estudo da Reforma (agenda_estudo_usuarios) vai direto para o estudo
+      try {
+        const so = await APP.db('GET', 'agenda_estudo_usuarios', { params: { 'auth_id': `eq.${authId}`, 'ativo': 'eq.true', 'select': 'id' } });
+        if (so && so.length) { location.replace('estudo.html'); return }
+      } catch(e) {}
       toast('Seu acesso ao Agenda Pro não está ativo. Fale com o administrador do escritório.', 'error');
       await doLogout();
       return
@@ -3814,8 +3819,12 @@ async function interpretarVoz(texto) {
 // VERSÃO E ATUALIZAÇÕES
 // A cada atualização: subir APP_VERSAO, acrescentar a versão no topo de VERSOES,
 // trocar o número em version.json e o CACHE_NAME do service-worker.js.
-const APP_VERSAO = '2.4.0';
+const APP_VERSAO = '2.5.0';
 const VERSOES = [
+  { v: '2.5.0', data: '11/10/2026', itens: [
+    'Estudo da Reforma: administrador e gerente podem cadastrar pessoas só para o Estudo (aba Equipe do Estudo). Elas recebem login com senha provisória e não veem nada da agenda.',
+    'Na mesma tela: gerar nova senha, desativar e reativar essas pessoas. O cadastro fica só no Agenda (não vai para o Portal Artecon).',
+    'Quem é só do Estudo e entra pelo Agenda é levado direto para o Estudo. Quem recebe senha provisória cria a senha nova no próprio Estudo.' ] },
   { v: '2.4.0', data: '11/10/2026', itens: [
     'Estudo da Reforma: as primeiras aulas analisadas mostram um resumo e os minutos que valem a pena assistir (botão "Análise" ao lado do vídeo).' ] },
   { v: '2.3.0', data: '11/10/2026', itens: [

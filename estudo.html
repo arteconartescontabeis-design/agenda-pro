@@ -43,7 +43,7 @@ a{color:var(--accent)}
 /* topo */
 .topo{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:calc(8px + env(safe-area-inset-top)) 16px 0}
 .topo-l1{display:flex;align-items:center;gap:10px;min-height:40px}
-.voltar{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:600;font-size:13px;color:var(--text-2);padding:6px 10px;border:1px solid var(--border);border-radius:20px;white-space:nowrap}
+.voltar{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:600;font-size:13px;color:var(--text-2);padding:6px 10px;border:1px solid var(--border);border-radius:20px;white-space:nowrap;background:var(--surface)}
 .titulo{flex:1;min-width:0;font-weight:700;font-size:16px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .titulo small{display:block;font-weight:500;font-size:12px;color:var(--text-3);letter-spacing:0}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
@@ -123,6 +123,26 @@ details.opc summary{cursor:pointer;font-weight:600;color:var(--accent);padding:8
 .eq-l .tr{color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .eq-barra{display:grid;grid-template-columns:1fr 42px;gap:6px;align-items:center}
 .eq-barra span{font:500 12px var(--mono);text-align:right}
+.tag-so{display:inline-block;font:600 10.5px var(--font);color:var(--purple);background:var(--purple-lt);padding:1px 7px;border-radius:20px;margin-left:4px;vertical-align:1px}
+.eq-l .nome .tag-so{display:block;width:max-content;margin:3px 0 0}
+.tag-off{display:inline-block;font:600 10.5px var(--font);color:var(--text-2);background:var(--bg);border:1px solid var(--border);padding:0 7px;border-radius:20px;margin-left:4px}
+/* pessoas só do Estudo */
+.grade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
+.so-l{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.so-l:first-child{border-top:none}
+.so-l.inativo .so-info{opacity:.6}
+.so-info{flex:1 1 220px;min-width:0}
+.so-info b{display:block;font-size:14px;font-weight:600}
+.so-info span.muted{display:block;word-break:break-all}
+.so-acoes{display:flex;gap:6px;flex-wrap:wrap}
+.acesso{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0 14px;display:flex;flex-direction:column;gap:8px}
+.acesso b{display:block;font-size:14.5px;word-break:break-all}
+.acesso b.senha{font:500 20px var(--mono);letter-spacing:1px}
+.acesso-botoes{display:flex;gap:8px;flex-wrap:wrap}
+.acesso-botoes .btn{flex:1 1 auto;text-decoration:none}
+/* senha provisória: criar a própria senha */
+.trava{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.trava h2{font-size:19px;letter-spacing:-.3px}
 /* player */
 .player{position:fixed;left:0;right:0;bottom:0;z-index:120;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(0,0,0,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 .pl-in{max-width:860px;margin:0 auto}
@@ -175,7 +195,7 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
 <div id="tela-login" class="centro" hidden>
   <form class="login" id="form-login">
     <div class="logo">Agenda<span>Pro</span></div>
-    <div class="muted" style="margin-top:4px">Estudo da Reforma Tributária. Entre com o mesmo e-mail e senha do Agenda.</div>
+    <div class="muted" style="margin-top:4px">Estudo da Reforma Tributária. Entre com o seu e-mail e senha (quem usa o Agenda entra com o mesmo login).</div>
     <div class="campo"><label for="lg-email">E-mail</label><input type="email" id="lg-email" autocomplete="username" required></div>
     <div class="campo"><label for="lg-senha">Senha</label><input type="password" id="lg-senha" autocomplete="current-password" required></div>
     <button class="btn prim inteiro" type="submit" id="lg-btn">Entrar</button>
@@ -187,7 +207,8 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
 <div id="app" hidden>
   <header class="topo">
     <div class="topo-l1">
-      <a class="voltar" href="app.html" aria-label="Voltar para o Agenda">← Agenda</a>
+      <a class="voltar" id="voltar-agenda" href="app.html" aria-label="Voltar para o Agenda">← Agenda</a>
+      <button class="voltar" id="btn-sair" type="button" onclick="sair()" hidden>Sair</button>
       <div class="titulo">Estudo da Reforma<small id="sub-trilha">Reforma Tributária</small></div>
       <div class="avatar" id="avatar" title=""></div>
     </div>
@@ -231,10 +252,21 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
     <div class="leitor-corpo" id="leitor-corpo"></div>
   </div>
 </div>
+<div class="trava" id="troca-senha" hidden>
+  <form class="login" id="form-troca" role="dialog" aria-modal="true" aria-labelledby="ts-tit">
+    <h2 id="ts-tit">Crie a sua senha</h2>
+    <div class="muted" style="margin-top:4px">Você entrou com uma senha provisória. Escolha a sua senha, com pelo menos 8 caracteres, para continuar.</div>
+    <div class="campo"><label for="ts-s1">Nova senha</label><input type="password" id="ts-s1" autocomplete="new-password" required></div>
+    <div class="campo"><label for="ts-s2">Repita a nova senha</label><input type="password" id="ts-s2" autocomplete="new-password" required></div>
+    <button class="btn prim inteiro" type="submit" id="ts-ok">Salvar senha</button>
+    <div class="erro" id="ts-erro" hidden></div>
+    <div style="text-align:center;margin-top:14px"><button type="button" class="ler" onclick="sair()">Sair</button></div>
+  </form>
+</div>
 <div class="toasts" id="toasts"></div>
 
 <script>
-const ESTUDO_VERSAO = '1.1.0';
+const ESTUDO_VERSAO = '1.2.0';
 const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1d2d4bmRhaHJ6aW5mZGxhcHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTA0ODgsImV4cCI6MjA5MDMyNjQ4OH0.9DaPGHIxt0CO-pjYPBwsHaoSqDN35CwVU0lJUyTXQIQ';
 const $ = id => document.getElementById(id);
@@ -246,7 +278,7 @@ const ICO = {
   pausa: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>',
 };
-const PERFIS = { admin: 'Administrador', gerente: 'Gerente', colaborador: 'Colaborador', visualizador: 'Visualizador' };
+const PERFIS = { admin: 'Administrador', gerente: 'Gerente', colaborador: 'Colaborador', visualizador: 'Visualizador', estudo: 'Só Estudo' };
 const VELOCIDADES = [1, 1.25, 1.5, 1.75, 2, 0.85];
 
 // Estado
@@ -254,6 +286,7 @@ const E = {
   token: null, authId: null, usuario: null, dados: null,
   trilha: null, prog: {}, notas: [], perfil: null,
   atual: null, pagina: 'trilha', fila: new Map(), timerFila: null, ultimoSalvo: 0,
+  soEstudo: [], acessoTexto: '',
 };
 let D = null; // atalho para E.dados
 
@@ -392,15 +425,18 @@ async function iniciar() {
 }
 
 async function abrirApp(user) {
-  // senha provisória (convite ou Portal Artecon): a pessoa cria a própria senha no Agenda antes de usar
   if (!user || !user.id) { mostrarLogin(); return }
-  if (user.user_metadata && user.user_metadata.trocar_senha) { location.href = 'app.html'; return }
   const authId = user.id;
   $('tela-carregando').hidden = false;
   try {
     E.authId = authId;
-    const us = await api('GET', `/rest/v1/agenda_usuarios?auth_id=eq.${authId}&ativo=eq.true&select=id,nome,perfil,tenant_id`);
-    if (!us || !us.length) throw new Error('Seu acesso ao Agenda Pro não está ativo. Fale com o administrador do escritório.');
+    let us = await api('GET', `/rest/v1/agenda_usuarios?auth_id=eq.${authId}&ativo=eq.true&select=id,nome,perfil,tenant_id`);
+    if (!us || !us.length) {
+      // v1.2.0: pessoa cadastrada só para o Estudo (agenda_estudo_usuarios), sem acesso à agenda
+      const so = await api('GET', `/rest/v1/agenda_estudo_usuarios?auth_id=eq.${authId}&ativo=eq.true&select=id,nome,tenant_id`);
+      if (so && so.length) us = [{ ...so[0], perfil: 'estudo', soEstudo: true }];
+    }
+    if (!us || !us.length) throw new Error('Seu acesso ao Estudo não está ativo. Fale com o administrador do escritório.');
     E.usuario = us[0];
     const [perfis, progresso, notas] = await Promise.all([
       api('GET', `/rest/v1/agenda_estudo_perfil?auth_id=eq.${authId}&select=*`),
@@ -414,7 +450,8 @@ async function abrirApp(user) {
     E.notas = notas || [];
     E.trilha = (E.perfil && E.perfil.trilha && D.trilhas.find(t => t.id === E.perfil.trilha)) ? E.perfil.trilha : null;
   } catch (e) {
-    $('tela-carregando').innerHTML = `<div style="text-align:center;max-width:360px">${whatsEsc(e.message)}<br><br><a class="btn" href="app.html">Voltar para o Agenda</a></div>`;
+    $('tela-carregando').innerHTML = `<div style="text-align:center;max-width:360px">${whatsEsc(e.message)}<br><br>
+<button class="btn" onclick="location.reload()">Tentar de novo</button> <button class="btn" onclick="sair()">Sair</button></div>`;
     return
   }
   $('tela-carregando').hidden = true;
@@ -422,11 +459,46 @@ async function abrirApp(user) {
   $('avatar').textContent = (E.usuario.nome || '?')[0].toUpperCase();
   $('avatar').title = `${E.usuario.nome} · ${PERFIS[E.usuario.perfil] || ''}`;
   $('aba-equipe').hidden = !ehGestor();
+  $('voltar-agenda').hidden = !!E.usuario.soEstudo;   // quem é só do Estudo não tem o Agenda: no lugar, o botão Sair
+  $('btn-sair').hidden = !E.usuario.soEstudo;
+  // senha provisória (convite, Portal Artecon ou cadastro do Estudo): a pessoa cria a própria senha antes de usar
+  if (user.user_metadata && user.user_metadata.trocar_senha) { $('troca-senha').hidden = false; setTimeout(() => $('ts-s1').focus(), 50) }
   const vel = Number(ler('estudo_vel')) || 1;
   $('som').playbackRate = vel; $('pl-vel').textContent = vel.toString().replace('.', ',') + '×';
   render()
 }
 function ehGestor() { return ['admin', 'gerente'].includes(E.usuario && E.usuario.perfil) }
+
+async function sair() {
+  try { salvarPosicaoAtual(); som.pause(); await enviarFila() } catch (e) {}
+  try { if (E.token) await fetchT(`${SUPA_URL}/auth/v1/logout`, { method: 'POST', headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}` } }, 5000) } catch (e) {}
+  apagar('agenda_token'); apagar('estudo_refresh');
+  location.reload()
+}
+$('form-troca').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const s1 = $('ts-s1').value, s2 = $('ts-s2').value, erro = $('ts-erro'), btn = $('ts-ok');
+  const falha = m => { erro.textContent = m; erro.hidden = false };
+  if (s1.length < 8) return falha('A senha precisa de pelo menos 8 caracteres.');
+  if (s1 !== s2) return falha('As duas senhas não são iguais.');
+  erro.hidden = true; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    const r = await fetchT(`${SUPA_URL}/auth/v1/user`, {
+      method: 'PUT', headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: s1, data: { trocar_senha: false } })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const det = j.msg || j.error_description || j.message || ('erro ' + r.status);
+      return falha(/different from the old/i.test(det) ? 'Escolha uma senha diferente da provisória.' : 'Não foi possível salvar: ' + det)
+    }
+    if (ler('agenda_remember') === '1') { try { guardar('agenda_saved_pass', btoa(s1)) } catch (e) { apagar('agenda_saved_pass') } }
+    $('troca-senha').hidden = true;
+    toast('Senha criada. Use-a nas próximas entradas.', 'ok')
+  } catch (e) {
+    falha('Erro de conexão. Tente de novo.')
+  } finally { btn.disabled = false; btn.textContent = 'Salvar senha' }
+});
 
 // ── progresso: salvar no banco (em lote) ─────────────────
 function marcar(item, campos, urgente) {
@@ -440,8 +512,9 @@ function marcar(item, campos, urgente) {
 }
 async function enviarFila(keepalive) {
   clearTimeout(E.timerFila);
-  if (!E.fila.size || !E.token) return;
-  const corpo = [...E.fila].map(([item, p]) => ({ item, concluido: !!p.concluido, posicao_seg: Math.round(p.pos || 0) }));
+  if (!E.fila.size || !E.token || !E.usuario) return;
+  // tenant_id vai junto: para quem é só do Estudo o banco não sabe o escritório sozinho (sql/agenda_estudo_usuarios.sql)
+  const corpo = [...E.fila].map(([item, p]) => ({ item, concluido: !!p.concluido, posicao_seg: Math.round(p.pos || 0), tenant_id: E.usuario.tenant_id }));
   E.fila.clear();
   try {
     await api('POST', '/rest/v1/agenda_estudo_progresso?on_conflict=auth_id,item', { body: corpo, prefer: 'resolution=merge-duplicates,return=minimal', keepalive });
@@ -476,7 +549,7 @@ function salvarPerfil(campos) {
   timerPerfil = setTimeout(async () => {
     try {
       await api('POST', '/rest/v1/agenda_estudo_perfil?on_conflict=auth_id', {
-        body: { trilha: E.perfil.trilha || null, ultimo_item: E.perfil.ultimo_item || null }, prefer: 'resolution=merge-duplicates,return=minimal'
+        body: { trilha: E.perfil.trilha || null, ultimo_item: E.perfil.ultimo_item || null, tenant_id: E.usuario.tenant_id }, prefer: 'resolution=merge-duplicates,return=minimal'
       })
     } catch (e) {}
   }, 800)
@@ -827,7 +900,7 @@ async function salvarNota(ev) {
   if (!texto) { toast('Escreva a anotação.', 'err'); return }
   const btn = $('nota-btn'); btn.disabled = true;
   try {
-    const r = await api('POST', '/rest/v1/agenda_estudo_notas', { body: { texto, trilha: E.trilha, item: $('nota-item').value || null }, prefer: 'return=representation' });
+    const r = await api('POST', '/rest/v1/agenda_estudo_notas', { body: { texto, trilha: E.trilha, item: $('nota-item').value || null, tenant_id: E.usuario.tenant_id }, prefer: 'return=representation' });
     if (r && r[0]) E.notas.unshift(r[0]);
     toast('Anotação salva ✓', 'ok');
     renderNotas()
@@ -850,31 +923,140 @@ async function renderEquipe() {
   if (!ehGestor()) { el.innerHTML = ''; return }
   el.innerHTML = '<div class="card"><div class="gira" style="margin:20px auto"></div></div>';
   try {
-    const [us, perfis, prog] = await Promise.all([
-      api('GET', `/rest/v1/agenda_usuarios?tenant_id=eq.${E.usuario.tenant_id}&ativo=eq.true&select=nome,auth_id,perfil&order=nome`),
+    const tid = Number(E.usuario.tenant_id);
+    const [us, so, perfis, prog] = await Promise.all([
+      api('GET', `/rest/v1/agenda_usuarios?tenant_id=eq.${tid}&ativo=eq.true&select=nome,auth_id,perfil&order=nome`),
+      api('GET', `/rest/v1/agenda_estudo_usuarios?tenant_id=eq.${tid}&select=id,auth_id,nome,email,whatsapp,ativo&order=nome`),
       api('GET', '/rest/v1/agenda_estudo_perfil?select=auth_id,trilha,atualizado_em'),
       api('GET', '/rest/v1/agenda_estudo_progresso?select=auth_id,item,concluido,posicao_seg,atualizado_em&limit=10000'),
     ]);
+    E.soEstudo = so || [];
+    const naEquipe = new Set((us || []).map(u => u.auth_id));
+    const pessoas = [...(us || []).filter(u => u.auth_id),
+                     ...E.soEstudo.filter(p => p.ativo && !naEquipe.has(p.auth_id)).map(p => ({ nome: p.nome, auth_id: p.auth_id, so: true }))];
     const porPessoa = {};
     (prog || []).forEach(p => { (porPessoa[p.auth_id] = porPessoa[p.auth_id] || {})[p.item] = { concluido: p.concluido, pos: Number(p.posicao_seg) || 0, em: p.atualizado_em } });
     if (E.authId) porPessoa[E.authId] = { ...(porPessoa[E.authId] || {}), ...E.prog };
-    const linhas = (us || []).filter(u => u.auth_id).map(u => {
+    const linhas = pessoas.map(u => {
       const pf = (perfis || []).find(x => x.auth_id === u.auth_id);
       const t = pf && D.trilhas.find(x => x.id === pf.trilha);
       const pr = porPessoa[u.auth_id] || {};
       const n = t ? numeros(t, pr) : null;
       const datas = Object.values(pr).map(x => x.em).filter(Boolean).sort();
-      return { nome: u.nome, t, n, ult: datas[datas.length - 1] };
+      return { nome: u.nome, so: u.so, t, n, ult: datas[datas.length - 1] };
     }).sort((a, b) => ((b.n ? b.n.pct : -1) - (a.n ? a.n.pct : -1)) || String(a.nome).localeCompare(b.nome));
     const comecaram = linhas.filter(l => l.t).length;
     const media = comecaram ? Math.round(linhas.filter(l => l.n).reduce((s, l) => s + l.n.pct, 0) / comecaram) : 0;
+    const ativos = E.soEstudo.filter(p => p.ativo).length;
     el.innerHTML = `<div class="card"><h2>Andamento da equipe <span class="cont">${comecaram} de ${linhas.length} com trilha</span></h2>
 <p class="muted" style="margin-top:4px">Conclusão média de quem já escolheu a trilha: <b>${media}%</b>. As anotações de cada pessoa são particulares e não aparecem aqui.</p>
-<div style="margin-top:10px">${linhas.map(l => `<div class="eq-l"><div class="nome">${whatsEsc(l.nome)}</div><div class="tr">${l.t ? whatsEsc(l.t.curto) : 'Sem trilha'}${l.ult ? `<br><span class="muted">${dataHora(l.ult)}</span>` : ''}</div>
-<div class="eq-barra"><div class="trilho"><div class="enche" style="width:${l.n ? l.n.pct : 0}%;background:${l.n && l.n.pct >= 100 ? 'var(--green)' : 'var(--accent)'}"></div></div><span>${l.n ? l.n.pct + '%' : '—'}</span></div></div>`).join('')}</div></div>`
+<div style="margin-top:10px">${linhas.map(l => `<div class="eq-l"><div class="nome">${whatsEsc(l.nome)}${l.so ? '<span class="tag-so">só Estudo</span>' : ''}</div><div class="tr">${l.t ? whatsEsc(l.t.curto) : 'Sem trilha'}${l.ult ? `<br><span class="muted">${dataHora(l.ult)}</span>` : ''}</div>
+<div class="eq-barra"><div class="trilho"><div class="enche" style="width:${l.n ? l.n.pct : 0}%;background:${l.n && l.n.pct >= 100 ? 'var(--green)' : 'var(--accent)'}"></div></div><span>${l.n ? l.n.pct + '%' : '—'}</span></div></div>`).join('')}</div></div>
+
+<div class="card"><h2>Pessoas só do Estudo <span class="cont">${ativos} ativa${ativos === 1 ? '' : 's'}</span></h2>
+<p class="muted" style="margin-top:4px">Para quem não usa o Agenda: a pessoa entra só no Estudo, com login próprio, e não vê nada da agenda. O cadastro fica só aqui (não vai para o Portal Artecon). Quem já é da equipe do Agenda não precisa de cadastro.</p>
+<form id="form-so" autocomplete="off">
+  <div class="grade-form">
+    <div class="campo"><label for="so-nome">Nome</label><input id="so-nome" maxlength="120" required></div>
+    <div class="campo"><label for="so-email">E-mail</label><input id="so-email" type="email" maxlength="200" required></div>
+    <div class="campo"><label for="so-wpp">WhatsApp (opcional)</label><input id="so-wpp" type="tel" inputmode="tel" maxlength="20" placeholder="DDD + número"></div>
+  </div>
+  <button class="btn prim inteiro" type="submit" id="so-btn">Cadastrar e gerar a senha</button>
+</form>
+<div style="margin-top:12px">${E.soEstudo.length ? E.soEstudo.map(p => `<div class="so-l${p.ativo ? '' : ' inativo'}">
+<div class="so-info"><b>${whatsEsc(p.nome)}${p.ativo ? '' : '<span class="tag-off">desativada</span>'}${naEquipe.has(p.auth_id) ? '<span class="tag-off">também na equipe do Agenda</span>' : ''}</b>
+<span class="muted">${whatsEsc(p.email)}${p.whatsapp ? ' · ' + whatsEsc(foneTela(p.whatsapp)) : ''}</span></div>
+<div class="so-acoes">${p.ativo
+  ? `<button class="btn peq" onclick="soNovaSenha(${Number(p.id)})">Nova senha</button><button class="btn peq" onclick="soAtivar(${Number(p.id)}, false)">Desativar</button>`
+  : `<button class="btn peq" onclick="soAtivar(${Number(p.id)}, true)">Reativar</button>`}</div></div>`).join('')
+  : '<p class="muted">Ninguém cadastrado só para o Estudo ainda.</p>'}</div></div>`;
+    $('form-so').addEventListener('submit', soCadastrar)
   } catch (e) {
     el.innerHTML = `<div class="card">Não foi possível carregar a equipe. ${whatsEsc(e.message)}</div>`
   }
+}
+
+// ── pessoas só do Estudo (função estudo-usuario) ─────────
+function foneDig(v) {
+  let d = String(v || '').replace(/\D/g, '');
+  if ((d.length === 12 || d.length === 13) && d.startsWith('55')) d = d.slice(2);
+  return d.length === 10 || d.length === 11 ? d : ''
+}
+function foneTela(v) {
+  const d = foneDig(v);
+  return d ? `(${d.slice(0, 2)}) ${d.slice(2, -4)}-${d.slice(-4)}` : String(v || '')
+}
+async function chamarEstudoUsuario(corpo) {
+  for (let tentativa = 0; tentativa < 2; tentativa++) {
+    const r = await fetchT(`${SUPA_URL}/functions/v1/estudo-usuario`, {
+      method: 'POST', headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo)
+    }, 30000);
+    if (r.status === 401 && tentativa === 0 && await renovarSessao()) continue;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.erro || j.message || ('Erro ' + r.status));
+    return j
+  }
+}
+async function soCadastrar(ev) {
+  ev.preventDefault();
+  const nome = $('so-nome').value.trim(), email = $('so-email').value.trim(), wpp = $('so-wpp').value.trim();
+  if (wpp && !foneDig(wpp)) { toast('WhatsApp inválido: informe DDD + número.', 'err'); return }
+  const btn = $('so-btn'); btn.disabled = true; btn.textContent = 'Cadastrando...';
+  try {
+    const j = await chamarEstudoUsuario({ acao: 'cadastrar', nome, email, whatsapp: wpp || null });
+    mostrarAcesso(j.usuario, j.senha, j.reativado ? 'reativado' : (j.ja_tinha_login ? 'ja_tinha' : 'novo'));
+    renderEquipe()
+  } catch (e) {
+    toast(e.message || 'Não foi possível cadastrar.', 'err');
+    btn.disabled = false; btn.textContent = 'Cadastrar e gerar a senha'
+  }
+}
+async function soNovaSenha(id) {
+  const p = E.soEstudo.find(x => x.id === id);
+  if (!p || !confirm(`Gerar uma nova senha provisória para ${p.nome}? A senha atual deixa de valer.`)) return;
+  try {
+    const j = await chamarEstudoUsuario({ acao: 'nova_senha', id });
+    mostrarAcesso(j.usuario, j.senha, 'nova_senha')
+  } catch (e) { toast(e.message || 'Não foi possível gerar a senha.', 'err') }
+}
+async function soAtivar(id, ativo) {
+  const p = E.soEstudo.find(x => x.id === id);
+  if (!p) return;
+  if (!ativo && !confirm(`Desativar ${p.nome}? A pessoa deixa de entrar no Estudo; o andamento fica guardado.`)) return;
+  try {
+    const r = await api('PATCH', `/rest/v1/agenda_estudo_usuarios?id=eq.${Number(id)}`, { body: { ativo }, prefer: 'return=representation' });
+    if (!r || !r.length) throw new Error('sem permissão');
+    toast(ativo ? `${p.nome} pode entrar de novo ✓` : `${p.nome} foi desativada`, ativo ? 'ok' : '');
+    renderEquipe()
+  } catch (e) { toast('Não foi possível alterar o cadastro.', 'err') }
+}
+// tela com o acesso para repassar (mesmo jeito do convite em Colaboradores do Agenda)
+function mostrarAcesso(u, senha, caso) {
+  const link = new URL('estudo.html', location.href).href;
+  const primeiro = String(u.nome || '').split(' ')[0];
+  const texto = `Olá, ${primeiro}! Seu acesso ao Estudo da Reforma Tributária (Artecon):\n${link}\nE-mail: ${u.email}`
+    + (senha ? `\nSenha provisória: ${senha}\nNo primeiro acesso você cria a sua senha.` : '\nSenha: a mesma que você já usa');
+  E.acessoTexto = texto;
+  const wpp = foneDig(u.whatsapp);
+  const titulo = { novo: 'foi cadastrado(a)', ja_tinha: 'foi cadastrado(a)', reativado: 'pode entrar de novo', nova_senha: 'tem uma nova senha' }[caso] || '';
+  const aviso = senha ? 'Repasse estes dados. A senha aparece só agora; envie em seguida. No primeiro acesso a pessoa cria a senha dela.'
+    : caso === 'reativado' ? 'O cadastro estava desativado e voltou a valer. A pessoa entra com a senha que já tinha (se esqueceu, use "Nova senha").'
+    : 'Esse e-mail já tinha login no sistema (Agenda ou Financeiro Pro): a pessoa entra com a senha que já usa.';
+  $('leitor-tit').textContent = `✅ ${primeiro} ${titulo}`;
+  $('leitor-corpo').innerHTML = `<p class="muted">${aviso}</p>
+<div class="acesso">
+<div><span class="muted">Endereço</span><b>${whatsEsc(link)}</b></div>
+<div><span class="muted">E-mail</span><b>${whatsEsc(u.email)}</b></div>
+${senha ? `<div><span class="muted">Senha provisória</span><b class="senha">${whatsEsc(senha)}</b></div>` : ''}
+</div>
+<div class="acesso-botoes">${wpp ? `<a class="btn" href="https://wa.me/55${wpp}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">💬 Enviar pelo WhatsApp</a>` : ''}
+<button class="btn" onclick="copiarAcesso()">Copiar</button><button class="btn prim" onclick="$('leitor').hidden = true">Concluir</button></div>`;
+  $('leitor').hidden = false;
+  $('leitor-corpo').scrollTop = 0
+}
+function copiarAcesso() {
+  const ok = () => toast('Copiado ✓', 'ok'), falhou = () => toast('Não foi possível copiar. Selecione o texto e copie.', 'err');
+  if (navigator.clipboard) navigator.clipboard.writeText(E.acessoTexto).then(ok, falhou); else falhou()
 }
 
 iniciar();
