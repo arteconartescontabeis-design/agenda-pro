@@ -282,8 +282,12 @@ async function doLogin() {
   btn.textContent = 'Entrando...'; btn.disabled = true;
   try {
     const res = await supaSignIn(email, pass);
-    if (res.error) {
-      const msg = 'E-mail ou senha incorretos.';
+    // a recusa vem como { error } ou, no formato novo, { code, error_code, msg } — sem access_token
+    if (res.error || res.error_code || !res.access_token) {
+      const cod = String(res.error_code || res.error || '');
+      const msg = /rate_limit|too_many/i.test(cod) ? 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.'
+        : /email_not_confirmed/i.test(cod) ? 'Este e-mail ainda não foi confirmado.'
+        : 'E-mail ou senha incorretos. Confira se o e-mail está escrito igual ao do cadastro.';
       if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
       toast(msg, 'error');
       return
@@ -3807,8 +3811,10 @@ async function interpretarVoz(texto) {
 // VERSÃO E ATUALIZAÇÕES
 // A cada atualização: subir APP_VERSAO, acrescentar a versão no topo de VERSOES,
 // trocar o número em version.json e o CACHE_NAME do service-worker.js.
-const APP_VERSAO = '2.2.0';
+const APP_VERSAO = '2.2.1';
 const VERSOES = [
+  { v: '2.2.1', data: '11/10/2026', itens: [
+    'Senha ou e-mail errado no login agora aparece como "E-mail ou senha incorretos" (antes aparecia "Erro na autenticação").' ] },
   { v: '2.2.0', data: '10/10/2026', itens: [
     'O acesso ao Agenda Pro pode ser liberado e revogado pelo Portal Artecon, na tela Acessos (Leitura, Operador ou Administrador).',
     'Quem recebe uma senha provisória (pelo portal ou pelo convite em Colaboradores) cria a própria senha no primeiro acesso.',
