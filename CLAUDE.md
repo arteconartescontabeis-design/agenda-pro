@@ -14,8 +14,14 @@ Publicado pelo GitHub Pages: https://arteconartescontabeis-design.github.io/agen
   pt-BR-FranciscaNeural, gerados do programa salvo no OneDrive "Reforma Tributária - Programa de Estudo"), conteúdo,
   vídeos e tarefas em `estudo/dados.json` (ao mudar, subir `ESTUDO_VERSAO` no estudo.html). Mesmo login do Agenda.
   Tabelas `agenda_estudo_*` (`sql/agenda_estudo.sql`, com o comando de remoção comentado no fim).
-  Para remover: apagar `estudo.html` e `estudo/`, os dois atalhos no `app.html` (menu lateral e "Mais") e,
-  com confirmação do usuário, as tabelas.
+  **Pessoas só do Estudo (v2.5.0, Estudo 1.2.0):** admin/gerente cadastram na aba Equipe do Estudo quem não usa o Agenda.
+  Ficam em `agenda_estudo_usuarios` (não em `agenda_usuarios`: não veem nada da agenda), com login próprio e senha provisória
+  criados pela função `estudo-usuario`; o Estudo pede a senha nova no 1º acesso. **Só local: não vai para o Portal** (pedido do
+  usuário em 11/10/2026). As gravações do Estudo mandam `tenant_id` (para essas pessoas o banco usa `agenda_estudo_tenant_id()`;
+  `sql/agenda_estudo_usuarios.sql`). Quem é só do Estudo e entra pelo `app.html` é levado ao `estudo.html`.
+  Para remover: apagar `estudo.html` e `estudo/`, os dois atalhos no `app.html` (menu lateral e "Mais"), o desvio para o
+  estudo em `carregarDadosUsuario` (`app.html`), a função `estudo-usuario` e, com confirmação do usuário, as tabelas
+  (`sql/agenda_estudo.sql` e `sql/agenda_estudo_usuarios.sql`). Logins criados pelo Estudo têm `app_metadata.criado_pelo_estudo`.
 
 ## Versão e histórico (obrigatório a cada mudança no app)
 1. Subir `APP_VERSAO` no `app.html` (padrão `X.Y.Z`: Z = correção, Y = novidade, X = mudança grande).
@@ -36,6 +42,8 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
 - Edge Functions:
   - `agenda-whats` (index.ts + comandos.ts): avisos ao cliente e comandos da equipe por WhatsApp. Roda pelo pg_cron a cada 30 s.
   - `agenda-equipe`: cadastra pessoa da equipe (cria o login com senha provisória ou reaproveita o existente).
+  - `estudo-usuario`: cadastra pessoa só do Estudo (`acao` `cadastrar` ou `nova_senha`); só admin/gerente ativo do Agenda chama.
+    Nova senha só para login criado por ela (`app_metadata.criado_pelo_estudo`), nunca para quem já tinha login (Financeiro Pro).
   - `portal-provisionar` (index.ts + provisionar.ts; Verify JWT **desligado**): chamada pelo Portal Artecon (Acessos). Confere a
     sessão e o papel de administrador no núcleo do portal (projeto `fbxelwhdiisfmnwrerbl`), acha o escritório em `agenda_portal_orgs`
     (Artecon = org `a47ec000-…0001` → tenant 2) e cria/reativa/desativa a pessoa em `agenda_usuarios`. Níveis do portal:
