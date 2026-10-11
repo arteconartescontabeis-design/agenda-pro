@@ -1,0 +1,1213 @@
+# Lista de aulas para análise
+
+Todas as aulas em vídeo dos cursos do Fellipe Guerra (FG, Nutror) e do Caio Melo (CM, Hotmart), em lotes de cerca de 4 horas, da mais útil para a menos útil.
+O resultado de cada lote vai num arquivo "Análise dos vídeos - lote N" nesta pasta. O lote 1 é o piloto (já feito).
+
+Como abrir cada aula (troque CODIGO pelo código da tabela):
+- FG: https://app.nutror.com/curso/4496fdaa817d164c1fdc7f84e476afc034198607/aula/CODIGO
+- CM: https://hotmart.com/pt-br/club/csm-reforma/products/4623721/content/CODIGO
+
+Duração em minutos: a do CM vem da plataforma; a do FG é estimada (até ~8 min de diferença); "?" = não informada.
+
+## Lote 2 — 4 aulas, cerca de 4 h 26 min — obrigatórias da trilha Fiscal
+
+
+FG · Imersão da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 11162044 | Regulamentos e Emissão da NF-e | 58 |
+| 2 | 11162045 | Apuração Assistida de IBS e CBS na Prática | 58 |
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 11243979 | Mudanças na Emissão de Documentos Fiscais para o Simples Nacional | 92 |
+| 4 | 11303303 | Mudanças no Simples Nacional - Resolução CGSN n° 190/2026 | 58 |
+
+## Lote 3 — 24 aulas, cerca de 3 h 55 min — obrigatórias das trilhas
+
+
+CM · Contabilidade de IBS e CBS
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 3ea2G9Vw7g | Introdução | 4 |
+| 2 | BeZ2E055ew | OT CFC 01/26 - Pré-estudo | 9 |
+| 3 | V7ynGB2mOJ | OT CFC 01/26 - Capítulo 1 - Disposições Gerais | 14 |
+| 4 | BOnWp3mq4R | OT CFC 01/26 - Capítulo 2 - Seção 1 - Receitas e tributos cobrados por fora | 11 |
+| 5 | K4kAZRG57Y | OT CFC 01/26 - Capítulo 2 - Seção 2 - Passivo tributário | 15 |
+| 6 | k7Qyx88x7y | OT CFC 01/26 - Capítulo 2 - Seção 3 - Créditos fiscais | 23 |
+| 7 | 97BWjPKROp | OT CFC 01/26 - Capítulo 2 - Seção 4 - Mensuração | 5 |
+| 8 | 0OvP8LVoej | OT CFC 01/26 - Capítulo 2 - Seção 5 - Regime de competência | 10 |
+| 9 | o4EWbPKm7z | OT CFC 01/26 - Capítulo 2 - Seção 6 - Apresentação e divulgação | 9 |
+| 10 | V7ynGBqDOJ | OT CFC 01/26 - Capítulo 3 - Modalidades de extinção dos débitos | 27 |
+| 11 | 94Jggaogeg | OT CFC 01/26 - Capítulo 4 - Introdução | 6 |
+| 12 | V4Vyy2V8O2 | OT CFC 01/26 - Capítulo 4 - Seção 2 - Contexto, Controvérsia e Contabilização | 12 |
+| 13 | k7QyyEv57y | OT CFC 01/26 - Capítulo 4 - Seção 3 - Argumentos a favor e contra | 12 |
+| 14 | BOnWWMEo4R | OT CFC 01/26 - Capítulo 4 - Seção 4 - Orientação para julgamento | 7 |
+| 15 | M7GddvrrOw | Manual - Introdução | 1 |
+| 16 | 0OvPPjXBej | Manual - Fornecimento a prazo | 4 |
+| 17 | 3ea220y87g | Manual - Fornecimento à vista | 3 |
+| 18 | Me1ooqpWOY | Manual - Extinção do débito - Pagamento pelo contribuinte (PCont) | 4 |
+| 19 | Z72ddM024N | Manual - Extinção do débito - Crédito | 5 |
+| 20 | V7ynnybdOJ | Manual - Extinção do débito - Split Payment | 5 |
+| 21 | x7WyyNar42 | Manual - Extinção do débito - Recolhimento pelo Adquirente (RAD) | 5 |
+| 22 | gOpkk1Qr7J | Manual - Extinção do débito - Terceiros | 14 |
+| 23 | r48lME9Z4R | Manual - Fornecimento tributado no recebimento | 15 |
+| 24 | z7rAG2d2ej | Manual - Pagamento antecipado | 15 |
+
+## Lote 4 — 6 aulas, cerca de 4 h 01 min — obrigatórias das trilhas
+
+
+CM · Contabilidade de IBS e CBS
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | a4RKovLRen | Manual - Multas e juros | 17 |
+
+CM · Análise de Preços na Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | 97BWgERPOp | Análise de Preços na Reforma Tributária - Parte 1 | 108 |
+| 3 | a4RKYD8ren | Análise de Preços na Reforma Tributária - Parte 2 | 50 |
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | 11287456 | Cálculos para Decisão: Por Dentro x Por Fora | 42 |
+
+CM · LC 224 - Redução de Benefícios
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 5 | r48E2GQJeR | A majoração (redução de benefício) do Lucro Presumido | 12 |
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 6 | x7WVzWDEe2 | Lei 9.249/95, art. 10 - Distribuição de Lucros (na fonte pagadora) | 12 |
+
+## Lote 5 — 6 aulas, cerca de 3 h 45 min — obrigatórias das trilhas
+
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | BeZq0jAN4w | Pré-estudo | 10 |
+| 2 | meLxDagAen | Lei 9.250/95, art. 3º-A - Redução do IRPF mensal | 8 |
+| 3 | BOnw3qJZ4R | Lei 9.250/95, art. 3º-A - Exemplo | 11 |
+| 4 | x7WVbZdje2 | Lei 9.250/95, art. 11-A - Redução IRPF Anual | 5 |
+| 5 | 2OM8ZbAr76 | Efeitos na REINF por conta da tributação de altas rendas | 47 |
+
+CM · Simples Nacional Puro ou Híbrido?
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 6 | 94JgKz8oeg | Aulão - Simples Nacional: Puro ou Híbrido? | 144 |
+
+## Lote 6 — 3 aulas, cerca de 1 h 05 min — obrigatórias das trilhas
+
+
+CM · Documentos Fiscais
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | k7QBKKxJOy | NFSe de Locação de Imóveis | 30 |
+| 2 | E4zNYnpj4l | NFSe de Locação - Nota Técnica 009 | 12 |
+| 3 | y4bKqgRXeR | Dinâmica de documentos fiscais na atividade imobiliária | 23 |
+
+## Lote 7 — 5 aulas, cerca de 3 h 28 min — opcionais das trilhas
+
+
+FG · Módulo 06 - Especializações
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10665250 | Prática da NF-e e CT-e na Reforma Tributária | 58 |
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | 11324422 | Simples Nacional 2027 na Prática: Cálculo e Decisão | 58 |
+
+FG · Módulo 07 - Regimes Diferenciados
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 10772945 | Regimes Diferenciados - Redução de 30% | 25 |
+| 4 | 10772946 | Regimes Diferenciados - Redução de 60% | 42 |
+| 5 | 10796105 | Regimes Diferenciados - Redução Zero | 25 |
+
+## Lote 8 — 6 aulas, cerca de 3 h 57 min — opcionais das trilhas
+
+
+CM · Documentos Fiscais na Prática, com Prof. Marla Murillo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | K4kkrLa54Y | Aula 04 - NF-e de débitos na Reforma Tributária | 95 |
+| 2 | 0OvoRgQo4j | Aula 05 - NF-e de créditos na Reforma Tributária | 77 |
+
+FG · Simuladores da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 11215025 | Emissão de NFe | 8 |
+| 4 | 11215026 | Apuração Assistida | 8 |
+
+CM · LC 224 - Redução de Benefícios
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 5 | EOgpD8Jp46 | IN RFB 2.306/26 - Apuração do 1º ao 3º Trimestre | 37 |
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 6 | 0OvzVAy8Oj | Lucros creditados ou pagos, faz diferença? | 12 |
+
+## Lote 9 — 4 aulas, cerca de 4 h 03 min — opcionais das trilhas
+
+
+FG · Módulo 06 - Especializações
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10564330 | Prática da Apuração | 92 |
+
+FG · Módulo 03 – Prática de Cálculo e Simulações: Impactos nas Empresas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | 8281792 | Ferramentas e Formatos de Cálculo e Simulação Lucro Presumido | ? |
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 11303497 | ITCMD nas Holdings: Impactos da Reforma Tributária | 92 |
+
+CM · Introdução à Reforma 2.0
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | m7Y8npYWe6 | A(s) Reforma(s) | 14 |
+
+## Lote 10 — 9 aulas, cerca de 4 h 04 min — opcionais das trilhas
+
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | V73VMknle3 | Lei 9.250/95, art. 6º-A - Altas Rendas IRPFm mensal | 17 |
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | 11287448 | Novo Sistema Tributário: IBS, CBS e Split Payment | 58 |
+
+FG · Módulo 06 - Especializações
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 10530630 | IBS e CBS na prática para o Setor de Transportes | 58 |
+| 4 | 10543207 | Reforma Tributária Aplicada à Bens Imóveis | 58 |
+
+CM · RTC - Regime Específico de Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 5 | 0Ovojm2W4j | Operações alcançadas | 23 |
+| 6 | BOn5Mbgp7R | Imóvel objeto de garantia em favor de credor | 7 |
+| 7 | 1469bpGyOd | Conceito de Serviços de Construção | 9 |
+| 8 | LO0b8m8LeG | Aluguel ou serviço de Hotelaria? | 12 |
+| 9 | V73PEmE2O3 | O imóvel como elemento acessório do fornecimento | 2 |
+
+## Lote 11 — 21 aulas, cerca de 3 h 36 min — opcionais das trilhas
+
+
+CM · RTC - Regime Específico de Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | kOXKjAVV7W | Momento de ocorrência do fato gerador | 12 |
+| 2 | BeZKPoBr7w | Caso especial - Incorporação e Parcelamento de Solo (momento de tributar) | 17 |
+| 3 | 94JzaPYo4g | Caso especial - Incorporação e Parcelamento de Solo (progressão de alíquota) | 5 |
+| 4 | E4zN63yP4l | Base de Cálculo - Regra geral | 13 |
+| 5 | 14o5EjMJ7p | Base de Cálculo - Aluguel | 16 |
+| 6 | 3eal0a0k4g | Base de Cálculo - Corretagem | 12 |
+| 7 | ROxAP0PJ4D | Base de Cálculo - Operações não onerosas ou a valor inferior ao de mercado | 13 |
+| 8 | y4P2MzMm7x | Serviços de Construção - limitação (e estorno) de créditos | 14 |
+| 9 | RONJK0LGOP | Valor de Referência | 19 |
+| 10 | a4R2nGNN4n | Valor de Referência - Impugnação | 4 |
+| 11 | o4E32qD97z | Valor de Referência - Papel dos Cartórios | 2 |
+| 12 | ROxAWKny4D | Sinter e CIB na tela | 4 |
+| 13 | y4bKqgdneR | Redutor de Ajuste - Visão Geral | 15 |
+| 14 | 94JzyXEY4g | Redutor de Ajuste - Composição do valor e atualização | 3 |
+| 15 | M7qygE2W7x | Redutor de Ajuste - Dinâmica nas alienações | 8 |
+| 16 | y4PdN0DL4x | Redutor de Ajuste - Reorganização do imóvel | 13 |
+| 17 | E4z9RYPPOl | Redutor de Ajuste - Contrato de Parceria | 10 |
+| 18 | y4bXWq6k7R | Redutor de Ajuste - Valor inicial | 18 |
+| 19 | k45AqBrq4l | Redutor de Ajuste - Data e atualização | 6 |
+| 20 | 94JgEyrjeg | Redutor de Ajuste - Limitação do valor | 9 |
+
+CM · LC 214/25 - Regimes de Transição de Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 21 | V4VdjLv972 | LC 214/25 - Regra de Transição para operações com imóveis | 3 |
+
+## Lote 12 — 4 aulas, cerca de 1 h 55 min — opcionais das trilhas
+
+
+CM · LC 214/25 - Regimes de Transição de Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | V73v5Mr3e3 | LC 214/25, Art. 485 - Incorporações com RET (Parte 1) | 37 |
+| 2 | y4PP1x1L4x | LC 214/25, Art. 485 - Incorporações com RET (Parte 2) | 15 |
+| 3 | k7QkV6dr4y | LC214/25, Art. 486 - Parcelamento de solo | 32 |
+| 4 | 97BdYwRL4p | LC214/25, Art. 487 - Locação, arrendamento e cessão onerosa | 31 |
+
+## Lote 13 — 5 aulas, cerca de 3 h 18 min — opcionais das trilhas
+
+
+CM · A Reforma no Agro com Prof. Ademir Júnior
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | RON9DvQd7P | A Reforma no Agro com Prof. Ademir Júnior | 136 |
+
+CM · Introdução à Reforma 2.0
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | V4VQn0ZxO2 | Os tributos e a tal alíquota única | 18 |
+| 3 | Me1a6PL8eY | Linha do tempo | 17 |
+| 4 | m7Y8npW6e6 | Análise - analisando o seu preço | 16 |
+| 5 | meLxJq3aen | Análise - Negociando preço do Fornecedor | 11 |
+
+## Lote 14 — 1 aulas, cerca de 0 h 58 min — opcionais das trilhas
+
+
+FG · Imersão da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 11162046 | Simples Nacional na Reforma: IBS por dentro ou por fora? | 58 |
+
+## Lote 15 — 4 aulas, cerca de 3 h 20 min — demais aulas dos módulos principais
+
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10869752 | Lei Complementar nº 227/2026 e Pontos de Atenção | 25 |
+| 2 | 11287450 | Aulão de Atualizações - Implantação de IBS e CBS para 2026 | 92 |
+| 3 | 11287452 | Regulamentos de IBS e CBS - Contagem Regressiva | 58 |
+| 4 | 11063441 | Resolução do CGSN 186/2026 | 25 |
+
+## Lote 16 — 3 aulas, cerca de 3 h 28 min — demais aulas dos módulos principais
+
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 11115781 | Lei Complementar n° 227/2026 e suas alterações na Lei Complementar n° 214/2025 | 58 |
+| 2 | 11259578 | Bares e Restaurantes na Reforma Tributária: IBS, CBS e Split Payment na Prática | 108 |
+| 3 | 11287458 | Simples Nacional: Cálculo de IBS e CBS | 42 |
+
+## Lote 17 — 7 aulas, cerca de 3 h 47 min — demais aulas dos módulos principais
+
+
+FG · Atualizações de 2026
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 11292526 | Prática da Emissão das NFs com Destaque de IBS e CBS | 58 |
+| 2 | 11316145 | Uso de I.A na Prática Contábil e Fiscal com foco na Reforma | 42 |
+| 3 | 11324426 | Reforma no Simples: Anexo I - Atividade de Comércio | 58 |
+
+FG · Simuladores da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | 11215027 | Cenários do Simples Nacional | 8 |
+| 5 | 11257767 | Dominando o Simples Nacional - Emissão, Apuração e Decisão de Cenários | 8 |
+| 6 | 11223726 | Exercício Prático Da Emissão ao Pagamento da Apuração | 8 |
+
+FG · Módulo 05 - Descomplicando a Lei Complementar 214/2025
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 7 | 9903505 | Visão Geral da Lei Complementar 214/2025 | ? |
+
+## Lote 18 — 5 aulas, cerca de 3 h 45 min — demais aulas dos módulos principais
+
+
+FG · Módulo 05 - Descomplicando a Lei Complementar 214/2025
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 9903529 | Aula 01 - Aspectos Fundamentais do IBS e CBS: Incidência e Não Incidência | ? |
+| 2 | 9903589 | Aula 02 - Obrigação Tributária no Novo Modelo: Sujeição Passiva e Extinção de Débitos | ? |
+| 3 | 9903599 | Aula 03 - Métodos de Apuração e a Não-Cumulatividade no IBS e CBS | ? |
+| 4 | 9903601 | Aula 04 - Política Tributária para Consumo: Cesta Básica Nacional e Cashback | ? |
+| 5 | 9903604 | Aula 05 - Pequenos Negócios e a Reforma Tributária: Impactos no Simples Nacional | ? |
+
+## Lote 19 — 5 aulas, cerca de 3 h 42 min — demais aulas dos módulos principais
+
+
+FG · Módulo 05 - Descomplicando a Lei Complementar 214/2025
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10367658 | Aula 05.1 - Atualização: NF-e para Empresas do Simples Nacional em 2026 | ? |
+| 2 | 9903959 | Aula 06 - Implementação do IBS e CBS: Procedimentos Operacionais e Práticos | ? |
+| 3 | 9903962 | Aula 07 - Mecanismo de Split Payment no IBS e CBS: Recolhimento e Controle | ? |
+| 4 | 9903966 | Aula 08 - Gestão Tributária no Novo Sistema: Interpretação Normativa e Fiscalização | ? |
+| 5 | 9903977 | Aula 09 - Comitê Gestor de IBS: Organização, Atribuições e Desafios | 42 |
+
+## Lote 20 — 9 aulas, cerca de 3 h 46 min — demais aulas dos módulos principais
+
+
+FG · Módulo 06 - Especializações
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10549507 | Imposto Seletivo | 58 |
+| 2 | 10578244 | Bares e Restaurantes | 58 |
+
+FG · Módulo 07 - Regimes Diferenciados
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 10772942 | Introdução e Apresentação do Módulo | 8 |
+| 4 | 10772943 | Apresentação dos Regimes Diferenciados | 8 |
+| 5 | 10772944 | Regimes Específicos - Disposições Gerais | 8 |
+| 6 | 10796106 | Regimes Diferenciados - Outros Parte 1 | 25 |
+| 7 | 10796107 | Regimes Diferenciados - Outros Parte 2 | 8 |
+| 8 | 10772947 | Encerramento e Conclusão do Módulo | 8 |
+
+FG · Módulo 03 – Prática de Cálculo e Simulações: Impactos nas Empresas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 9 | 8281794 | Simulação Simples Nacional | ? |
+
+## Lote 21 — 5 aulas, cerca de 3 h 42 min — demais aulas dos módulos principais
+
+
+FG · Módulo 03 – Prática de Cálculo e Simulações: Impactos nas Empresas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8281796 | Simulação Lucro Real | ? |
+| 2 | 10369042 | Simulação de Cálculo para Empresas do Simples Nacional - Serviço | ? |
+| 3 | 10369044 | Simulação de Cálculo para Empresas do Simples Nacional - Comércio | ? |
+| 4 | 10414138 | Prática da Calculadora da Reforma Tributária da Receita Federal | ? |
+| 5 | 10513948 | Conformidade Fácil | 42 |
+
+## Lote 22 — 5 aulas, cerca de 3 h 45 min — demais aulas dos módulos principais
+
+
+FG · Módulo 03 – Prática de Cálculo e Simulações: Impactos nas Empresas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8281799 | Aula Bônus - Calculadora da Reforma Tributária | ? |
+| 2 | 8291994 | Aula Bônus - Impactos da Reforma Tributária no Simples Nacional | ? |
+
+FG · Módulo 08 - Bônus e Aulas Extras
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 8491405 | IPI e PASEP (Serão Extintos?) | ? |
+| 4 | 9677103 | Aulão de Atualizações da Reforma Tributária | ? |
+| 5 | 10161725 | Entendendo a Tramitação da Reforma Tributária | ? |
+
+## Lote 23 — 4 aulas, cerca de 3 h 30 min — demais aulas dos módulos principais
+
+
+FG · Módulo 08 - Bônus e Aulas Extras
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10161728 | Intensivão da Reforma Tributária | ? |
+| 2 | 10161731 | Como Vender Consultoria Tributária na Reforma | ? |
+| 3 | 10363077 | Aulão de Atualizações da Reforma Tributária | ? |
+| 4 | 10499047 | Super Live sobre a Reforma Tributária - Como se preparar para 2026 | 75 |
+
+## Lote 24 — 7 aulas, cerca de 4 h 02 min — demais aulas dos módulos principais
+
+
+FG · Módulo 08 - Bônus e Aulas Extras
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 10662914 | Super Live sobre a Reforma Tributária - Prática da Apuração de IBS e CBS | ? |
+| 2 | 10598170 | Aulão de Atualizações da Reforma Tributária | 58 |
+| 3 | 10624107 | Aula Bônus - Aprendendo a Aprender | 58 |
+| 4 | 10917569 | LC 227/2026 e a Reforma Tributária: O que mudou? | ? |
+
+CM · Reforma Tributária do Consumo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 5 | Me1gbXyJOY | RTC - Introdução | 23 |
+| 6 | 37d5rV2yOL | Instituição dos Tributos e o Princípio da Neutralidade | 6 |
+| 7 | Z72jZPNy7N | Será que os Regulamentos detalham tudo? | 7 |
+
+## Lote 25 — 14 aulas, cerca de 3 h 31 min — demais aulas dos módulos principais
+
+
+CM · Reforma Tributária do Consumo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | K4kkrLwy4Y | Principais definições | 21 |
+| 2 | PeAQJmkVeW | Hipóteses de incidência | 26 |
+| 3 | ROxANaPJ4D | Outras hipóteses de incidência: fornecimento gratuito ou a valor inferior ao de mercado | 30 |
+| 4 | r48bJyQZ7R | Graus de parentesco | 21 |
+| 5 | m7YKmrxQ46 | Lei 6404/76, art. 243 - Coligada | 7 |
+| 6 | 1469JXbbOd | Não incidência | 24 |
+| 7 | y4bKzV6jeR | Fornecimentos simultâneos | 8 |
+| 8 | 2OMNQJ2x46 | Ordem de aplicação dos tratamentos tributários | 5 |
+| 9 | oOD8kgmwOP | Imunidade de exportação e visão geral | 10 |
+| 10 | 3ealKQr84g | Demais imunidades | 19 |
+| 11 | ROxAXVa04D | Condições para imunidade (CTN, art. 14) | 5 |
+| 12 | meL2a9kgOn | Imunidades - comentário extra | 4 |
+| 13 | y4P289zy7x | Momento de ocorrência do Fato Gerador | 15 |
+| 14 | a4R2MYbN4n | Apuração de IBS/CBS sobre Adiantamentos | 16 |
+
+## Lote 26 — 21 aulas, cerca de 3 h 56 min — demais aulas dos módulos principais
+
+
+CM · Reforma Tributária do Consumo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 94Jza3Vb4g | Local da operação - Parte 1 | 40 |
+| 2 | 97BVzvJA7p | Local da operação - Parte 2 | 17 |
+| 3 | Z72jM1607N | Base de Cálculo - Pré-estudo | 10 |
+| 4 | LO0b89P1eG | Base de Cálculo - Regra geral | 11 |
+| 5 | M7GEvVDL4w | Base de Cálculo - Exclusões | 12 |
+| 6 | K4kkxg5Z4Y | Base de Cálculo - Conversão de moeda | 4 |
+
+CM · Introdução à Reforma 2.0
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 7 | ROxwlExx7D | Sua primeira missão | 1 |
+| 8 | E4zzlKw64l | Introdução | 3 |
+| 9 | 64l2l0RM7j | A Reforma do Consumo | 5 |
+| 10 | V7ygl1ZM4J | Regime Geral - Alguns Conceitos | 23 |
+| 11 | 37dpd9nZ7L | Regime Geral - Base de Cálculo e Local da Operação | 8 |
+| 12 | 0Ovzl6n8Oj | Regime Geral - Extinção do Débito | 18 |
+| 13 | 0Ovzl6nVOj | Análise - Comparando fornecedores | 15 |
+| 14 | y4PE3G60ex | Agora, o Regime Específico de Imóveis | 1 |
+| 15 | YOmplWvQ7d | Introdução ao Regime Específico | 2 |
+| 16 | K4k2d051OY | Visão geral | 11 |
+| 17 | LO0Dd5N1OG | PF contribuinte de IBS/CBS | 23 |
+| 18 | M7GRy0xLew | Obrigações acessórias específicas | 6 |
+| 19 | gOpylgYP4J | Momento da tributação | 6 |
+| 20 | ROxwl6EJ7D | Alíquotas reduzidas | 9 |
+| 21 | 97B2y60q7p | CIB e Valor de Referência | 11 |
+
+## Lote 27 — 12 aulas, cerca de 1 h 45 min — demais aulas dos módulos principais
+
+
+CM · Introdução à Reforma 2.0
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 3eapdPYb4g | Redutor de Ajuste | 23 |
+| 2 | RONqnbEP7P | Permuta de Imóveis | 4 |
+| 3 | 3eapdPPb4g | Redutor Social | 21 |
+| 4 | M7qplZZ1ex | Locação, Arrendamento e Cessão de uso | 14 |
+| 5 | k4586nnPOl | Intermediação e Administração de operações imobiliárias | 9 |
+| 6 | PeA2ydB07W | Serviços de Construção | 6 |
+| 7 | z7r2ld627j | Incorporação e Parcelamento de Solo | 8 |
+| 8 | meLxJ0zqen | Do Específico para a Transição | 1 |
+| 9 | M7GRy0zrew | Incorporações no RET | 7 |
+| 10 | V73V6NWBe3 | Parcelamentos de solo | 3 |
+| 11 | M7qplZwnex | Locação | 8 |
+| 12 | 0Ovz5Z15Oj | Próximo passo | 1 |
+
+## Lote 28 — 1 aulas, cerca de 2 h 30 min — demais aulas dos módulos principais
+
+
+CM · Documentos Fiscais na Prática, com Prof. Marla Murillo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | o4E3GbpV7z | Aula 01 - Nota Fiscal Eletrônica (Mod. 55) - Campo a campo | 150 |
+
+## Lote 29 — 1 aulas, cerca de 2 h 18 min — demais aulas dos módulos principais
+
+
+CM · Documentos Fiscais na Prática, com Prof. Marla Murillo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | ROxAazq04D | Aula 02 - Nota Fiscal Eletrônica de Serviços - Campo a campo | 138 |
+
+## Lote 30 — 5 aulas, cerca de 4 h 07 min — demais aulas dos módulos principais
+
+
+CM · Documentos Fiscais na Prática, com Prof. Marla Murillo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 3ea25MZm7g | Aulão tira-dúvidas - Documentos Fiscais | 156 |
+
+CM · LC 214 - Disposições Preliminares
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | YOmzg0RA4d | LC 214/25 - Introdução | 2 |
+| 3 | EOgzjyyq76 | LC 214/25, Arts. 1º a 3º - Instituição de IBS/CBS e conceitos iniciais | 31 |
+
+CM · LC 214/25 - Do IBS e da CBS sobre operações com bens e serviços
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | oODlywAgOP | LC 214/25, Art. 4º - Hipóteses de Incidência | 18 |
+| 5 | PeAMEArPeW | LC 214/25, Art. 5º - Outras hipóteses de incidência e partes relacionadas | 40 |
+
+## Lote 31 — 18 aulas, cerca de 4 h 00 min — demais aulas dos módulos principais
+
+
+CM · LC 214/25 - Do IBS e da CBS sobre operações com bens e serviços
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | PeAMEAVPeW | LC 214/25, Art. 6º - Não incidência | 32 |
+| 2 | EOgzMYNP76 | LC 214/25, Art. 7º - Fornecimentos simultâneos | 8 |
+| 3 | 2OMP51vR76 | Lei 6404/76, art. 243 - Coligada | 7 |
+| 4 | Me1BE1qp7Y | LC 214/25, Art. 8º - Imunidade de exportação e visão geral | 10 |
+| 5 | EOgYWdDbe6 | LC 214/25, Art. 9º - Demais imunidades | 19 |
+| 6 | RO98jANg7P | CTN, art. 14 - Condições para imunidade | 5 |
+| 7 | 37dLYBVk7L | LC 214/25, Art. 10 - Momento de ocorrência do fato gerador | 20 |
+| 8 | oODdXAVmOP | LC 214/25, Art. 10 - Adiantamentos (pagamentos antecipados) | 9 |
+| 9 | r48xv2Bw4R | LC 214/25, Art. 11 - Local da Operação | 25 |
+| 10 | y4PvlMgE7x | LC 214/25, Art. 11 - Local da operação - Detalhamento | 30 |
+| 11 | M7GnGvZwew | LC 214/25, Art. 11 - Domicílio principal | 8 |
+| 12 | ROxv828beD | LC 214/25, Art. 12 - Base de cálculo | 16 |
+| 13 | EOgYoK3Ee6 | LC 214/25, Art. 12 - Não compõe base de cálculo | 9 |
+| 14 | BOnvoVl5OR | LC 214/25, Art. 12 - Particularidades na base de cálculo | 8 |
+| 15 | 64lNoal37j | LC 214/25, Art. 13 - Arbitramento da base de cálculo | 10 |
+| 16 | 14oRo3WZOp | LC 214/25, Art. 14 - Alíquotas-padrão | 8 |
+| 17 | a4RDdaWx7n | LC 214/25, Arts. 15, 16 e 17 - Alíquotas-padrão (continuação) | 8 |
+| 18 | r48x6YXn4R | LC 214/25, Art. 18 - Alíquota de referência | 8 |
+
+## Lote 32 — 22 aulas, cerca de 4 h 00 min — demais aulas dos módulos principais
+
+
+CM · LC 214/25 - Do IBS e da CBS sobre operações com bens e serviços
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | r48xXxXZ4R | LC 214/25, Art. 19 - Legislações que alterem arrecadação | 22 |
+| 2 | y4PvDvyl7x | LC 214/25, Art. 20 - Projeto de Lei Complementar que altere arrecadação | 4 |
+| 3 | 0Ovq3qEB7j | LC 214/25, Art. 21 - Quem é contribuinte | 9 |
+| 4 | 2OM1B1jRO6 | LC 214/25, Art. 22 - Plataformas Digitais | 25 |
+| 5 | y4PvDvXD7x | LC 214/25, Art. 23 - Plataformas Digitais (continuação) | 2 |
+| 6 | M7Gn1nWNew | LC 214/25, Art. 24 - Responsabilidade solidária | 17 |
+| 7 | M7qaVavy7x | LC 214/25, Art. 25 - Responsabilidade solidária (continuação) | 1 |
+| 8 | y4Pvyvp07x | LC 214/25, Art. 26 - Não é contribuinte (mas pode ser) | 34 |
+| 9 | 37d89RvZ7L | LC 214/25, Art. 26 - Derrubada de vetos | 7 |
+| 10 | x7W8mpQrO2 | LC 214/25, Art. 27 - Modalidades de extinção do débito | 13 |
+| 11 | 94JAJM60Og | LC 214/25, Art. 28 - Energia Elétrica | 6 |
+| 12 | M7Gnm2ZBew | LC 214/25, Art. 29 - Pagamento pelo Contribuinte | 23 |
+| 13 | V73RJgn2e3 | LC 214/25, Art. 30 - Pagamento automatizado | 1 |
+| 14 | M7qaM0xW7x | LC 214/25, Art. 31 - Split Payment | 6 |
+| 15 | V4Vxm0Zn72 | LC 214/25, Art. 32 - Split Payment Padrão (completo) | 9 |
+| 16 | 97BEl0L2ep | LC 214/25, Art. 33 - Split Payment simplificado | 12 |
+| 17 | V73RJg9De3 | LC 214/25, Art. 34 - Mais regras do Split Payment | 4 |
+| 18 | 0OvqZ65x7j | LC 214/25, Art. 35 - Implementação do Split Payment | 1 |
+| 19 | 37dLm9w67L | LC 214/25, Art. 36 - Recolhimento pelo adquirente | 6 |
+| 20 | ROxvNE1KeD | LC 214/25, Art. 37 - Pagamento pelo responsável | 1 |
+| 21 | 0Ovqjm1x7j | LC 214/25, Art. 38 - Pagamento indevido ou a maior | 4 |
+| 22 | y4bkAR0LeR | LC 214/25, Art. 39 - Ressarcimento | 33 |
+
+## Lote 33 — 27 aulas, cerca de 3 h 53 min — demais aulas dos módulos principais
+
+
+CM · LC 214/25 - Do IBS e da CBS sobre operações com bens e serviços
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | LO0q8mZM4G | LC 214/25, Art. 40 - Casos de ressarcimento mais rápido | 16 |
+| 2 | BOnvMbQYOR | LC 214/25, Art. 41 - Regimes de apuração | 14 |
+| 3 | gOpD12qbOJ | LC 214/25, Art. 42 - Apuração centralizada | 2 |
+| 4 | Me1Bqm1J7Y | LC 214/25, Arts. 43 e 44 - Período de apuração e data de vencimento | 1 |
+| 5 | R4jpVMl27a | LC 214/25, Art. 45 - Dinâmica de apuração dos tributos | 14 |
+| 6 | PeAAKl33eW | LC 214/25, Art. 46 - Apuração assistida | 9 |
+| 7 | 37dLBPzy7L | LC 214/25, Art. 47 - Não comutatividade | 18 |
+| 8 | 64lN8VM27j | LC 214/25, Art. 48 - Regra provisória para apropriar créditos | 3 |
+| 9 | m7Yl0nKZe6 | LC 214/25, Art. 49 - Operações que não permitem crédito | 3 |
+| 10 | y4Pvj3pD7x | LC 214/25, Art. 50 - Crédito em operações com suspensão | 5 |
+| 11 | b4KdLnnNeX | LC 214/25, Art. 51 - Crédito em operações imunes e isentas | 7 |
+| 12 | 64lNblnP7j | LC 214/25, Art. 52 - Crédito em operações de alíquota zero | 2 |
+| 13 | 2OM1ZnboO6 | LC 214/25, Art. 53 - Ordem de uso dos créditos | 7 |
+| 14 | y4Pvj3Nj7x | LC 214/25, Art. 54 - Prazo de uso dos créditos | 1 |
+| 15 | gOpDjlZdOJ | LC 214/25, Art. 55 - Transferência dos créditos | 2 |
+| 16 | r48x3gXX4R | LC 214/25, Art. 56 - Regra geral se aplica aos demais casos | 2 |
+| 17 | V7yRWlEkOJ | LC 214/25, Art. 57 - Uso e consumo pessoal | 47 |
+| 18 | BOnvPl6bOR | Graus de parentesco | 21 |
+
+CM · LC 214/25 - Operacionalização do IBS e da CBS
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 19 | BOn0YBrYeR | LC 214/25, Art. 58 - Operacionalização de IBS e CBS | 3 |
+| 20 | Me1vPNby7Y | LC 214/25, Art. 59 - Cadastro com Identificação Única | 13 |
+| 21 | b4K90qQJ7X | LC 214/25, Art. 60 - Documento Fiscal Eletrônico | 5 |
+| 22 | gOpbYR9VeJ | LC 214/25, Art. 61 - Programas de Incentivo à Cidadania Fiscal | 2 |
+| 23 | o4Eg0QxR7z | LC 214/25, Art. 62 - Disposições Transitórias | 4 |
+
+CM · LC 214/25 - Desoneração da Aquisição de Bens de Capital
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 24 | YOmNwvbd4d | LC 214/25, Art. 108 - Desoneração da aquisição de Bens de Capital | 6 |
+| 25 | 0Ova8MYo7j | LC 214/25, Art. 109 - Suspensão de IBS e CBS | 10 |
+| 26 | RO9qdnMgOP | LC 214/25, Arts. 110 e 111 - Redução a Zero e Concessão de Serviço Público | 7 |
+
+CM · LC 214/25 - Cesta Básica de Alimentos
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 27 | 2OMJ0qqo46 | LC 214/25, Art. 125 - Cesta Básica Nacional de Alimentos | 9 |
+
+## Lote 34 — 16 aulas, cerca de 4 h 10 min — demais aulas dos módulos principais
+
+
+CM · LC 214/25 - Regimes Diferenciados de IBS e CBS
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | RO9qdnb8OP | LC 214/25, Arts. 126 - Disposições Gerais | 21 |
+| 2 | 64lwpBgEOj | LC 214/25, Art. 127 - Regime Diferenciado para Atividades Intelectuais | 15 |
+
+CM · LC 214/25 - Regime Específico de Bens Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | a4RDZRZR7n | LC 214/25 - Regime Específico de Bens Imóveis | 4 |
+| 4 | LO0qVK594G | LC 214/25, Art. 251 - PF alugando imóveis | 22 |
+| 5 | BeZyYMGX4w | LC 214/25, Art. 251 - PF vendendo imóveis | 22 |
+| 6 | x7W8pxgjO2 | LC 214/25, Art. 251 - Finalizando o artigo | 3 |
+| 7 | r48x9KWJ4R | LC 214/25, Art. 252 - Operações incluídas no regime | 15 |
+| 8 | 2OM16o0RO6 | LC 214/25, Art. 252 - Permuta | 18 |
+| 9 | meL1qoGZ7n | LC 214/25, Art. 252 - Finalizando o artigo | 11 |
+| 10 | Me1BPKlp7Y | LC 214/25, Art. 253 - Aluguel de curto prazo | 2 |
+| 11 | V7yR1Xw1OJ | LC 214/25, Art. 254 - Momento de ocorrência do fato gerador | 9 |
+| 12 | 97BE0Mylep | LC 214/25, Art. 255 - Base de cálculo | 31 |
+| 13 | M7qa05kw7x | LC 214/25, Art. 256 - Valor de referência | 10 |
+| 14 | R4jp92nA7a | LC 214/25, Art. 257 - Redutor de Ajuste | 25 |
+| 15 | 14oRkyWJOp | LC 214/25, Art. 258 - Valor do Redutor de Ajuste | 30 |
+| 16 | M7Gn2ZpLew | LC 214/25, Art. 258 - Caso específico de limitação do redutor de ajuste | 12 |
+
+## Lote 35 — 28 aulas, cerca de 4 h 06 min — demais aulas dos módulos principais
+
+
+CM · LC 214/25 - Regime Específico de Bens Imóveis
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | K4k30NQZ4Y | LC 214/25, Art. 258 - Finalizando o artigo | 13 |
+| 2 | 3eagw0apOg | LC 214/25, art. 259 - Redutor social na venda | 20 |
+| 3 | Z72v2MG07N | LC 214/25, Art. 260 - Redutor social no aluguel | 8 |
+| 4 | PeAA0KE1eW | LC 214/25, Art. 261 - Alíquotas reduzidas | 8 |
+| 5 | M7Gn6vJ9ew | LC 214/25, art. 262 - Incorporação e Parcelamento de solo | 34 |
+| 6 | kOXqgjLd4W | LC 214/25, Art. 263 - Sujeição passiva | 12 |
+| 7 | 94JAxaXgOg | LC 214/25, Art. 264 - SCP | 1 |
+| 8 | 37dLRjzP7L | LC 214/25, Art. 265 - CIB | 1 |
+| 9 | y4bkB23neR | LC 214/25, Art. 266 - Prazo de adequação ao CIB | 4 |
+| 10 | 0OvqJQ6B7j | LC 214/25, Art. 268 - Novas obrigações acessórias podem vir aí | 2 |
+| 11 | 3eagwZw9Og | LC 214/25, Art. 269 - CIB por obra | 3 |
+| 12 | Z72v292J7N | LC 214/25, Art. 270 - Apuração, documentos e contabilidade por obra | 3 |
+
+CM · CIB - Cadastro Imobiliário Brasileiro
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 13 | k45bNGdxel | Introdução | 4 |
+| 14 | 0Ovo1x854j | Contextualização | 8 |
+| 15 | o4E3Y8Dd7z | Características gerais do CIB | 10 |
+| 16 | EOg5wNW0e6 | Dados Cadastrais - Imóvel Urbano | 6 |
+| 17 | NOw6L8r17m | Dados Cadastrais - Imóvel Rural | 3 |
+| 18 | 94JzDLda4g | Dados Geoespaciais | 2 |
+| 19 | 3ealzE5n4g | Dados Temáticos | 4 |
+| 20 | 97BV9QnG7p | Evolução da integração do CIB | 4 |
+
+CM · LC 224 - Redução de Benefícios
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 21 | ROxw23ry7D | Introdução | 1 |
+| 22 | oODzYMKNeP | Pré-estudo | 15 |
+| 23 | Z72QgnNyeN | Tributos e casos alcançados | 17 |
+| 24 | 94JQY2koOg | Sistema padrão de tributação (referência) | 8 |
+| 25 | o4EBGErZez | Produção de efeitos | 9 |
+| 26 | V7ygNz0G4J | Métodos de redução de benefícios - Parte 1 | 22 |
+| 27 | oODzAMVweP | A IN RFB 2.305/26 e o critério de proporção para atividades diversas | 14 |
+| 28 | gOpy1NJr4J | IN RFB 2.306/26 - 4º Trimestre com Receita inferior ao limite | 10 |
+
+## Lote 36 — 22 aulas, cerca de 4 h 01 min — demais aulas dos módulos principais
+
+
+CM · LC 224 - Redução de Benefícios
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | RONq3MaJ7P | IN RFB 2.306/26 - 4º Trimestre com Receita superior ao limite, mas excesso inferior à soma dos trimestres | 24 |
+| 2 | 37dpjwGB7L | IN RFB 2.306/26 - 4º Trimestre com Receita superior ao limite e excesso superior à soma dos trimestres | 7 |
+| 3 | V4VQajGrO2 | IN RFB 2.306/26 - Proporção entre atividades, crédito tributário e situações especiais | 16 |
+| 4 | gOpy9aKV4J | Particularidades para redução de alíquota zero e isenção | 5 |
+| 5 | k7QB9LklOy | Casos em que a redução de benefício não se aplica | 12 |
+| 6 | 97B2ZJdA7p | Dicas práticas para se localizar na redução de benefícios | 14 |
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 7 | meLxDaPAen | P&R RFB Tributação Altas Rendas - Questão 08 - Critérios para não tributação de altas rendas | 17 |
+| 8 | 146qLkwbOd | P&R RFB Tributação Altas Rendas - Questão 09 - Como atender o prazo de 31/12/2025? | 10 |
+| 9 | kOXxZ2NdOW | Lei 9.250/95, art. 10 - Atualização do desconto simplificado | 1 |
+| 10 | x7WVbZnje2 | Lei 9.250/95, Arts. 12 e 13 - Ajustes de redação para IRPF | 6 |
+| 11 | 2OM8aQXx76 | Lei 9.250/95, Art. 16-A - A lógica do IRPFm anual sobre Altas Rendas | 9 |
+| 12 | M7qp81jnex | Lei 9.250/95, Art. 16-A - Deduções da Base de Cálculo | 13 |
+| 13 | RONqQVWp7P | Lei 9.250/95, Art. 16-A - Alíquota do IRPFm | 7 |
+| 14 | RO92PkMm4P | Lei 9.250/95, Art. 16-A - Considerações sobre os lucros no IRPFm | 6 |
+| 15 | M7GRWkgrew | Lei 9.250/95, Art. 16-A - Exemplo de Alíquotas do IRPFm | 5 |
+| 16 | 97B2PkXa7p | Lei 9.250/95, Art. 16-A - Finalizando o cálculo do IRPFm anual | 20 |
+| 17 | V7ygBPLm4J | Lei 9.250/95, Art. 16-B - Redutor do IRPFm | 33 |
+| 18 | V73VXn8Ze3 | P&R RFB - Questão 10 - Como fica o Simples Nacional | 19 |
+| 19 | RONqY6Dd7P | ADE Codar 30/25 - Código DARF para IRRF sobre os Lucros | 2 |
+| 20 | E4zzMwQl4l | P&R RFB - Questões 6 e 18 - Prazo de recolhimento do IRRF sobre os Lucros | 3 |
+| 21 | 37dpoMK67L | P&R RFB - Questões 19, 20 e 22 - Dispensa de IRRF sobre os Lucros remetidos para o exterior | 6 |
+| 22 | oODzn1GbeP | Lei 9.249/95, art. 10-A - Crédito para sócios domiciliados no exterior | 6 |
+
+## Lote 37 — 5 aulas, cerca de 3 h 53 min — demais aulas dos módulos principais
+
+
+CM · Lei 15.270/25
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | Me1az018eY | P&R RFB - Questões 12, 13 e 14 - Aumento e redução (ou devolução) de capital social | 18 |
+| 2 | Z72QXAbLeN | Considerações sobre aumento e redução (ou devolução) de capital social | 7 |
+
+CM · PL 1087 de A a Z
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | M7GR6oDNew | Parte 1 | 91 |
+| 4 | M7qpD3nyex | Parte 2 | 84 |
+| 5 | 97B2Go5P7p | Parte 3 | 33 |
+
+## Lote 38 — 9 aulas, cerca de 4 h 06 min — demais aulas dos módulos principais
+
+
+CM · PL 1087 de A a Z
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 3eapwNLB4g | Parte 4 | 44 |
+| 2 | oODzWlpNeP | Workshop: Lei 15.270/25 | 143 |
+
+CM · O Imposto Seletivo com Prof. Marla Murillo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | m7Y8lVkNe6 | Boas Vindas | 2 |
+| 4 | V73VR2ore3 | Aula 01 | 8 |
+| 5 | 0OvzqywdOj | Aula 02 | 7 |
+| 6 | y4bpkglk7R | Aula 03 | 17 |
+| 7 | Z72QvbzQeN | Aula 04 | 9 |
+| 8 | V7ygR0Jq4J | Aula 05 | 7 |
+| 9 | EOgpYd6V46 | Aula 06 | 9 |
+
+## Lote 39 — 4 aulas, cerca de 4 h 01 min — demais aulas dos módulos principais
+
+
+CM · Lei Geral do ITCMD (LC 227), com Prof. Fabio Silva
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 14o5oMyZ7p | Lei Geral do ITCMD (LC 227), com Prof. Fabio Silva | ? |
+
+CM · Do ICMS (e ISS) ao IVA Dual, com Prof. Filipe Rocha
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | z7rBvL9x7j | Aula 01 | 42 |
+| 3 | oODgNxKw7P | Aula 02 | 42 |
+
+CM · Documentos e práticas fiscais com a Prof.ª Eliane Heidemann
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | 2OM88zvo76 | Documentos e práticas fiscais com a Prof.ª Eliane Heidemann. | 112 |
+
+## Lote 40 — 13 aulas, cerca de 3 h 52 min — demais aulas dos módulos principais
+
+
+CM · Reforma Tributária Transformadora, com Prof. Paulo Henrique Pegas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | ROxVZ5qxeD | Aula 01 | 15 |
+| 2 | M7qd82qmex | Aula 02 | 16 |
+| 3 | r488ZXyw4R | Aula 03 | 25 |
+| 4 | 0OvaL3N87j | Aula 04 | 16 |
+| 5 | y4P9xD8yex | Aula 05 | 16 |
+| 6 | 37d80D3Z7L | Aula 06 | 23 |
+| 7 | K4klRMx0eY | Aula 07 | 19 |
+| 8 | ROxVZ5PVeD | Aula 08 | 16 |
+| 9 | 146VLNbo4d | Aula 09 | 19 |
+| 10 | V73DMzAZO3 | Aula 10 | 18 |
+| 11 | M7qd83G0ex | Aula 11 | 15 |
+| 12 | a4RYqRo3On | Aula 12 | 19 |
+| 13 | r488ZKZw4R | Aula 13 | 15 |
+
+## Lote 41 — 8 aulas, cerca de 2 h 40 min — demais aulas dos módulos principais
+
+
+CM · Reforma Tributária Transformadora, com Prof. Paulo Henrique Pegas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | k7Q18v8k7y | Aula 14 | 20 |
+| 2 | BeZN0M0Wew | Aula 15 | 22 |
+| 3 | NOwQbNb9em | Aula 16 | 21 |
+| 4 | V73DMzXpO3 | Aula 17 | 16 |
+| 5 | 2OMJaoWk46 | Aula 18 | 17 |
+| 6 | Z72RqKXL7N | Aula 19 | 19 |
+| 7 | k45Q1lXj4l | Aula 20 | 17 |
+
+CM · Reforma Tributária Estratégica, com Prof. Davi Gonçalves
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 8 | Me1g5NPwOY | Reforma Tributária Estratégica, com Prof. Davi Gonçalves | 28 |
+
+## Lote 42 — 5 aulas, cerca de 3 h 45 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+FG · Módulo 01 - Começando do zero! Passo a passo da aprovação
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8281208 | Apresentação do Professor, Curso e Plataforma | ? |
+| 2 | 8281222 | Vídeo participação no Senado (Comentado) | ? |
+| 3 | 8281223 | Sistema Tributária Brasileiro, Tramitação da Reforma Tributária e Principais Pontos da PEC 45-A/2019 | ? |
+| 4 | 8281237 | Emenda Constitucional nº 132/2023 | ? |
+| 5 | 8281263 | Vídeo Extra | ? |
+
+## Lote 43 — 5 aulas, cerca de 3 h 45 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+FG · Módulo 02 – Conteúdo da Reforma Tributária Aprovada
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8281290 | Criação do IVA e substituição dos tributos | ? |
+| 2 | 8281739 | IBS e CBS: Principais características | ? |
+| 3 | 8281741 | Imposto Seletivo e Contribuição Estadual | ? |
+| 4 | 8281743 | Alíquotas e Regimes Diferenciados | ? |
+| 5 | 8281746 | Simples Nacional | ? |
+
+## Lote 44 — 5 aulas, cerca de 3 h 45 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+FG · Módulo 02 – Conteúdo da Reforma Tributária Aprovada
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8281748 | Benefícios Fiscais do ICMS | ? |
+| 2 | 8281750 | Transição: Regras e Período | ? |
+| 3 | 8281751 | IPVA, ITCMD e IPTU | ? |
+
+FG · Módulo 04 – Oportunidade de Consultorias Tributárias
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 4 | 8281801 | Oportunidades Tributárias | ? |
+| 5 | 8281804 | Comunidade Guerra: Mentoria da Reforma Tributária | ? |
+
+## Lote 45 — 17 aulas, cerca de 3 h 23 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+FG · Módulo 04 – Oportunidade de Consultorias Tributárias
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 8370071 | Primeiro Encontro da Mentoria da Reforma Tributária | ? |
+
+FG · Conheça o Mapa Fiscal da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | 10784044 | Apresentação e funcionamento da ferramenta | 8 |
+
+CM · Comece Aqui
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 3 | 2OMP1k3976 | Boas vindas | 2 |
+| 4 | M7qWpdAy4x | Suporte | 3 |
+| 5 | y4PPE9Yy4x | Quero te fazer uma Proposta | 5 |
+| 6 | 64lNoa1X7j | Como encarar suas dúvidas | 8 |
+| 7 | Z72BQQyQ7N | Conheça a MarIA | 6 |
+| 8 | m7YZ8PaWO6 | Renovação e Cancelamento | 4 |
+| 9 | k7QkB10k4y | O seu acesso é pessoal e intransferível | 2 |
+| 10 | meL1WkvY7n | Dinâmica do Programa DRT | 7 |
+
+CM · Nosso grupo
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 11 | a4R0YnLr7n | Grupo do WhatsApp | 2 |
+
+CM · Concluí a Introdução... e agora?
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 12 | NOw6DKd97m | Concluí a Introdução... e agora? | 4 |
+
+CM · Dominando o MERCADO através da Reforma Tributária
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 13 | y4bV5nkd4R | Introdução | 7 |
+| 14 | NOwQRqB9em | As sete etapas da Consultoria | 19 |
+| 15 | a4RYxLYNOn | Educação | 27 |
+| 16 | Me1v2Mv87Y | Consultoria | 27 |
+| 17 | BOn0G60JeR | Precificando Consultoria | 27 |
+
+## Lote 46 — 20 aulas, cerca de 4 h 06 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Como usar a Consultoria a favor do seu negócio
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | b4Kl9Ar0eX | Masterclass | 115 |
+
+CM · REARP
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 2 | V4VQK8XvO2 | Introdução | 1 |
+| 3 | Me1ag5NWeY | Art. 2º - Modalidades | 2 |
+| 4 | x7WV0qlre2 | Art. 3º - Atualização na PF | 15 |
+| 5 | gOpym8Rr4J | Art. 4º - Atualização na PJ | 4 |
+| 6 | YOmpkQ9q7d | Art. 5º - A Declaração | 2 |
+| 7 | 0OvzobJBOj | Art. 6º - Algumas restrições | 1 |
+| 8 | 3eaplXw84g | Art. 7º - Prazo de carência | 13 |
+| 9 | 0Ovzob86Oj | Art. 8º - Migração da DABIM para o REARP | 1 |
+| 10 | r48EbYdveR | Art. 9º - Modalidade de Regularização | 21 |
+| 11 | y4bpKPEX7R | Art. 10 - Pagamento do Imposto | 3 |
+| 12 | 37dp56lM7L | Art. 11 - Multa para casos de Regularização | 1 |
+| 13 | 0Ovzobw6Oj | Art. 12 - Tributação Definitiva | 1 |
+
+CM · PLP 68 - Aulas antigas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 14 | b4KlQzM0eX | Regime Específico: Operações com Imóveis | 2 |
+| 15 | gOpz1GWGeJ | PLP68/24 - Art. 250 - PF com receitas de aluguel | 15 |
+| 16 | r48V2MwJ7R | PLP68/24 - Art. 250 - PF com receitas de venda | 10 |
+| 17 | k45DLxzPOl | PLP68/24 - Art. 250 - Restante do texto | 8 |
+| 18 | 2OMPxp6x76 | PLP68/24 - Art. 251 - Operações alcançadas pelo regime específico | 23 |
+| 19 | 2OMPxp6R76 | PLP68/24 - Art. 252 - Locação de curto prazo | 1 |
+| 20 | Z72BMKV27N | PLP68/24 - Art. 253 - Momento do fato gerador | 7 |
+
+## Lote 47 — 9 aulas, cerca de 3 h 21 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · PLP 68 - Aulas antigas
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | EOgzDvnp76 | PLP68/24 - Art. 254 - Base de cálculo | 9 |
+| 2 | RO9xNKLm7P | PLP68/24 - Art. 255 - Valor de referência | 3 |
+| 3 | 94JlaoEY7g | PLP68/24 - Art. 256 - Redutor de ajuste | 11 |
+| 4 | 3eaA0NW8eg | PLP68/24 - Art. 257 - Redutor de ajuste (detalhamento) | 10 |
+| 5 | meLlVoXqen | PLP68/24 - Art. 258 - Redutor social na alienação | 8 |
+| 6 | R4jzVaqY4a | PLP68/24 - Art. 259 - Redutor social na locação | 1 |
+| 7 | 146abKNQOd | PLP68/24 - Art. 260 - Alíquotas | 4 |
+| 8 | BOnkM8Lo4R | PLP68/24 - Art. 261 - Incorporação Imobiliária e Parcelamento de Solo | 6 |
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 9 | R4jzjjjV4a | Gravação - Encontro de Outubro/2024 | 149 |
+
+## Lote 48 — 1 aulas, cerca de 2 h 59 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | r48VKxw07R | Gravação - Encontro de Novembro/2024 | 179 |
+
+## Lote 49 — 1 aulas, cerca de 3 h 01 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | ROxkN1gp7D | Gravação - Encontro de Dezembro/2024 | 181 |
+
+## Lote 50 — 1 aulas, cerca de 2 h 16 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | M7GlDjwwOw | Gravação - Encontro de Janeiro/2025 | 136 |
+
+## Lote 51 — 2 aulas, cerca de 3 h 42 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | y4PvVw517x | Gravação - Encontro de Fevereiro/2025 | 123 |
+| 2 | EOgYmrkGe6 | Gravação - Encontro de Março/2025 | 99 |
+
+## Lote 52 — 2 aulas, cerca de 2 h 27 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | z7rQDb60ej | Gravação - Encontro de Abril/2025 | 69 |
+| 2 | ROxv9nKaeD | Gravação - Encontro de Maio/2025 | 78 |
+
+## Lote 53 — 1 aulas, cerca de 2 h 26 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 2OM1RaXnO6 | Gravação - Encontro de Junho/2025 | 146 |
+
+## Lote 54 — 2 aulas, cerca de 3 h 44 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 2OMJkjkR46 | Gravação - Encontro de Julho/2025 | 115 |
+| 2 | V73DMqYBO3 | Gravação - Encontro de Agosto/2025 | 109 |
+
+## Lote 55 — 2 aulas, cerca de 1 h 30 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | Z72Rg31J7N | Gravação - Encontro de Setembro/2025 | ? |
+| 2 | E4z8bA6o7l | Gravação - Encontro de Outubro/2025 | ? |
+
+## Lote 56 — 1 aulas, cerca de 3 h 12 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 3eapMp3m4g | Gravação - Encontro de Novembro/2025 | 192 |
+
+## Lote 57 — 1 aulas, cerca de 2 h 10 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | 0OvzLPMNOj | Gravação - Encontro de Dezembro/2025 | 130 |
+
+## Lote 58 — 1 aulas, cerca de 3 h 13 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | ROxwP6Px7D | Gravação - Encontro de Janeiro/2026 | 193 |
+
+## Lote 59 — 3 aulas, cerca de 3 h 24 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | b4KV3ZKJOX | Gravação - Encontro de Fevereiro/2026 | 114 |
+| 2 | E4zNgXq64l | Gravação - Encontro de Março/2026 | ? |
+| 3 | meL2WaVWOn | Gravação - Encontro de Abril/2026 | ? |
+
+## Lote 60 — 2 aulas, cerca de 4 h 10 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | M7qyrXEj7x | Gravação - Encontro de Maio/2026 | 128 |
+| 2 | 2OMN9w3y46 | Gravação - Encontro de Junho/2026 | 122 |
+
+## Lote 61 — 1 aulas, cerca de 2 h 07 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | V73AgBdQ43 | Gravação - Encontro de Julho/2026 | 127 |
+
+## Lote 62 — 1 aulas, cerca de 3 h 00 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | BOnWv0GY4R | Gravação - Encontro de Agosto/2026 | 180 |
+
+## Lote 63 — 1 aulas, cerca de 2 h 23 min — aulas antigas, de boas-vindas e gravações de encontros (menor prioridade)
+
+
+CM · Gravação dos encontros
+
+| # | Código | Aula | Min |
+|---|---|---|---|
+| 1 | ROxdlq6pOD | Gravação - Encontro de Setembro/2026 | 143 |
