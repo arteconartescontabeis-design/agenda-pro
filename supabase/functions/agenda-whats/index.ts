@@ -7,7 +7,9 @@
 //      coloca na fila do WhatsApp do Cobrança Pro (cob_agenda_enfileirar);
 //   3. confere na fila do Cobrança o que já foi enviado (cob_agenda_status);
 //   4. lê as mensagens que a equipe mandou para o número da Artecon
-//      (cob_agenda_recebidas), cria/lista/cancela agendamentos e responde.
+//      (cob_agenda_recebidas2), cria/lista/cancela agendamentos e responde;
+//   5. informa ao núcleo do portal os segundos de áudio que a Azure transcreveu
+//      (public.ia_fala_registrar → Portal → Consumo de IA → Transcrição de áudio).
 // Pode ser chamada várias vezes: a reserva e o id único de cada mensagem
 // recebida impedem envio ou agendamento em dobro.
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -20,6 +22,9 @@ const COB_ANON =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlldWpxanRqcXRlZ3Nuend3YXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NDE0OTksImV4cCI6MjEwMTExNzQ5OX0.5p1_wJ_aApJpRrN6tFu8qmAytK5FMXWt1soCubpzqao";
 const MAX_TENTATIVAS = 3;
 const MARCA_AUDIO = "🎤 "; // o serviço artecon-whats (v1.5.0+) põe esta marca no texto de áudio transcrito
+// núcleo do Portal Artecon: minutos de áudio da Azure (chave pública; só grava com o token do cofre, ia_fala_token)
+const NUCLEO_URL = "https://fbxelwhdiisfmnwrerbl.supabase.co";
+const NUCLEO_CHAVE = "sb_publishable_iRqjOGU1ialauv_wHYarbw_cRzspHH6";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -107,6 +112,24 @@ async function cobRpc(fn: string, body: unknown) {
     throw new Error(msg || `HTTP ${r.status}`);
   }
   return json;
+}
+
+/** Informa ao portal quantos segundos de áudio a Azure transcreveu (o serviço manda em audio_seg). Nunca lança erro. */
+let falaToken: string | null | undefined;
+async function informarAudio(segundos: number, recebidaId: number, usuario: string) {
+  try {
+    if (falaToken === undefined) {
+      const { data, error } = await db.rpc("agenda_ia_fala_token");
+      falaToken = error ? null : (data as string | null);
+    }
+    if (!falaToken) return;
+    const r = await fetch(`${NUCLEO_URL}/rest/v1/rpc/ia_fala_registrar`, {
+      method: "POST", signal: AbortSignal.timeout(5000),
+      headers: { apikey: NUCLEO_CHAVE, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_token: falaToken, p_segundos: segundos, p_ref: `whats:${recebidaId}`, p_usuario: usuario }),
+    });
+    if (!r.ok) console.error("ia_fala_registrar:", r.status, (await r.text()).slice(0, 200));
+  } catch (e) { console.error("ia_fala_registrar:", (e as Error).message); }
 }
 
 const cfgCache = new Map<number, Record<string, string>>();
@@ -368,8 +391,11 @@ async function processarComandos(token: string) {
 
   const { data: ult } = await db.from("agenda_whats_comandos").select("recebida_id").order("recebida_id", { ascending: false }).limit(1);
   const cursor = ult && ult[0] ? ult[0].recebida_id : 0;
-  const msgs = await cobRpc("cob_agenda_recebidas", { p_token: token, p_apos_id: cursor, p_telefones: equipe.map((m) => m.fone) }) as
-    { id: number; telefone: string; texto: string; recebido_em: string }[];
+  // cob_agenda_recebidas2 traz também audio_seg (segundos de áudio que o serviço mandou para a Azure)
+  const pedido = { p_token: token, p_apos_id: cursor, p_telefones: equipe.map((m) => m.fone) };
+  let msgs: { id: number; telefone: string; texto: string; recebido_em: string; audio_seg?: number | null }[];
+  try { msgs = await cobRpc("cob_agenda_recebidas2", pedido) as typeof msgs; }
+  catch (e) { console.error("recebidas2:", (e as Error).message); msgs = await cobRpc("cob_agenda_recebidas", pedido) as typeof msgs; }
   let n = 0;
   for (const m of msgs || []) {
     const tel = fone(m.telefone, null);
@@ -381,6 +407,8 @@ async function processarComandos(token: string) {
     }, { onConflict: "recebida_id", ignoreDuplicates: true }).select("id");
     if (!reg || !reg.length) continue;
     const comandoId = reg[0].id;
+    // a Azure cobra o áudio processado, mesmo o antigo ou o que não deu para entender
+    if (Number(m.audio_seg) > 0) await informarAudio(Number(m.audio_seg), m.id, u.nome);
     if (Date.now() - new Date(m.recebido_em).getTime() > 30 * 60000) {
       await db.from("agenda_whats_comandos").update({ status: "ignorado", acao: "antiga", atualizado_em: new Date().toISOString() }).eq("id", comandoId);
       continue;

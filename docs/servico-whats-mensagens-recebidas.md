@@ -6,10 +6,21 @@ tabela `cob_whatsapp_recebidas` (projeto Supabase do Cobrança). O resto já
 está pronto: a função `agenda-whats` lê essa tabela a cada 30 s, só considera
 os números da equipe cadastrados no Agenda Pro e responde pela fila de sempre.
 
-## Versão nova: artecon-whats v1.5.0 (10/10/2026) — pendente de instalar
+## Versão nova: artecon-whats v1.5.1 (11/10/2026) — pendente de instalar
 
-No OneDrive: `Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.5.0/`
-(`artecon-whats.js` e `guardar-chave-azure.bat`).
+No OneDrive: `Aplicativo Criado Artecon/Agenda Pro/Versão Atual/Atualização WhatsApp v1.5.1/`
+(`artecon-whats.js` e `guardar-chave-azure.bat`). Instalar esta no lugar da v1.5.0 (que nunca foi instalada).
+
+O que a v1.5.1 acrescenta à v1.5.0:
+- grava em `cob_whatsapp_recebidas.audio_seg` quantos segundos de áudio foram para a Azure (também
+  quando a Azure não entendeu, porque conta do mesmo jeito; áudio recusado antes, por ser longo ou
+  por limite, não conta);
+- a função `agenda-whats` lê por `cob_agenda_recebidas2` e informa ao núcleo do portal
+  (`public.ia_fala_registrar`, token `ia_fala_token` no cofre do Agenda). Aparece em
+  **Portal → Consumo de IA → Transcrição de áudio (Azure)**: minutos do mês e do dia contra as 5 h grátis.
+- Banco: `sql/cobranca_recebidas_audio_seg.sql`, `sql/nucleo_ia_fala.sql`, `sql/agenda_ia_fala.sql` (aplicados).
+
+### O que já vinha na v1.5.0
 
 - **Áudio da equipe:** mensagem de voz (até 60 s) de quem está em
   `agenda_usuarios.whatsapp` é transcrita pela Azure (REST de áudio curto,
