@@ -146,6 +146,10 @@ details.opc summary{cursor:pointer;font-weight:600;color:var(--accent);padding:8
 .leitor-topo b{flex:1;font-size:15px}
 .leitor-corpo{overflow-y:auto;padding:16px 18px calc(24px + env(safe-area-inset-bottom));font-size:15px;line-height:1.6}
 .leitor-corpo h2{font-size:18px;margin:4px 0 10px}
+.leitor-corpo h3{font-size:15px;margin:14px 0 6px}
+.analise{font-size:12.5px;color:var(--text-2);margin-top:5px}
+.item-info .analise b{display:inline;font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;line-height:1.5}
+.selo{display:inline-block;font:600 11px var(--font);color:var(--green);background:var(--green-lt);padding:1px 7px;border-radius:20px;margin-right:4px}
 .leitor-corpo p{margin:0 0 10px}
 .leitor-corpo ul,.leitor-corpo ol{margin:0 0 10px 22px}
 .leitor-corpo li{margin-bottom:4px}
@@ -230,7 +234,7 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
 <div class="toasts" id="toasts"></div>
 
 <script>
-const ESTUDO_VERSAO = '1.0.0';
+const ESTUDO_VERSAO = '1.1.0';
 const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1d2d4bmRhaHJ6aW5mZGxhcHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTA0ODgsImV4cCI6MjA5MDMyNjQ4OH0.9DaPGHIxt0CO-pjYPBwsHaoSqDN35CwVU0lJUyTXQIQ';
 const $ = id => document.getElementById(id);
@@ -600,7 +604,7 @@ ${mods ? `<div class="mods">${mods}</div>` : ''}
   html += `</div>`;
 
   // vídeos
-  const aviso = `<div class="aviso">Os vídeos abrem na plataforma do curso (Fellipe Guerra: Nutror; Caio Melo: Hotmart) com a conta do escritório. Eles foram indicados pelo título: nenhum foi assistido na preparação deste material.</div>`;
+  const aviso = `<div class="aviso">Os vídeos abrem na plataforma do curso (Fellipe Guerra: Nutror; Caio Melo: Hotmart) com a conta do escritório. Os marcados como <b>analisado</b> foram vistos pela tela (sem o áudio) e mostram os minutos que valem a pena; os demais foram indicados pelo título.</div>`;
   html += `<div class="card"><h2>🎬 Vídeos para complementar <span class="cont">${t.videos.length ? `${n.vi}/${t.videos.length}` : 'opcionais'}</span></h2>${aviso}`;
   if (t.videos.length) html += `<div class="sec-tit" style="margin-top:6px">Assistir</div>` + t.videos.map(htmlVideo).join('');
   if (t.opcionais.length) html += t.videos.length
@@ -633,7 +637,26 @@ function htmlVideo(id) {
   return `<div class="item${ok ? ' feito' : ''}">
 <button class="marca${ok ? ' sim' : ''}" onclick="alternar('${id}')" aria-label="Marcar vídeo como assistido">${ICO.ok}</button>
 <div class="item-info"><b><a href="${whatsEsc(v.link)}" target="_blank" rel="noopener">${whatsEsc(v.titulo)} ↗</a></b>
-<div class="meta">${whatsEsc(v.curso)} · ${whatsEsc(v.bloco)} · ${whatsEsc(duracaoVideo(v))}</div></div></div>`
+<div class="meta">${whatsEsc(v.curso)} · ${whatsEsc(v.bloco)} · ${whatsEsc(duracaoVideo(v))}</div>${v.analise ? `
+<div class="analise"><span class="selo">✓ analisado</span> assistir ${v.analise.assistir.map(t => `<b>${whatsEsc(t[0])}–${whatsEsc(t[1])}</b>`).join(', ')}</div>` : ''}</div>
+${v.analise ? `<button class="ler" onclick="abrirAnalise('${id}')">Análise</button>` : ''}</div>`
+}
+function abrirAnalise(id) {
+  const v = D.videos[id], a = v && v.analise;
+  if (!a) return;
+  $('leitor-tit').textContent = 'Análise: ' + v.titulo;
+  // análise fixa do programa (estudo/dados.json), não vem do banco
+  $('leitor-corpo').innerHTML = `<p class="muted">Analisado em ${whatsEsc(a.data)}, só pelo que aparece na tela (sem o áudio).</p>
+<h3>Em resumo</h3><p>${whatsEsc(a.resumo)}</p>
+<h3>Onde vale a pena assistir</h3><ul>${a.assistir.map(t => `<li><b>${whatsEsc(t[0])} a ${whatsEsc(t[1])}</b>: ${whatsEsc(t[2])}</li>`).join('')}</ul>
+<h3>Pode pular</h3><p>${whatsEsc(a.pular)}</p>
+<h3>Relação com o programa</h3><p>${whatsEsc(a.programa)}</p>
+<p><a class="btn" href="${whatsEsc(v.link)}" target="_blank" rel="noopener">Abrir a aula ↗</a></p>
+<hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+<h2>Análise completa</h2>${a.html}`;
+  $('leitor-corpo').querySelectorAll('table').forEach(tb => { const w = document.createElement('div'); w.className = 'tab-rola'; tb.parentNode.insertBefore(w, tb); w.appendChild(tb) });
+  $('leitor').hidden = false;
+  $('leitor-corpo').scrollTop = 0
 }
 function alternar(id) {
   const ok = !feito(id);
