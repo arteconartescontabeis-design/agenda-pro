@@ -9,7 +9,7 @@ Publicado pelo GitHub Pages: https://arteconartescontabeis-design.github.io/agen
 - `version.json` — número da versão publicada; o app compara com `APP_VERSAO` e mostra o aviso "Nova versão disponível".
 - `sql/` — migrations já aplicadas (registro). `supabase/functions/` — Edge Functions publicadas.
 - `docs/` — instruções para o servidor (serviço de WhatsApp).
-- `estudo.html` + `estudo/` — Estudo da Reforma Tributária (v2.3.0), **separado de propósito para ser apagado depois**:
+- `estudo.html` + `estudo/` — Estudo da Reforma Tributária (v2.3.0; análises de vídeo na v2.4.0, textos em `estudo/analises/`), **separado de propósito para ser apagado depois**:
   trilhas (Executivo, Intensivo, Avançado, Fiscal, Contábil, Pessoal), 40 áudios em `estudo/audio/` (voz Azure
   pt-BR-FranciscaNeural, gerados do programa salvo no OneDrive "Reforma Tributária - Programa de Estudo"), conteúdo,
   vídeos e tarefas em `estudo/dados.json` (ao mudar, subir `ESTUDO_VERSAO` no estudo.html). Mesmo login do Agenda.
