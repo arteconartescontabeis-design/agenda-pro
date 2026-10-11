@@ -53,8 +53,12 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
 - Áudio e resposta rápida (serviço **v1.5.1**, instalado em 11/10/2026; a v1.5.0 nunca foi instalada; chave da Azure `artecon-voz` CHAVE 1 no cofre do servidor): áudio da equipe transcrito pela Azure (cofre `AZURE_FALA_CHAVE`, limites em config.json) e guardado com a marca `🎤 ` — a função `agenda-whats` tira a marca e responde `Ouvi: "..."`. A função publica os números da equipe no Cobrança (`cob_agenda_equipe_set`); o serviço usa `cob_whatsapp_equipe` e `cob_whatsapp_proxima_resposta` (`sql/cobranca_whatsapp_equipe_audio.sql`).
 - Minutos de áudio no portal: o serviço (v1.5.1) grava os segundos em `cob_whatsapp_recebidas.audio_seg`; a `agenda-whats`
   lê por `cob_agenda_recebidas2` e informa ao núcleo do portal (`public.ia_fala_registrar`, token do cofre `ia_fala_token`).
-  Portal → Consumo de IA → "Transcrição de áudio (Azure)" (`core.ia_fala_painel`, tabelas `core.ia_fala_apps`/`ia_fala_uso`;
-  `sql/nucleo_ia_fala.sql`). A IA Central (Claude/OpenAI, `ia-gateway`) não foi mexida: o Agenda não usa IA paga — a voz no app é
+  Portal (v1.7.0) → Consumo de IA: um cartão por uso da Azure em "Por aplicativo" e o quadro "Azure — voz e transcrição" com as
+  duas cotas grátis do recurso `artecon-voz` (transcrição 5 h/mês; voz 500 mil caracteres/mês) (`core.ia_fala_painel`, tabelas
+  `core.ia_fala_apps`/`ia_fala_uso`; `sql/nucleo_ia_fala.sql` e `sql/nucleo_ia_fala_v2.sql`). Apps: `agenda` (transcrição, automático),
+  `estudo` e `crianca` (voz, lançados à mão). **Ao gerar voz com a Azure** (falas do Projeto Criança, faixas do Estudo etc.), lançar os
+  caracteres em Portal → Consumo de IA → Lançar uso (ou `core.ia_fala_lancar`). Já lançado em 11/10/2026: Projeto Criança ~7 mil e
+  Estudo ~112 mil caracteres (estimado pelo texto das 40 faixas). A IA Central (Claude/OpenAI, `ia-gateway`) não foi mexida: o Agenda não usa IA paga — a voz no app é
   o reconhecimento do navegador e os comandos são interpretados pelo `AGCMD`/`comandos.ts`.
 - Resposta rápida: o gatilho `trg_recebida_avisar_agenda` (em `cob_whatsapp_recebidas`, no Cobrança) chama a função `agenda-whats` assim que uma mensagem chega (`sql/cobranca_recebidas_aviso_agenda.sql`); o pg_cron de 30 s fica de reserva. O resto da espera é do serviço: ele olha a fila a cada `consulta_fila_seg` (config.json, padrão 20 s) e espera 20–45 s entre um envio e outro.
 - Diagnóstico: as chamadas do serviço aparecem nos logs do projeto do Cobrança (agente `node`); o log do servidor (`logs\whats_AAAAMMDD.log`) diz por que uma mensagem recebida não foi guardada (v1.4.1+). Para reiniciar o serviço, o usuário já sabe o caminho no servidor.
