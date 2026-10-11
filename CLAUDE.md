@@ -9,7 +9,7 @@ Publicado pelo GitHub Pages: https://arteconartescontabeis-design.github.io/agen
 - `version.json` — número da versão publicada; o app compara com `APP_VERSAO` e mostra o aviso "Nova versão disponível".
 - `sql/` — migrations já aplicadas (registro). `supabase/functions/` — Edge Functions publicadas.
 - `docs/` — instruções para o servidor (serviço de WhatsApp).
-- `estudo.html` + `estudo/` — Estudo da Reforma Tributária (v2.2.0), **separado de propósito para ser apagado depois**:
+- `estudo.html` + `estudo/` — Estudo da Reforma Tributária (v2.3.0), **separado de propósito para ser apagado depois**:
   trilhas (Executivo, Intensivo, Avançado, Fiscal, Contábil, Pessoal), 40 áudios em `estudo/audio/` (voz Azure
   pt-BR-FranciscaNeural, gerados do programa salvo no OneDrive "Reforma Tributária - Programa de Estudo"), conteúdo,
   vídeos e tarefas em `estudo/dados.json` (ao mudar, subir `ESTUDO_VERSAO` no estudo.html). Mesmo login do Agenda.
@@ -36,14 +36,43 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
 - Edge Functions:
   - `agenda-whats` (index.ts + comandos.ts): avisos ao cliente e comandos da equipe por WhatsApp. Roda pelo pg_cron a cada 30 s.
   - `agenda-equipe`: cadastra pessoa da equipe (cria o login com senha provisória ou reaproveita o existente).
+  - `portal-provisionar` (index.ts + provisionar.ts; Verify JWT **desligado**): chamada pelo Portal Artecon (Acessos). Confere a
+    sessão e o papel de administrador no núcleo do portal (projeto `fbxelwhdiisfmnwrerbl`), acha o escritório em `agenda_portal_orgs`
+    (Artecon = org `a47ec000-…0001` → tenant 2) e cria/reativa/desativa a pessoa em `agenda_usuarios`. Níveis do portal:
+    leitura → visualizador, operador → colaborador (gerente continua gerente), admin → admin. Nunca bloqueia o login (é o mesmo do
+    Financeiro Pro) e só troca a senha de quem já tem login com `redefinir: true`. Protege o último administrador.
+- Senha provisória: login criado pelo portal ou pelo convite leva `user_metadata.trocar_senha = true`; o app (v2.2.0+) pede a senha nova.
+- Pessoa com `agenda_usuarios.ativo = false` não vê dados: `agenda_meu_tenant_id/perfil/usuario_id` só olham cadastros ativos
+  (`sql/agenda_portal_controle.sql`).
 
 ## WhatsApp (mesmo número do Cobrança Pro)
 - O serviço `artecon-whats` (servidor ARTEDB01, código fora do GitHub) envia o que está em `cob_whatsapp_fila` no projeto do Cobrança (`yeujqjtjqtegsnzwwazb`).
 - O Agenda entra nessa fila só por `cob_agenda_enfileirar` / `cob_agenda_status` / `cob_agenda_recebidas` (token no cofre do projeto do Agenda: `vault` → `cob_agenda_token`; no Cobrança fica só o hash em `cob_agenda_integracao`).
 - Avisos: `agenda_whats_avisos` (gatilho em `agenda_agendamentos` + `agenda_whats_gerar_lembretes`). Liberação por escritório em `agenda_whats_tenants`. Tipos ligados em `agenda_config` (`whats_*`). Nada sai entre 21h e 7h (só teste).
 - Comandos da equipe: o serviço `artecon-whats.js` **v1.4.1** (instalado no ARTEDB01 em 10/10/2026, testado de ponta a ponta) grava o que recebe em `cob_whatsapp_recebidas`; o arquivo está no OneDrive (`Agenda Pro/Versão Atual/Atualização WhatsApp v1.4.1/`). Detalhes em `docs/servico-whats-mensagens-recebidas.md`. Versão em uso: `cob_whatsapp_sessao.versao_servico` no Cobrança. Registro em `agenda_whats_comandos`. Só números em `agenda_usuarios.whatsapp` são atendidos.
+- Áudio e resposta rápida (serviço v1.5.0, **pendente de instalar** no ARTEDB01; pasta `Atualização WhatsApp v1.5.0` no OneDrive): áudio da equipe transcrito pela Azure (cofre `AZURE_FALA_CHAVE`, limites em config.json) e guardado com a marca `🎤 ` — a função `agenda-whats` tira a marca e responde `Ouvi: "..."`. A função publica os números da equipe no Cobrança (`cob_agenda_equipe_set`); o serviço usa `cob_whatsapp_equipe` e `cob_whatsapp_proxima_resposta` (`sql/cobranca_whatsapp_equipe_audio.sql`).
 - Resposta rápida: o gatilho `trg_recebida_avisar_agenda` (em `cob_whatsapp_recebidas`, no Cobrança) chama a função `agenda-whats` assim que uma mensagem chega (`sql/cobranca_recebidas_aviso_agenda.sql`); o pg_cron de 30 s fica de reserva. O resto da espera é do serviço: ele olha a fila a cada `consulta_fila_seg` (config.json, padrão 20 s) e espera 20–45 s entre um envio e outro.
 - Diagnóstico: as chamadas do serviço aparecem nos logs do projeto do Cobrança (agente `node`); o log do servidor (`logs\whats_AAAAMMDD.log`) diz por que uma mensagem recebida não foi guardada (v1.4.1+). Para reiniciar o serviço, o usuário já sabe o caminho no servidor.
+
+## Lista (próximos passos)
+1. **Instalar o serviço WhatsApp v1.5.0 no ARTEDB01** (áudio e resposta rápida) — passos em `docs/servico-whats-mensagens-recebidas.md`.
+   Para o áudio, usar a **Azure do Projeto Criança**: recurso `artecon-voz` (grupo `artecon-voz`, Brazil South, plano Gratuito F0,
+   assinatura "Azure subscription 1"); pegar a CHAVE 1 ou 2 em "Chaves e Ponto de Extremidade" e gravar no servidor com o
+   `guardar-chave-azure.bat`. As 5 h/mês grátis de transcrição são do recurso inteiro (dividem com outros usos da mesma chave,
+   como o Corretor de Vídeos do Radar, que usa a CHAVE 2). A avaliação grátis da Azure vence por volta de **08/11/2026**: antes
+   disso, passar a assinatura para pagamento conforme o uso (o F0 continua grátis), senão o recurso para — também pendente no Projeto Criança.
+2. ~~**Agenda Pro no Portal Artecon, com o controle de acesso**~~ **Feito em 10/10/2026** (portal v1.5.0 + Agenda v2.2.0 +
+   função `portal-provisionar`). Ficou como o Cobrança: login próprio com senha provisória. Em aberto, se o usuário quiser:
+   entrar no Agenda direto pelo portal (sem digitar a senha de novo) e cadastrar o WhatsApp da pessoa pelo portal. Anotações originais:
+   - Hoje: o Agenda já está no catálogo do portal (núcleo, projeto Supabase `fbxelwhdiisfmnwrerbl`: `core.apps` id `agenda`,
+     destino `https://arteconartescontabeis-design.github.io/agenda-pro/`, papéis `leitura`/`operador`/`admin` em `core.app_roles`,
+     liberações em `core.app_access`). Mas liberar ou revogar no portal **não** mexe no login do Agenda.
+   - Fazer como o Cobrança Pro (portal v1.1.0): função `portal-provisionar` no projeto do Agenda, chamada pelo portal
+     (`CFG.provisionar.agenda` no `index.html` do repositório `portal`). Ela confere a sessão e o papel de administrador no núcleo,
+     cria ou reativa o login com senha provisória (reaproveitar a lógica da `agenda-equipe`) e cadastra a pessoa em `agenda_usuarios`;
+     revogar desativa a pessoa e o login. Papéis: leitura → visualizador, operador → colaborador, admin → admin.
+   - A decidir com o usuário: entrar no Agenda direto pelo portal (sem pedir a senha de novo) ou manter o login próprio;
+     escritório (tenant) de quem é liberado; se o WhatsApp da pessoa também vem do portal.
 
 ## Regras
 - Dado do banco que vai para `innerHTML` passa por `whatsEsc` no código novo.

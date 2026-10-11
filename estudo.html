@@ -299,7 +299,11 @@ async function entrar(email, senha) {
     body: JSON.stringify({ email, password: senha })
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || !j.access_token) throw new Error('E-mail ou senha incorretos.');
+  if (!r.ok || !j.access_token) {
+    const cod = String(j.error_code || j.error || '');
+    throw new Error(/rate_limit|too_many/i.test(cod) ? 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.'
+      : 'E-mail ou senha incorretos. Confira se o e-mail está escrito igual ao do cadastro.')
+  }
   salvarSessao(j);
   return j
 }
@@ -356,7 +360,7 @@ $('form-login').addEventListener('submit', async ev => {
   try {
     const j = await entrar($('lg-email').value.trim(), $('lg-senha').value);
     $('tela-login').hidden = true;
-    await abrirApp(j.user && j.user.id)
+    await abrirApp(j.user)
   } catch (e) {
     err.textContent = e.message || 'Não foi possível entrar.'; err.hidden = false
   } finally { btn.disabled = false; btn.textContent = 'Entrar' }
@@ -380,15 +384,19 @@ async function iniciar() {
     if (r.ok) { const j = await r.json(); user = j.user || j }
   } catch (e) {}
   if (!user || !user.id) { mostrarLogin(); return }
-  await abrirApp(user.id)
+  await abrirApp(user)
 }
 
-async function abrirApp(authId) {
+async function abrirApp(user) {
+  // senha provisória (convite ou Portal Artecon): a pessoa cria a própria senha no Agenda antes de usar
+  if (!user || !user.id) { mostrarLogin(); return }
+  if (user.user_metadata && user.user_metadata.trocar_senha) { location.href = 'app.html'; return }
+  const authId = user.id;
   $('tela-carregando').hidden = false;
   try {
     E.authId = authId;
     const us = await api('GET', `/rest/v1/agenda_usuarios?auth_id=eq.${authId}&ativo=eq.true&select=id,nome,perfil,tenant_id`);
-    if (!us || !us.length) throw new Error('Seu usuário não está cadastrado no Agenda deste escritório.');
+    if (!us || !us.length) throw new Error('Seu acesso ao Agenda Pro não está ativo. Fale com o administrador do escritório.');
     E.usuario = us[0];
     const [perfis, progresso, notas] = await Promise.all([
       api('GET', `/rest/v1/agenda_estudo_perfil?auth_id=eq.${authId}&select=*`),
