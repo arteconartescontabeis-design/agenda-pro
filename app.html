@@ -106,7 +106,7 @@ body.modo-simples .nav-item[data-page="bloqueios"],body.modo-simples .nav-item[d
   </button><button onclick="permConcluir()" style="margin-top:10px;width:100%;padding:10px;background:transparent;color:var(--text-3);border:none;font-family:var(--font);font-size:13px;cursor:pointer">
   Pular — usar sem voz
   </button><div style="margin-top:12px;font-size:11px;color:var(--text-3)">Os alertas de agendamento aparecem como pop-up visual na tela, sem necessidade de notificação do navegador.</div></div>
-</div><div id="auth-screen"><div class="auth-box"><div class="auth-logo">Agenda<span>Pro</span></div><div class="auth-subtitle">Sistema de agendamento para escritórios contábeis · <span class="ver-txt"></span></div><div class="auth-tabs"><button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button><button class="auth-tab" onclick="switchAuthTab('register')">Criar conta</button></div><div id="tab-login"><div class="field"><label>E-mail</label><input type="email" id="login-email" value="" placeholder="seu@email.com" autocomplete="username"></div><div class="field"><label>Senha</label><input type="password" id="login-pass" value="" placeholder="••••••••" autocomplete="current-password"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:-4px"><input type="checkbox" id="login-remember" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"><label for="login-remember" style="font-size:13px;color:var(--text-2);cursor:pointer;user-select:none">Salvar usuário e senha</label></div><button class="btn-primary" onclick="doLogin()">Entrar</button><p id="login-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none"></p></div><div id="tab-register" style="display:none"><div class="field"><label>Nome do escritório</label><input type="text" id="reg-office" placeholder="Contabilidade Alfa Ltda"></div><div class="field"><label>Seu nome</label><input type="text" id="reg-name" placeholder="João Silva"></div><div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="joao@escritorio.com.br"></div><div class="field"><label>Senha</label><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"></div><button class="btn-primary" onclick="doRegister()">Criar conta gratuita</button></div></div>
+</div><div id="auth-screen"><div class="auth-box"><div class="auth-logo">Agenda<span>Pro</span></div><div class="auth-subtitle">Sistema de agendamento para escritórios contábeis · <span class="ver-txt"></span></div><div class="auth-tabs"><button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button><button class="auth-tab" onclick="switchAuthTab('register')">Criar conta</button></div><div id="tab-login"><div class="field"><label>E-mail</label><input type="email" id="login-email" value="" placeholder="seu@email.com" autocomplete="username"></div><div class="field"><label>Senha</label><input type="password" id="login-pass" value="" placeholder="••••••••" autocomplete="current-password"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:-4px"><input type="checkbox" id="login-remember" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"><label for="login-remember" style="font-size:13px;color:var(--text-2);cursor:pointer;user-select:none">Manter conectado neste aparelho</label></div><button class="btn-primary" onclick="doLogin()">Entrar</button><p id="login-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none"></p></div><div id="tab-register" style="display:none"><div class="field"><label>Nome do escritório</label><input type="text" id="reg-office" placeholder="Contabilidade Alfa Ltda"></div><div class="field"><label>Seu nome</label><input type="text" id="reg-name" placeholder="João Silva"></div><div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="joao@escritorio.com.br"></div><div class="field"><label>Senha</label><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"></div><button class="btn-primary" onclick="doRegister()">Criar conta gratuita</button></div></div>
 </div><div id="sa-screen" style="display:none;min-height:100vh;background:var(--bg)"><div id="sa-login" style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div class="auth-box" style="max-width:360px"><div class="auth-logo" style="margin-bottom:4px">Agenda<span>Pro</span></div><div class="auth-subtitle" style="margin-bottom:24px;color:var(--red)">⚙ Painel Superadmin</div><div class="field"><label>E-mail</label><input type="email" id="sa-email" placeholder="superadmin@agendapro.com.br"></div><div class="field"><label>Senha</label><input type="password" id="sa-pass" placeholder="••••••••"></div><button class="btn-primary" onclick="saLogin()">Entrar como Superadmin</button><p id="sa-err" style="color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none"></p></div></div><div id="sa-dashboard" style="display:none"><div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100"><div style="font-size:16px;font-weight:600">Agenda<span style="color:var(--accent)">Pro</span> <span style="font-size:12px;background:var(--red);color:#fff;border-radius:4px;padding:2px 6px;margin-left:6px">SUPERADMIN</span></div><div style="display:flex;align-items:center;gap:12px"><span id="sa-user-label" style="font-size:13px;color:var(--text-2)"></span><button class="btn btn-outline btn-sm" onclick="saLogout()">Sair</button></div></div><div style="padding:24px;max-width:1200px;margin:0 auto"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px"><div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--accent)" id="sa-total-tenants">—</div><div class="text-muted" style="font-size:13px;margin-top:4px">Escritórios ativos</div></div><div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--green)" id="sa-total-clientes">—</div><div class="text-muted" style="font-size:13px;margin-top:4px">Total de clientes</div></div><div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--purple,#6B3FA0)" id="sa-total-ags">—</div><div class="text-muted" style="font-size:13px;margin-top:4px">Total de agendamentos</div></div><div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--amber)" id="sa-total-usuarios">—</div><div class="text-muted" style="font-size:13px;margin-top:4px">Total de usuários</div></div></div><div class="card"><div class="flex-between mb-8" style="margin-bottom:16px"><div style="font-size:15px;font-weight:600">Escritórios cadastrados</div><button class="btn btn-accent btn-sm" onclick="saRecarregar()">↺ Atualizar</button></div><div class="table-wrap"><table><thead><tr><th>Escritório</th><th>Plano</th><th>Clientes</th><th>Usuários</th><th>Agendamentos</th><th>Ag. hoje</th><th>Criado em</th><th>Status</th></tr></thead><tbody id="sa-tenants-body"><tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:32px">Carregando...</td></tr></tbody></table></div></div></div></div>
 </div><div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div id="app"><aside class="sidebar"><div class="sidebar-brand"><div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></div><span class="brand-name">AgendaPro</span><span style="font-size:10px;background:rgba(255,255,255,0.15);color:#fff;padding:1px 6px;border-radius:99px;margin-left:6px;letter-spacing:.3px">v4</span></div><div class="tenant-badge"><div class="tenant-name" id="sidebar-tenant">—</div><div class="tenant-plan">Plano Starter</div></div><nav class="sidebar-nav"><div class="nav-section">Principal</div><button class="nav-item" onclick="go('hoje')" data-page="hoje"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -199,7 +199,30 @@ async function supaSignOut(token) {
     headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
   })
 }
-function supaWithAuth(token) {
+// v2.4.0: a sessão se renova com o código de renovação do servidor (refresh_token); a senha nunca fica guardada
+async function sessaoRenovar() {
+  const rt = APP.refresh || localStorage.getItem('agenda_refresh');
+  if (!rt) return false;
+  try {
+    const r = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST', headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.access_token) return false;
+    APP.authToken = j.access_token;
+    APP.refresh = j.refresh_token || rt;
+    localStorage.setItem('agenda_token', j.access_token);
+    // o código muda a cada uso: guarda o novo onde o antigo estava (o Estudo usa o mesmo)
+    if (localStorage.getItem('agenda_remember') === '1' || localStorage.getItem('agenda_refresh')) localStorage.setItem('agenda_refresh', APP.refresh);
+    if (j.user && j.user.id) APP.authUser = j.user;
+    return true;
+  } catch (e) { return false; }
+}
+function sessaoAgendarRenovacao() {
+  if (APP._renovacao) clearInterval(APP._renovacao);
+  APP._renovacao = setInterval(() => { if (APP.authToken) sessaoRenovar(); }, 45 * 60 * 1000);   // o acesso vale 1 h
+}
+function supaWithAuth(token, renovavel = false) {
   return async function(method, table, opts = {}) {
     const { body, params, returning = false } = opts;
     let url = `${SUPA_URL}/rest/v1/${table}`;
@@ -207,13 +230,14 @@ function supaWithAuth(token) {
       const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
       url += '?' + qs
     }
-    const headers = {
+    const fazer = () => fetchWithTimeout(url, { method, body: body ? JSON.stringify(body) : undefined, headers: {
       'apikey':        SUPA_KEY,
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${renovavel ? (APP.authToken || token) : token}`,
       'Content-Type':  'application/json',
       'Prefer':        returning ? 'return=representation' : 'return=minimal',
-    };
-    const res = await fetchWithTimeout(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    } });
+    let res = await fazer();
+    if (res.status === 401 && renovavel && await sessaoRenovar()) res = await fazer();
     if (!res.ok) {
       const err = await res.text();
       throw new Error(`Supabase ${method} ${table}: ${err}`)
@@ -298,19 +322,22 @@ async function doLogin() {
     if (!authUser || !authUser.id) { toast('Erro na autenticação. Tente novamente.', 'error'); return; }
     APP.authToken = res.access_token;
     APP.authUser  = authUser;
-    APP.db = supaWithAuth(res.access_token);
+    APP.refresh = res.refresh_token || null;
+    APP.db = supaWithAuth(res.access_token, true);
+    sessaoAgendarRenovacao();
     // Salvar sessão
     localStorage.setItem('agenda_token', res.access_token);
     localStorage.setItem('agenda_user_email', email);
-    // Salvar ou limpar credenciais conforme checkbox
+    // v2.4.0 "Manter conectado": guarda o e-mail e o código de renovação da sessão — a senha nunca
+    localStorage.removeItem('agenda_saved_pass');
     if (remember) {
       localStorage.setItem('agenda_saved_email', email);
-      localStorage.setItem('agenda_saved_pass', btoa(pass));
-      localStorage.setItem('agenda_remember', '1')
+      localStorage.setItem('agenda_remember', '1');
+      if (res.refresh_token) localStorage.setItem('agenda_refresh', res.refresh_token)
     } else {
       localStorage.removeItem('agenda_saved_email');
-      localStorage.removeItem('agenda_saved_pass');
-      localStorage.removeItem('agenda_remember')
+      localStorage.removeItem('agenda_remember');
+      localStorage.removeItem('agenda_refresh')
     }
     await carregarDadosUsuario(authUser.id, email)
   } catch(e) {
@@ -445,7 +472,9 @@ async function doLogout() {
   if (APP.authToken) await supaSignOut(APP.authToken).catch(()=>{});
   localStorage.removeItem('agenda_token');
   localStorage.removeItem('agenda_user_email');
-  APP.user = null; APP.authToken = null; APP.db = null;
+  ['agenda_refresh', 'estudo_refresh', 'agenda_saved_pass'].forEach(k => localStorage.removeItem(k));
+  if (APP._renovacao) { clearInterval(APP._renovacao); APP._renovacao = null; }
+  APP.user = null; APP.authToken = null; APP.db = null; APP.refresh = null;
   $id('app').classList.remove('visible');
   $id('auth-screen').classList.add('visible');
   $id('app').style.display = 'none'
@@ -493,7 +522,6 @@ async function senhaSalvarTroca() {
       return falha(/different from the old/i.test(det) ? 'Escolha uma senha diferente da provisória.' : 'Não foi possível salvar: ' + det)
     }
     APP.authUser = j.user || (j.id ? j : APP.authUser);
-    if (localStorage.getItem('agenda_remember') === '1') { try { localStorage.setItem('agenda_saved_pass', btoa(s1)) } catch(e) { localStorage.removeItem('agenda_saved_pass') } }
     const el = $id('troca-senha'); if (el) el.remove();
     toast('Senha criada. Use-a nas próximas entradas.', 'success')
   } catch(e) {
@@ -533,30 +561,32 @@ function carregarCredenciaisSalvas() {
   const saved = localStorage.getItem('agenda_remember') === '1';
   if (saved) {
     const email = localStorage.getItem('agenda_saved_email') || '';
-    const pass  = localStorage.getItem('agenda_saved_pass')  || '';
     const emailEl    = $id('login-email');
-    const passEl     = $id('login-pass');
     const rememberEl = $id('login-remember');
     if (emailEl)    emailEl.value   = email;
-    if (passEl)     passEl.value    = pass ? atob(pass) : '';
     if (rememberEl) rememberEl.checked = true
   }
 }
 // Tentar restaurar sessão salva
 async function tentarRestaurarSessao() {
-  const token = localStorage.getItem('agenda_token');
-  if (!token) return;
+  localStorage.removeItem('agenda_saved_pass');   // versões antigas guardavam a senha aqui
+  APP.refresh = localStorage.getItem('agenda_refresh');
+  let token = localStorage.getItem('agenda_token');
+  if (!token && !APP.refresh) return;
   try {
-    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) { localStorage.removeItem('agenda_token'); return; }
-    const userData = await res.json();
-    const user = userData.user || userData;
-    if (!user || !user.id) { localStorage.removeItem('agenda_token'); return; }
+    const quem = async (tk) => {
+      const r = await fetch(`${SUPA_URL}/auth/v1/user`, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${tk}` } });
+      if (!r.ok) return null;
+      const d = await r.json(); const u = d.user || d;
+      return u && u.id ? u : null;
+    };
+    let user = token ? await quem(token) : null;
+    if (!user && await sessaoRenovar()) { token = APP.authToken; user = await quem(token); }
+    if (!user) { localStorage.removeItem('agenda_token'); return; }
     APP.authToken = token;
     APP.authUser  = user;
-    APP.db = supaWithAuth(token);
+    APP.db = supaWithAuth(token, true);
+    sessaoAgendarRenovacao();
     await carregarDadosUsuario(user.id, user.email)
   } catch(e) {
     localStorage.removeItem('agenda_token')
@@ -682,7 +712,7 @@ function statusBadge(st) {
     reagendado:            ['badge-concluido',   'Reagendado'],
   };
   const [cls, label] = map[st] || ['badge-pendente', st];
-  return `<span class="badge ${cls}">${label}</span>`
+  return `<span class="badge ${cls}">${whatsEsc(label)}</span>`
 }
 function origemIcon(o) {
   const icons = { interno: '🏢', link_publico: '🔗', whatsapp: '💬', importado: '📥' };
@@ -835,26 +865,26 @@ ${todayAg.length === 0 ?`<div class="empty-state" style="padding:30px 20px"><svg
 ${AGENDAMENTOS.filter(a=>['solicitado','pendente_confirmacao'].includes(a.status)).slice(0,5).map(a=>`
             <div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
               <div class="ui-flex-between-mb4">
-                <strong style="font-size:13px">${getCliente(a.cliente_id).nome}</strong>
+                <strong style="font-size:13px">${whatsEsc(getCliente(a.cliente_id).nome)}</strong>
                 ${statusBadge(a.status)}
               </div>
-              <div class="text-muted" style="font-size:12px;margin-bottom:4px">${getServico(a.servico_id).nome}</div>
+              <div class="text-muted" style="font-size:12px;margin-bottom:4px">${whatsEsc(getServico(a.servico_id).nome)}</div>
               <div style="font-size:12px;color:var(--text-2)">📅 ${new Date(a.data_inicio+'Z').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} · ${fmtTime(a.data_inicio)}</div>
-              ${a.status==='pendente_confirmacao'?`<button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;color:var(--green);border-color:var(--green)" onclick="confirmarAg(${a.id})">✓ Confirmar</button>`:''}
+              ${a.status==='pendente_confirmacao'?`<button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;color:var(--green);border-color:var(--green)" onclick="confirmarAg(${Number(a.id)})">✓ Confirmar</button>`:''}
             </div>
           `).join('') || '<div class="text-muted" style="font-size:13px">Nenhum pendente ✓</div>'}
 </div>
 <div class="card">
 <strong style="display:block;margin-bottom:14px;font-size:14px">Próximos dias</strong>
 ${AGENDAMENTOS.filter(a=>a.data_inicio>new Date().toISOString()&&!a.data_inicio.startsWith(todayStr)&&!['cancelado_cliente','cancelado_escritorio'].includes(a.status)).slice(0,5).map(a=>`
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;border-radius:8px;transition:background .15s;cursor:pointer" onclick="openDetail(${a.id})" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
-              <div style="width:38px;height:38px;border-radius:10px;background:${getServico(a.servico_id).cor}22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
-                <span style="font-size:16px;font-weight:700;color:${getServico(a.servico_id).cor};line-height:1">${new Date(a.data_inicio).getDate()}</span>
-                <span style="font-size:9px;color:${getServico(a.servico_id).cor};text-transform:uppercase">${new Date(a.data_inicio).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</span>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;border-radius:8px;transition:background .15s;cursor:pointer" onclick="openDetail(${Number(a.id)})" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+              <div style="width:38px;height:38px;border-radius:10px;background:${corSegura(getServico(a.servico_id).cor)}22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                <span style="font-size:16px;font-weight:700;color:${corSegura(getServico(a.servico_id).cor)};line-height:1">${new Date(a.data_inicio).getDate()}</span>
+                <span style="font-size:9px;color:${corSegura(getServico(a.servico_id).cor)};text-transform:uppercase">${new Date(a.data_inicio).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</span>
               </div>
               <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getCliente(a.cliente_id).nome}</div>
-                <div class="text-muted" style="font-size:11px">${getServico(a.servico_id).nome} · ${fmtTime(a.data_inicio)}</div>
+                <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${whatsEsc(getCliente(a.cliente_id).nome)}</div>
+                <div class="text-muted" style="font-size:11px">${whatsEsc(getServico(a.servico_id).nome)} · ${fmtTime(a.data_inicio)}</div>
               </div>
               ${statusBadge(a.status)}
             </div>
@@ -912,11 +942,11 @@ ${d.cnt>0?`<span style="position:absolute;top:-18px;left:50%;transform:translate
       const pct = Math.round(cnt / max * 100);
       return `<div style="margin-bottom:10px">
 <div class="ui-flex-between-mb4">
-<span style="font-size:13px;font-weight:500">${sv.nome}</span>
+<span style="font-size:13px;font-weight:500">${whatsEsc(sv.nome)}</span>
 <span style="font-family:var(--mono);font-size:12px;font-weight:600">${cnt}</span>
 </div>
 <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden">
-<div style="height:100%;width:${pct}%;background:${sv.cor};border-radius:3px;transition:width .6s ease"></div>
+<div style="height:100%;width:${pct}%;background:${corSegura(sv.cor)};border-radius:3px;transition:width .6s ease"></div>
 </div>
 </div>`
     }).join('') || '<div class="text-muted">Sem dados</div>'
@@ -954,14 +984,14 @@ ${d.cnt>0?`<span style="position:absolute;top:-18px;left:50%;transform:translate
         nao_compareceu: 'var(--purple)',
       }[a.status] || 'var(--accent)';
       div.innerHTML = `<div class="slot-time">${t}</div>
-<div class="slot-event ${statusCls}" onclick="openDetail(${a.id})" style="flex:1">
+<div class="slot-event ${statusCls}" onclick="openDetail(${Number(a.id)})" style="flex:1">
 <div style="display:flex;justify-content:space-between;align-items:flex-start">
-<div class="slot-event-name">${getCliente(a.cliente_id).nome}</div>
+<div class="slot-event-name">${whatsEsc(getCliente(a.cliente_id).nome)}</div>
 ${statusBadge(a.status)}
 </div>
 <div class="slot-event-meta" style="margin-top:3px">
-<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${getServico(a.servico_id).cor};margin-right:4px;vertical-align:middle"></span>
-${getServico(a.servico_id).nome} · ${getUsuario(a.usuario_responsavel_id).nome.split(' ')[0]}
+<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${corSegura(getServico(a.servico_id).cor)};margin-right:4px;vertical-align:middle"></span>
+${whatsEsc(getServico(a.servico_id).nome)} · ${whatsEsc(getUsuario(a.usuario_responsavel_id).nome.split(' ')[0])}
 </div>
 </div>`
     } else {
@@ -1048,8 +1078,8 @@ function renderWeekView() {
         const srv = getServico(a.servico_id);
         const cls = a.status==='confirmado'?'verde':a.status==='pendente_confirmacao'?'amber':'azul';
         const durSlots = Math.max(1, Math.round(srv.duracao_min / 56 * 56));
-        html += `<div class="cal-appt ${cls}" style="top:2px;height:${Math.min(durSlots,52)}px" onclick="openDetail(${a.id})">
-${getCliente(a.cliente_id).nome.split(' ')[0]}<br><span style="font-weight:400;font-size:10px">${srv.nome}</span>
+        html += `<div class="cal-appt ${cls}" style="top:2px;height:${Math.min(durSlots,52)}px" onclick="openDetail(${Number(a.id)})">
+${whatsEsc(getCliente(a.cliente_id).nome.split(' ')[0])}<br><span style="font-weight:400;font-size:10px">${whatsEsc(srv.nome)}</span>
 </div>`
       });
       html += `</div></div>`
@@ -1073,9 +1103,9 @@ function renderDayView() {
         const cls = a.status==='confirmado'?'verde':a.status==='pendente_confirmacao'?'amber':'';
         html += `<div class="time-slot">
 <div class="slot-time">${fmtTime(a.data_inicio)}</div>
-<div class="slot-event ${cls}" onclick="openDetail(${a.id})">
-<div class="slot-event-name">${getCliente(a.cliente_id).nome}</div>
-<div class="slot-event-meta">${getServico(a.servico_id).nome} · ${getUsuario(a.usuario_responsavel_id).nome} · ${statusBadge(a.status)}</div>
+<div class="slot-event ${cls}" onclick="openDetail(${Number(a.id)})">
+<div class="slot-event-name">${whatsEsc(getCliente(a.cliente_id).nome)}</div>
+<div class="slot-event-meta">${whatsEsc(getServico(a.servico_id).nome)} · ${whatsEsc(getUsuario(a.usuario_responsavel_id).nome)} · ${statusBadge(a.status)}</div>
 </div>
 </div>`
       })
@@ -1108,7 +1138,7 @@ function renderMonthView() {
 <div class="cal-month-day${isToday?' today':''}">${day}</div>
 ${show.map(a => {
 const cls = a.status==='confirmado'?'verde':a.status==='pendente_confirmacao'?'amber':'';
-return`<div class="cal-month-dot ${cls}" onclick="openDetail(${a.id})">${fmtTime(a.data_inicio)} ${getCliente(a.cliente_id).nome.split(' ')[0]}</div>`
+return`<div class="cal-month-dot ${cls}" onclick="openDetail(${Number(a.id)})">${fmtTime(a.data_inicio)} ${whatsEsc(getCliente(a.cliente_id).nome.split(' ')[0])}</div>`
 }).join('')}
 ${more > 0 ?`<div class="cal-month-more">+${more} mais</div>`: ''} </div>`
   }
@@ -1149,7 +1179,7 @@ function renderAgendamentos() {
   $id('page-content').innerHTML = `<div class="rel-filter-bar" style="margin-bottom:16px;flex-wrap:wrap;gap:10px">
 <div style="display:flex;align-items:center;gap:6px">
 <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text-3)"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-<input placeholder="Buscar cliente ou serviço..." style="border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text);outline:none;width:220px" value="${f.busca}" oninput="agSetFilter('busca',this.value)">
+<input placeholder="Buscar cliente ou serviço..." style="border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text);outline:none;width:220px" value="${whatsEsc(f.busca)}" oninput="agSetFilter('busca',this.value)">
 </div>
 <select style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text)" onchange="agSetFilter('status',this.value)">
 <option value="todos" ${f.status==='todos' ?'selected':''}>Todos os status</option>
@@ -1167,7 +1197,7 @@ function renderAgendamentos() {
 </select>
 <select style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text)" onchange="agSetFilter('usuario',this.value)">
 <option value="todos">Todos os profissionais</option>
-${USUARIOS.map(u=>`<option value="${u.id}" ${f.usuario===String(u.id)?'selected':''}>${u.nome.split(' ')[0]}</option>`).join('')}
+${USUARIOS.map(u=>`<option value="${whatsEsc(u.id)}" ${f.usuario===String(u.id)?'selected':''}>${whatsEsc(u.nome.split(' ')[0])}</option>`).join('')}
 </select>
 <span style="font-size:12px;color:var(--text-3);margin-left:auto">${filtered.length} resultado${filtered.length!==1?'s':''}</span>
 ${(f.status!=='todos'||f.periodo!=='todos'||f.usuario!=='todos'||f.busca)?`<button class="btn btn-ghost btn-sm" onclick="agLimparFiltros()">✕ Limpar</button>`:''}
@@ -1184,18 +1214,18 @@ ${(f.status!=='todos'||f.periodo!=='todos'||f.usuario!=='todos'||f.busca)?`<butt
 <th></th>
 </tr></thead>
 <tbody>
-${filtered.length === 0 ?`<tr><td colspan="6"><div class="empty-state"><h3>Nenhum resultado</h3><p>Ajuste os filtros ou crie um novo agendamento.</p></div></td></tr>`: filtered.map(a => { const cl = getCliente(a.cliente_id); const sv = getServico(a.servico_id); const us = getUsuario(a.usuario_responsavel_id); const isToday = a.data_inicio.startsWith(todayStr); return`<tr style="${isToday?'background:var(--accent-lt)':''}" onclick="openDetail(${a.id})" style="cursor:pointer">
+${filtered.length === 0 ?`<tr><td colspan="6"><div class="empty-state"><h3>Nenhum resultado</h3><p>Ajuste os filtros ou crie um novo agendamento.</p></div></td></tr>`: filtered.map(a => { const cl = getCliente(a.cliente_id); const sv = getServico(a.servico_id); const us = getUsuario(a.usuario_responsavel_id); const isToday = a.data_inicio.startsWith(todayStr); return`<tr style="${isToday?'background:var(--accent-lt)':''}" onclick="openDetail(${Number(a.id)})" style="cursor:pointer">
                   <td style="padding:9px 14px">
                     <span style="font-family:var(--mono);font-size:12px;font-weight:600">${fmtDateTime(a.data_inicio)}</span>
                     ${isToday?'<span style="margin-left:6px;font-size:10px;background:var(--accent);color:#fff;border-radius:4px;padding:1px 5px">hoje</span>':''}
                   </td>
-                  <td style="padding:9px 14px"><strong style="font-size:13px">${cl.nome}</strong></td>
+                  <td style="padding:9px 14px"><strong style="font-size:13px">${whatsEsc(cl.nome)}</strong></td>
                   <td style="padding:9px 14px"><span style="display:inline-flex;align-items:center;gap:5px;font-size:13px">
-                    <span style="width:8px;height:8px;border-radius:50%;background:${sv.cor};flex-shrink:0"></span>${sv.nome}
+                    <span style="width:8px;height:8px;border-radius:50%;background:${corSegura(sv.cor)};flex-shrink:0"></span>${whatsEsc(sv.nome)}
                   </span></td>
-                  <td style="padding:9px 14px;font-size:13px;color:var(--text-2)">${us.nome.split(' ')[0]}</td>
+                  <td style="padding:9px 14px;font-size:13px;color:var(--text-2)">${whatsEsc(us.nome.split(' ')[0])}</td>
                   <td style="padding:9px 14px">${statusBadge(a.status)}</td>
-                  <td style="padding:9px 14px"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDetail(${a.id})">Ver →</button></td>
+                  <td style="padding:9px 14px"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDetail(${Number(a.id)})">Ver →</button></td>
                 </tr>`; }).join('')} </tbody> </table> </div> </div>`
 }
 function agSetFilter(key, val) {
@@ -1247,7 +1277,7 @@ function renderClientes() {
   const actions = $id('topbar-actions');
   actions.innerHTML = `<div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px">
 <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text-3)"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-<input placeholder="Buscar por nome, e-mail ou telefone..." style="border:none;background:none;font-family:var(--font);font-size:13px;color:var(--text);outline:none;width:260px" oninput="filterClientes(this.value)" value="${APP.clientSearch}" id="cli-search-input">
+<input placeholder="Buscar por nome, e-mail ou telefone..." style="border:none;background:none;font-family:var(--font);font-size:13px;color:var(--text);outline:none;width:260px" oninput="filterClientes(this.value)" value="${whatsEsc(APP.clientSearch)}" id="cli-search-input">
 </div>
 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);cursor:pointer">
 <input type="checkbox" ${APP.cliMostrarInativos?'checked':''} onchange="APP.cliMostrarInativos=this.checked;renderClientes()"> Inativos
@@ -1280,21 +1310,21 @@ function renderClientes() {
 <th></th>
 </tr></thead>
 <tbody>
-${list.length === 0 ?`<tr><td colspan="8"><div class="empty-state"><h3>Nenhum cliente encontrado</h3><p>Tente outro termo de busca.</p></div></td></tr>`: list.map(c => { const agCli = AGENDAMENTOS.filter(a => a.cliente_id === c.id); const agTotal = agCli.length; const agConc = agCli.filter(a => a.status === 'concluido').length; const ultimoAg = agCli.sort((a,b)=>b.data_inicio.localeCompare(a.data_inicio))[0]; const temNota = c.observacoes && c.observacoes.trim().length > 0; return`<tr onclick="openDetalheCliente(${c.id})" style="cursor:pointer;opacity:${c.ativo?1:.5}">
+${list.length === 0 ?`<tr><td colspan="8"><div class="empty-state"><h3>Nenhum cliente encontrado</h3><p>Tente outro termo de busca.</p></div></td></tr>`: list.map(c => { const agCli = AGENDAMENTOS.filter(a => a.cliente_id === c.id); const agTotal = agCli.length; const agConc = agCli.filter(a => a.status === 'concluido').length; const ultimoAg = agCli.sort((a,b)=>b.data_inicio.localeCompare(a.data_inicio))[0]; const temNota = c.observacoes && c.observacoes.trim().length > 0; return`<tr onclick="openDetalheCliente(${Number(c.id)})" style="cursor:pointer;opacity:${c.ativo?1:.5}">
                   <td style="padding:10px 14px">
                     <div style="display:flex;align-items:center;gap:10px">
-                      <div class="avatar-sm" style="background:var(--accent);flex-shrink:0">${c.nome[0].toUpperCase()}</div>
+                      <div class="avatar-sm" style="background:var(--accent);flex-shrink:0">${whatsEsc(c.nome[0].toUpperCase())}</div>
                       <div>
-                        <div style="font-weight:600;font-size:13px">${c.nome}</div>
+                        <div style="font-weight:600;font-size:13px">${whatsEsc(c.nome)}</div>
                         <div style="font-size:11px;font-family:var(--mono);color:var(--text-3)">${maskDoc(c.cpf_cnpj)}</div>
                       </div>
                     </div>
                   </td>
                   <td style="padding:10px 14px">
-                    <div style="font-size:13px">${c.email||'—'}</div>
-                    <div class="text-muted">${c.telefone||'—'}${c.whatsapp ? ` · 💬 ${whatsEsc(c.whatsapp)}` : ''}</div>
+                    <div style="font-size:13px">${whatsEsc(c.email||'—')}</div>
+                    <div class="text-muted">${whatsEsc(c.telefone||'—')}${c.whatsapp ? ` · 💬 ${whatsEsc(c.whatsapp)}` : ''}</div>
                   </td>
-                  <td style="padding:10px 14px;font-size:13px;color:var(--text-2)">${getUsuario(c.responsavel_id).nome.split(' ')[0]}</td>
+                  <td style="padding:10px 14px;font-size:13px;color:var(--text-2)">${whatsEsc(getUsuario(c.responsavel_id).nome.split(' ')[0])}</td>
                   <td style="padding:10px 14px">
                     <div style="font-size:13px;font-weight:600">${agTotal} total</div>
                     <div class="text-muted">${agConc} concluídos${ultimoAg?`· último ${new Date(ultimoAg.data_inicio+'Z').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`:''}</div>
@@ -1302,22 +1332,22 @@ ${list.length === 0 ?`<tr><td colspan="8"><div class="empty-state"><h3>Nenhum cl
                   <td style="padding:10px 14px">
                     <div style="display:flex;align-items:center;gap:6px">
                       <div style="width:50px;height:4px;background:var(--bg);border-radius:2px;overflow:hidden">
-                        <div style="height:100%;width:${c.score||0}%;background:${(c.score||0)>=80?'var(--green)':(c.score||0)>=50?'var(--amber)':'var(--red)'}"></div>
+                        <div style="height:100%;width:${whatsEsc(c.score||0)}%;background:${(c.score||0)>=80?'var(--green)':(c.score||0)>=50?'var(--amber)':'var(--red)'}"></div>
                       </div>
-                      <span style="font-size:12px;font-weight:700;color:${(c.score||0)>=80?'var(--green)':(c.score||0)>=50?'var(--amber)':'var(--red)'}">${c.score||0}</span>
+                      <span style="font-size:12px;font-weight:700;color:${(c.score||0)>=80?'var(--green)':(c.score||0)>=50?'var(--amber)':'var(--red)'}">${whatsEsc(c.score||0)}</span>
                     </div>
-                    ${c.noshow_count>0?`<div style="font-size:11px;color:var(--red);margin-top:2px">${c.noshow_count}x no-show</div>`:''}
+                    ${c.noshow_count>0?`<div style="font-size:11px;color:var(--red);margin-top:2px">${whatsEsc(c.noshow_count)}x no-show</div>`:''}
                   </td>
                   <td style="padding:10px 14px;text-align:center">
-                    ${temNota?`<span title="${c.observacoes}" style="font-size:16px;cursor:help">📝</span>`:'<span style="color:var(--border-strong)">—</span>'}
+                    ${temNota?`<span title="${whatsEsc(c.observacoes)}" style="font-size:16px;cursor:help">📝</span>`:'<span style="color:var(--border-strong)">—</span>'}
                   </td>
                   <td style="padding:10px 14px">
                     <span class="badge ${c.ativo?'badge-confirmado':'badge-cancelado'}">${c.ativo?'Ativo':'Inativo'}</span>
                   </td>
                   <td style="padding:10px 14px">
                     <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-                      <button class="btn btn-ghost btn-sm" onclick="openEditCliente(${c.id})">Editar</button>
-                      <button class="btn btn-ghost btn-sm" onclick="toggleCliente(${c.id})">${c.ativo?'Desativar':'Ativar'}</button>
+                      <button class="btn btn-ghost btn-sm" onclick="openEditCliente(${Number(c.id)})">Editar</button>
+                      <button class="btn btn-ghost btn-sm" onclick="toggleCliente(${Number(c.id)})">${c.ativo?'Desativar':'Ativar'}</button>
                     </div>
                   </td>
                 </tr>`; }).join('')} </tbody> </table> </div> </div>`;
@@ -1340,15 +1370,15 @@ function renderServicos() {
   actions.innerHTML = `<button class="btn btn-accent btn-sm" onclick="openNovoServico()">+ Novo serviço</button>`;
   $id('page-content').innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
 ${SERVICOS.map(s =>`
-        <div class="card" style="border-top:3px solid ${s.cor}">
+        <div class="card" style="border-top:3px solid ${corSegura(s.cor)}">
           <div class="flex-between mb-16">
-            <strong style="font-size:15px">${s.nome}</strong>
+            <strong style="font-size:15px">${whatsEsc(s.nome)}</strong>
             <span class="chip">${s.ativo?'Ativo':'Inativo'}</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
             <div>
               <div class="text-muted">Duração</div>
-              <div style="font-weight:600">${s.duracao_min} min</div>
+              <div style="font-weight:600">${whatsEsc(s.duracao_min)} min</div>
             </div>
             <div>
               <div class="text-muted">Valor</div>
@@ -1356,16 +1386,16 @@ ${SERVICOS.map(s =>`
             </div>
             <div>
               <div class="text-muted">Antecedência</div>
-              <div>${s.antecedencia_min} min</div>
+              <div>${whatsEsc(s.antecedencia_min)} min</div>
             </div>
             <div>
               <div class="text-muted">Reagendamentos</div>
-              <div>Máx. ${s.max_reagendamentos}x</div>
+              <div>Máx. ${whatsEsc(s.max_reagendamentos)}x</div>
             </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" style="flex:1" onclick="editServico(${s.id})">Editar</button>
-            <button class="btn btn-ghost btn-sm" onclick="toggleServico(${s.id})">${s.ativo?'Desativar':'Ativar'}</button>
+            <button class="btn btn-outline btn-sm" style="flex:1" onclick="editServico(${Number(s.id)})">Editar</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleServico(${Number(s.id)})">${s.ativo?'Desativar':'Ativar'}</button>
           </div>
         </div>`).join('')} </div>`
 }
@@ -1394,13 +1424,13 @@ function renderColaboradores() {
     const proximos = AGENDAMENTOS.filter(a => a.usuario_responsavel_id === u.id && a.data_inicio > new Date().toISOString() && !['cancelado_cliente','cancelado_escritorio'].includes(a.status)).sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio)).slice(0,3);
     return `<div class="card" style="padding:0;overflow:hidden">
 <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
-<div class="avatar-sm" style="background:${cor};width:38px;height:38px;font-size:15px;flex-shrink:0">${u.nome[0].toUpperCase()}</div>
+<div class="avatar-sm" style="background:${cor};width:38px;height:38px;font-size:15px;flex-shrink:0">${whatsEsc(u.nome[0].toUpperCase())}</div>
 <div style="flex:1;min-width:0">
-<div style="font-weight:600;font-size:14px">${u.nome}</div>
-<div style="font-size:12px;color:var(--text-3)">${u.email}</div>
+<div style="font-weight:600;font-size:14px">${whatsEsc(u.nome)}</div>
+<div style="font-size:12px;color:var(--text-3)">${whatsEsc(u.email)}</div>
 </div>
 <div style="display:flex;align-items:center;gap:6px">
-<span class="chip">${perfis[u.perfil]||u.perfil}</span>
+<span class="chip">${whatsEsc(perfis[u.perfil]||u.perfil)}</span>
 <span class="badge ${u.ativo?'badge-confirmado':'badge-cancelado'}">${u.ativo?'Ativo':'Inativo'}</span>
 </div>
 </div>
@@ -1427,21 +1457,21 @@ function renderColaboradores() {
 ${proximos.length === 0
 ? '<div style="font-size:12px;color:var(--text-3);text-align:center;padding:8px 0">Nenhum agendamento futuro</div>'
 : proximos.map(a =>`
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;cursor:pointer" onclick="openDetail(${a.id})">
-                <div style="width:32px;height:32px;border-radius:7px;background:${getServico(a.servico_id).cor}22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
-                  <span style="font-size:13px;font-weight:700;color:${getServico(a.servico_id).cor};line-height:1">${new Date(a.data_inicio).getDate()}</span>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;cursor:pointer" onclick="openDetail(${Number(a.id)})">
+                <div style="width:32px;height:32px;border-radius:7px;background:${corSegura(getServico(a.servico_id).cor)}22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                  <span style="font-size:13px;font-weight:700;color:${corSegura(getServico(a.servico_id).cor)};line-height:1">${new Date(a.data_inicio).getDate()}</span>
                 </div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getCliente(a.cliente_id).nome}</div>
-                  <div style="font-size:11px;color:var(--text-3)">${getServico(a.servico_id).nome} · ${fmtTime(a.data_inicio)}</div>
+                  <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${whatsEsc(getCliente(a.cliente_id).nome)}</div>
+                  <div style="font-size:11px;color:var(--text-3)">${whatsEsc(getServico(a.servico_id).nome)} · ${fmtTime(a.data_inicio)}</div>
                 </div>
                 ${statusBadge(a.status)}
               </div>`).join('')}
 </div>
 <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;gap:6px">
-<button class="btn btn-outline btn-sm" onclick="editColaborador(${u.id})">✏ Editar perfil</button>
-<button class="btn btn-outline btn-sm" onclick="verAgendaColaborador(${u.id})" style="color:var(--accent);border-color:var(--accent)">📅 Ver agenda</button>
-<button class="btn btn-ghost btn-sm" onclick="toggleColaborador(${u.id})" style="margin-left:auto">${u.ativo?'Desativar':'Ativar'}</button>
+<button class="btn btn-outline btn-sm" onclick="editColaborador(${Number(u.id)})">✏ Editar perfil</button>
+<button class="btn btn-outline btn-sm" onclick="verAgendaColaborador(${Number(u.id)})" style="color:var(--accent);border-color:var(--accent)">📅 Ver agenda</button>
+<button class="btn btn-ghost btn-sm" onclick="toggleColaborador(${Number(u.id)})" style="margin-left:auto">${u.ativo?'Desativar':'Ativar'}</button>
 </div>
 </div>`
   }).join('');
@@ -1488,10 +1518,10 @@ function openDetail(agId) {
   const sv = getServico(a.servico_id);
   const us = getUsuario(a.usuario_responsavel_id);
   $id('detail-title').textContent = 'Agendamento #' + a.id;
-  const svCor = (sv.cor && sv.cor !== '#C8C5BC') ? sv.cor : 'var(--border-strong)';
+  const svCor = (sv.cor && sv.cor !== '#C8C5BC') ? corSegura(sv.cor, 'var(--border-strong)') : 'var(--border-strong)';
   const svNome = sv.nome !== '—' ? sv.nome : 'Sem serviço';
   $id('detail-body').innerHTML = `<div style="padding:12px;background:${svCor}18;border-radius:8px;border-left:3px solid ${svCor};margin-bottom:20px">
-<div style="font-size:15px;font-weight:600">${svNome}</div>
+<div style="font-size:15px;font-weight:600">${whatsEsc(svNome)}</div>
 <div style="font-size:13px;color:var(--text-2)">${fmtDateTime(a.data_inicio)} → ${fmtTime(a.data_fim)}</div>
 </div>
 <div class="detail-row">
@@ -1500,19 +1530,19 @@ function openDetail(agId) {
 </div>
 <div class="detail-row">
 <div class="detail-label">Cliente</div>
-<div class="detail-value"><strong>${cl.nome}</strong>${(cl.email||cl.telefone) ? `<br><span class="text-muted">${[cl.email,cl.telefone].filter(Boolean).join(' · ')}</span>` : ''}</div>
+<div class="detail-value"><strong>${whatsEsc(cl.nome)}</strong>${(cl.email||cl.telefone) ? `<br><span class="text-muted">${whatsEsc([cl.email,cl.telefone].filter(Boolean).join(' · '))}</span>` : ''}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Responsável</div>
-<div class="detail-value">${us.nome}</div>
+<div class="detail-value">${whatsEsc(us.nome)}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Origem</div>
-<div class="detail-value">${origemIcon(a.origem_agendamento)} ${a.origem_agendamento}</div>
+<div class="detail-value">${origemIcon(a.origem_agendamento)} ${whatsEsc(a.origem_agendamento)}</div>
 </div>
 ${a.observacao_interna ?`<div class="detail-row">
       <div class="detail-label">Obs. Interna</div>
-      <div class="detail-value" style="background:var(--amber-lt);padding:8px;border-radius:6px;font-size:13px">${a.observacao_interna}</div>
+      <div class="detail-value" style="background:var(--amber-lt);padding:8px;border-radius:6px;font-size:13px">${whatsEsc(a.observacao_interna)}</div>
     </div>`: ''}
 ${a.confirmado_em ?`<div class="detail-row">
       <div class="detail-label">Confirmado em</div>
@@ -1520,14 +1550,14 @@ ${a.confirmado_em ?`<div class="detail-row">
     </div>`: ''}
 ${a.motivo_cancelamento ?`<div class="detail-row">
       <div class="detail-label">Motivo Cancelamento</div>
-      <div class="detail-value">${a.motivo_cancelamento}</div>
+      <div class="detail-value">${whatsEsc(a.motivo_cancelamento)}</div>
     </div>`: ''}
 <hr class="separator">
 <div class="detail-label" style="margin-bottom:8px">🔔 Lembretes</div>
 <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
 <input type="number" id="detail-lembrete-input" min="1" max="1440" placeholder="minutos" style="width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;background:var(--bg)">
-<button class="btn btn-outline btn-sm" onclick="detailLembreteAdicionar(${a.id})">+ Add</button>
-<div style="display:flex;gap:3px">${[10,30,60].map(m=>`<button class="btn btn-ghost btn-sm" onclick="detailLembreteRapido(${a.id},${m})" style="font-size:10px">${m}m</button>`).join('')}</div>
+<button class="btn btn-outline btn-sm" onclick="detailLembreteAdicionar(${Number(a.id)})">+ Add</button>
+<div style="display:flex;gap:3px">${[10,30,60].map(m=>`<button class="btn btn-ghost btn-sm" onclick="detailLembreteRapido(${Number(a.id)},${m})" style="font-size:10px">${m}m</button>`).join('')}</div>
 </div>
 <div id="detail-lembretes-lista">${lembreteRenderChips(a)}</div>
 ${whatsRenderDetalhe(a, cl)}`;
@@ -1536,19 +1566,19 @@ ${whatsRenderDetalhe(a, cl)}`;
   footer.innerHTML = '';
   const finalizado = ['concluido','cancelado_cliente','cancelado_escritorio','nao_compareceu'].includes(a.status);
   if (['solicitado','pendente_confirmacao'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="confirmarAg(${a.id})">✓ Confirmar</button>`;
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="confirmarAg(${Number(a.id)})">✓ Confirmar</button>`;
   }
   if (!finalizado) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="concluirAg(${a.id})">✓ Concluído</button>`;
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--green);border-color:var(--green)" onclick="concluirAg(${Number(a.id)})">✓ Concluído</button>`;
   }
   if (a.status === 'confirmado') {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple)" onclick="noShowAg(${a.id})">Não compareceu</button>`;
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple)" onclick="noShowAg(${Number(a.id)})">Não compareceu</button>`;
   }
   if (!['cancelado_cliente','cancelado_escritorio'].includes(a.status)) {
-    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="reagendarAg(${a.id})">📅 Reagendar</button>`;
+    footer.innerHTML += `<button class="btn btn-outline btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="reagendarAg(${Number(a.id)})">📅 Reagendar</button>`;
   }
   if (!finalizado) {
-    footer.innerHTML += `<button class="btn btn-danger btn-sm" onclick="cancelarAg(${a.id})">Cancelar</button>`;
+    footer.innerHTML += `<button class="btn btn-danger btn-sm" onclick="cancelarAg(${Number(a.id)})">Cancelar</button>`;
   }
   $id('detail-panel').classList.add('open')
 }
@@ -1625,11 +1655,11 @@ async function reagendarAg(id) {
 <div class="form-grid">
 <div class="form-field">
 <label class="form-label" style="font-weight:600">📅 Nova Data</label>
-<input type="date" class="form-input" id="reag-data" value="${dataAtual}" style="font-size:15px;font-weight:500">
+<input type="date" class="form-input" id="reag-data" value="${whatsEsc(dataAtual)}" style="font-size:15px;font-weight:500">
 </div>
 <div class="form-field">
 <label class="form-label" style="font-weight:600">🕐 Nova Hora</label>
-<input type="time" class="form-input" id="reag-hora" value="${horaAtual}" style="font-size:15px;font-weight:500">
+<input type="time" class="form-input" id="reag-hora" value="${whatsEsc(horaAtual)}" style="font-size:15px;font-weight:500">
 </div>
 <div class="form-field full">
 <label class="form-label">Motivo do reagendamento</label>
@@ -1637,7 +1667,7 @@ async function reagendarAg(id) {
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="confirmarReagendamento(${id})">📅 Confirmar Reagendamento</button>`;
+<button class="btn btn-accent" onclick="confirmarReagendamento(${Number(id)})">📅 Confirmar Reagendamento</button>`;
   openModal();
   // Forçar valores em Android
   requestAnimationFrame(() => {
@@ -1719,20 +1749,20 @@ function openNovoAgendamento(prefill) {
   const durVal   = pf.duracao_min || 60;
   // Opções de cliente com selected
   const clienteOpts = CLIENTES.filter(c=>c.ativo).map(c =>
-    `<option value="${c.id}" ${String(c.id) === String(pf.cliente_id) ? 'selected' : ''}>${c.nome}</option>`
+    `<option value="${whatsEsc(c.id)}" ${String(c.id) === String(pf.cliente_id) ? 'selected' : ''}>${whatsEsc(c.nome)}</option>`
   ).join('');
   // Opções de serviço com selected
   const servicoOpts = SERVICOS.filter(s=>s.ativo).map(s =>
-    `<option value="${s.id}" ${String(s.id) === String(pf.servico_id) ? 'selected' : ''}>${s.nome} (${s.duracao_min} min)</option>`
+    `<option value="${whatsEsc(s.id)}" ${String(s.id) === String(pf.servico_id) ? 'selected' : ''}>${whatsEsc(s.nome)} (${whatsEsc(s.duracao_min)} min)</option>`
   ).join('');
   // Opções de responsável com selected
   const respOpts = USUARIOS.filter(u=>u.ativo).map(u =>
-    `<option value="${u.id}" ${String(u.id) === String(pf.usuario_id) ? 'selected' : ''}>${u.nome}</option>`
+    `<option value="${whatsEsc(u.id)}" ${String(u.id) === String(pf.usuario_id) ? 'selected' : ''}>${whatsEsc(u.nome)}</option>`
   ).join('');
   // Calcular cor do banner fora do template — evita nested objects em template literals (bug mobile)
   const _bannerCor = { alta:'var(--green)', media:'var(--amber)', baixa:'var(--red)' }[pf.confianca] || 'var(--accent)';
   const _bannerHtml = pf.textoOriginal
-    ? `<div style="padding:8px 12px;background:${_bannerCor}18;border:1px solid ${_bannerCor}44;border-radius:7px;margin-bottom:14px;font-size:12px;color:${_bannerCor}">🎤 <em>"${pf.textoOriginal}"</em> &nbsp;·&nbsp; Confiança: <strong>${pf.confianca||'—'}</strong> &nbsp;·&nbsp; Revise antes de salvar.</div>`
+    ? `<div style="padding:8px 12px;background:${_bannerCor}18;border:1px solid ${_bannerCor}44;border-radius:7px;margin-bottom:14px;font-size:12px;color:${_bannerCor}">🎤 <em>"${whatsEsc(pf.textoOriginal)}"</em> &nbsp;·&nbsp; Confiança: <strong>${whatsEsc(pf.confianca||'—')}</strong> &nbsp;·&nbsp; Revise antes de salvar.</div>`
     : '';
   // Determinar se campos opcionais já têm valor pré-preenchido (prefill de voz, etc.)
   const _cliPreench = !!(pf.cliente_id || pf.cliente_nome);
@@ -1742,11 +1772,11 @@ function openNovoAgendamento(prefill) {
 <div class="form-grid">
 <div class="form-field">
 <label class="form-label" style="font-weight:600">📅 Data</label>
-<input type="date" class="form-input" id="nag-data" value="${dataVal}" style="font-size:15px;font-weight:500">
+<input type="date" class="form-input" id="nag-data" value="${whatsEsc(dataVal)}" style="font-size:15px;font-weight:500">
 </div>
 <div class="form-field">
 <label class="form-label" style="font-weight:600">🕐 Hora início</label>
-<input type="time" class="form-input" id="nag-hora" value="${horaVal}" style="font-size:15px;font-weight:500">
+<input type="time" class="form-input" id="nag-hora" value="${whatsEsc(horaVal)}" style="font-size:15px;font-weight:500">
 </div>
 <div class="form-field full">
 <label class="form-label" style="font-weight:600">👤 Responsável</label>
@@ -1776,7 +1806,7 @@ ${clienteOpts}
 </select>
 </div>
 <div id="nag-cliente-text-wrap" style="${clienteTextoVis}">
-<input type="text" class="form-input" id="nag-cliente-nome" placeholder="Nome do cliente (sem cadastro)" value="${pf.cliente_nome||''}">
+<input type="text" class="form-input" id="nag-cliente-nome" placeholder="Nome do cliente (sem cadastro)" value="${whatsEsc(pf.cliente_nome||'')}">
 ${WHATS.liberado ? `<input type="tel" class="form-input" id="nag-cliente-whats" placeholder="WhatsApp do cliente (opcional) — (48) 99999-9999" style="margin-top:6px">` : ''}
 </div>
 </div>
@@ -1795,14 +1825,14 @@ ${servicoOpts}
 </div>
 <div id="nag-servico-text-wrap" style="${servicoTextoVis}">
 <div style="display:flex;gap:8px">
-<input type="text" class="form-input" id="nag-servico-nome" placeholder="Nome do serviço" style="flex:1" value="${pf.servico_nome||''}">
-<input type="number" class="form-input" id="nag-servico-dur" placeholder="Duração (min)" style="width:130px" min="5" max="480" value="${durVal}">
+<input type="text" class="form-input" id="nag-servico-nome" placeholder="Nome do serviço" style="flex:1" value="${whatsEsc(pf.servico_nome||'')}">
+<input type="number" class="form-input" id="nag-servico-dur" placeholder="Duração (min)" style="width:130px" min="5" max="480" value="${whatsEsc(durVal)}">
 </div>
 </div>
 </div>
 <div class="form-field full">
 <label class="form-label">Observação interna</label>
-<textarea class="form-textarea" id="nag-obs" placeholder="Visível apenas para a equipe...">${obsVal}</textarea>
+<textarea class="form-textarea" id="nag-obs" placeholder="Visível apenas para a equipe...">${whatsEsc(obsVal)}</textarea>
 </div>
 <div class="form-field full">
 <label class="form-label">🔔 Lembretes (minutos antes)</label>
@@ -2119,7 +2149,7 @@ function openNovoCliente() {
 <div class="form-field full">
 <label class="form-label">Responsável padrão</label>
 <select class="form-select" id="nc-resp">
-${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}">${u.nome}</option>`).join('')} </select> </div> <div class="form-field full"> <label class="form-label">Observação interna</label> <textarea class="form-textarea" id="nc-obs" placeholder="Notas internas sobre o cliente..."></textarea> </div> </div>`;
+${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${whatsEsc(u.id)}">${whatsEsc(u.nome)}</option>`).join('')} </select> </div> <div class="form-field full"> <label class="form-label">Observação interna</label> <textarea class="form-textarea" id="nc-obs" placeholder="Notas internas sobre o cliente..."></textarea> </div> </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button> <button class="btn btn-accent" onclick="salvarNovoCliente()">Cadastrar cliente</button>`;
   openModal()
 }
@@ -2173,15 +2203,15 @@ function openEditCliente(id) {
   $id('modal-body').innerHTML = `<div class="form-grid">
 <div class="form-field full">
 <label class="form-label">Nome completo / Razão social</label>
-<input type="text" class="form-input" id="ec-nome" value="${c.nome}">
+<input type="text" class="form-input" id="ec-nome" value="${whatsEsc(c.nome)}">
 </div>
 <div class="form-field">
 <label class="form-label">CPF / CNPJ</label>
-<input type="text" class="form-input" id="ec-doc" value="${c.cpf_cnpj||''}">
+<input type="text" class="form-input" id="ec-doc" value="${whatsEsc(c.cpf_cnpj||'')}">
 </div>
 <div class="form-field">
 <label class="form-label">Telefone</label>
-<input type="text" class="form-input" id="ec-tel" value="${c.telefone||''}">
+<input type="text" class="form-input" id="ec-tel" value="${whatsEsc(c.telefone||'')}">
 </div>
 <div class="form-field">
 <label class="form-label">WhatsApp</label>
@@ -2193,21 +2223,21 @@ function openEditCliente(id) {
 </div>
 <div class="form-field full">
 <label class="form-label">E-mail</label>
-<input type="email" class="form-input" id="ec-email" value="${c.email||''}">
+<input type="email" class="form-input" id="ec-email" value="${whatsEsc(c.email||'')}">
 </div>
 <div class="form-field full">
 <label class="form-label">Responsável padrão</label>
 <select class="form-select" id="ec-resp">
-${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}" ${c.responsavel_id===u.id?'selected':''}>${u.nome}</option>`).join('')}
+${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${whatsEsc(u.id)}" ${c.responsavel_id===u.id?'selected':''}>${whatsEsc(u.nome)}</option>`).join('')}
 </select>
 </div>
 <div class="form-field full">
 <label class="form-label">Observação interna</label>
-<textarea class="form-textarea" id="ec-obs">${c.obs_interna||''}</textarea>
+<textarea class="form-textarea" id="ec-obs">${whatsEsc(c.obs_interna||'')}</textarea>
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditCliente(${id})">Salvar</button>`;
+<button class="btn btn-accent" onclick="salvarEditCliente(${Number(id)})">Salvar</button>`;
   openModal()
 }
 async function salvarEditCliente(id) {
@@ -2281,19 +2311,19 @@ function editServico(id) {
   $id('modal-body').innerHTML = `<div class="form-grid">
 <div class="form-field full">
 <label class="form-label">Nome</label>
-<input type="text" class="form-input" id="es-nome" value="${s.nome}">
+<input type="text" class="form-input" id="es-nome" value="${whatsEsc(s.nome)}">
 </div>
 <div class="form-field">
 <label class="form-label">Duração (min)</label>
-<input type="number" class="form-input" id="es-dur" value="${s.duracao_min}" min="15" step="15">
+<input type="number" class="form-input" id="es-dur" value="${whatsEsc(s.duracao_min)}" min="15" step="15">
 </div>
 <div class="form-field">
 <label class="form-label">Valor (R$)</label>
-<input type="number" class="form-input" id="es-val" value="${s.valor}" min="0" step="0.01">
+<input type="number" class="form-input" id="es-val" value="${whatsEsc(s.valor)}" min="0" step="0.01">
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditServico(${id})">Salvar</button>`;
+<button class="btn btn-accent" onclick="salvarEditServico(${Number(id)})">Salvar</button>`;
   openModal()
 }
 async function salvarEditServico(id) {
@@ -2347,7 +2377,7 @@ function openDetalheCliente(id) {
 <div style="font-size:11px;color:var(--green)">Concluídos</div>
 </div>
 <div style="text-align:center;padding:10px;background:${(c.noshow_count||0)>0?'var(--purple-lt)':'var(--bg)'};border-radius:8px">
-<div style="font-size:20px;font-weight:700;color:${(c.noshow_count||0)>0?'var(--purple)':'var(--text-3)'}">${c.noshow_count||0}</div>
+<div style="font-size:20px;font-weight:700;color:${(c.noshow_count||0)>0?'var(--purple)':'var(--text-3)'}">${whatsEsc(c.noshow_count||0)}</div>
 <div style="font-size:11px;color:${(c.noshow_count||0)>0?'var(--purple)':'var(--text-3)'}">No-show</div>
 </div>
 </div>
@@ -2357,11 +2387,11 @@ function openDetalheCliente(id) {
 </div>
 <div class="detail-row">
 <div class="detail-label">E-mail</div>
-<div class="detail-value">${c.email||'—'}</div>
+<div class="detail-value">${whatsEsc(c.email||'—')}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Telefone</div>
-<div class="detail-value">${c.telefone||'—'}</div>
+<div class="detail-value">${whatsEsc(c.telefone||'—')}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">WhatsApp</div>
@@ -2369,23 +2399,23 @@ function openDetalheCliente(id) {
 </div>
 <div class="detail-row">
 <div class="detail-label">Responsável</div>
-<div class="detail-value">${getUsuario(c.responsavel_id).nome}</div>
+<div class="detail-value">${whatsEsc(getUsuario(c.responsavel_id).nome)}</div>
 </div>
 <div class="detail-row">
 <div class="detail-label">Score de confiabilidade</div>
 <div class="detail-value">
 <div style="display:flex;align-items:center;gap:8px">
 <div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden">
-<div style="height:100%;width:${c.score||0}%;background:${scoreCor};border-radius:3px"></div>
+<div style="height:100%;width:${whatsEsc(c.score||0)}%;background:${scoreCor};border-radius:3px"></div>
 </div>
-<span style="font-size:16px;font-weight:700;color:${scoreCor}">${c.score||0}</span>
+<span style="font-size:16px;font-weight:700;color:${scoreCor}">${whatsEsc(c.score||0)}</span>
 </div>
 </div>
 </div>
 <hr class="separator">
 <div class="detail-label" style="margin-bottom:6px">📝 Observações internas</div>
-<textarea id="cli-notas-${c.id}" style="width:100%;min-height:72px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;resize:vertical;background:var(--bg);color:var(--text);outline:none" placeholder="Anotações sobre o cliente (visível apenas internamente)...">${c.observacoes||''}</textarea>
-<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%" onclick="salvarNotasCliente(${c.id})">💾 Salvar observações</button>
+<textarea id="cli-notas-${whatsEsc(c.id)}" style="width:100%;min-height:72px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;resize:vertical;background:var(--bg);color:var(--text);outline:none" placeholder="Anotações sobre o cliente (visível apenas internamente)...">${whatsEsc(c.observacoes||'')}</textarea>
+<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%" onclick="salvarNotasCliente(${Number(c.id)})">💾 Salvar observações</button>
 <hr class="separator">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
 <div class="detail-label">Histórico de agendamentos</div>
@@ -2394,19 +2424,19 @@ function openDetalheCliente(id) {
 ${ags.length===0
 ? '<div class="text-muted" style="text-align:center;padding:16px">Nenhum agendamento</div>'
 : ags.map(a=>`
-        <div style="padding:8px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer" onclick="closeDetail();openDetail(${a.id})">
+        <div style="padding:8px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer" onclick="closeDetail();openDetail(${Number(a.id)})">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-            <span style="font-size:13px;font-weight:600">${getServico(a.servico_id).nome}</span>
+            <span style="font-size:13px;font-weight:600">${whatsEsc(getServico(a.servico_id).nome)}</span>
             ${statusBadge(a.status)}
           </div>
           <div style="font-size:12px;color:var(--text-2)">
-            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${getServico(a.servico_id).cor};margin-right:4px;vertical-align:middle"></span>
-            ${fmtDateTime(a.data_inicio)} · ${getUsuario(a.usuario_responsavel_id).nome.split(' ')[0]}
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${corSegura(getServico(a.servico_id).cor)};margin-right:4px;vertical-align:middle"></span>
+            ${fmtDateTime(a.data_inicio)} · ${whatsEsc(getUsuario(a.usuario_responsavel_id).nome.split(' ')[0])}
           </div>
         </div>`).join('')}
  `;
   $id('detail-footer').innerHTML = `<button class="btn btn-accent btn-sm" onclick="openNovoAgendamento()">+ Novo agendamento</button>
-<button class="btn btn-outline btn-sm" onclick="openEditCliente(${c.id})">Editar cliente</button>`;
+<button class="btn btn-outline btn-sm" onclick="openEditCliente(${Number(c.id)})">Editar cliente</button>`;
   $id('detail-panel').classList.add('open')
 }
 async function salvarNotasCliente(cliId) {
@@ -2441,16 +2471,16 @@ function editColaborador(id) {
   const perfilLabels = { admin:'Administrador', gerente:'Gerente', colaborador:'Colaborador', visualizador:'Visualizador' };
   $id('modal-title').textContent = 'Editar Colaborador';
   $id('modal-body').innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px">
-<div class="avatar-sm" style="background:var(--accent);width:40px;height:40px;font-size:16px">${u.nome[0].toUpperCase()}</div>
+<div class="avatar-sm" style="background:var(--accent);width:40px;height:40px;font-size:16px">${whatsEsc(u.nome[0].toUpperCase())}</div>
 <div>
-<div style="font-weight:600">${u.nome}</div>
-<div style="font-size:12px;color:var(--text-3)">${u.email}</div>
+<div style="font-weight:600">${whatsEsc(u.nome)}</div>
+<div style="font-size:12px;color:var(--text-3)">${whatsEsc(u.email)}</div>
 </div>
 </div>
 <div class="form-grid">
 <div class="form-field full">
 <label class="form-label">Nome completo</label>
-<input type="text" class="form-input" id="ecol-nome" value="${u.nome}">
+<input type="text" class="form-input" id="ecol-nome" value="${whatsEsc(u.nome)}">
 </div>
 <div class="form-field full">
 <label class="form-label">Perfil de acesso</label>
@@ -2474,7 +2504,7 @@ Admin: acesso total · Gerente: relatórios + equipe · Colaborador: agenda pró
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditColaborador(${id})">Salvar alterações</button>`;
+<button class="btn btn-accent" onclick="salvarEditColaborador(${Number(id)})">Salvar alterações</button>`;
   openModal()
 }
 async function salvarEditColaborador(id) {
@@ -2598,33 +2628,33 @@ function renderDisponibilidade() {
       grade += `<div style="border-radius:8px;border:1px solid var(--border);padding:10px 6px;text-align:center;background:${d ? 'var(--accent-lt)':isWeekend ? 'var(--bg)':'var(--surface)'}">
 <div style="font-size:11px;font-weight:600;color:${d ? 'var(--accent)':'var(--text-3)'};margin-bottom:4px">${DIAS_SHORT[dia]}</div>
 ${d
-?`<div style="font-size:12px;font-weight:600;color:var(--accent)">${d.hora_inicio}</div><div style="font-size:10px;color:var(--text-3)">até</div><div style="font-size:12px;font-weight:600;color:var(--accent)">${d.hora_fim}</div>`
+?`<div style="font-size:12px;font-weight:600;color:var(--accent)">${whatsEsc(d.hora_inicio)}</div><div style="font-size:10px;color:var(--text-3)">até</div><div style="font-size:12px;font-weight:600;color:var(--accent)">${whatsEsc(d.hora_fim)}</div>`
  : `<div style="font-size:11px;color:var(--text-3)">—</div>`} </div>`
     }
     grade += `</div>`;
     // Tabela de registros
     let rows = disps.map(d => `<tr>
 <td><strong>${DIAS_SEMANA[d.dia_semana]}</strong></td>
-<td><span style="font-family:var(--mono)">${d.hora_inicio}</span></td>
-<td><span style="font-family:var(--mono)">${d.hora_fim}</span></td>
+<td><span style="font-family:var(--mono)">${whatsEsc(d.hora_inicio)}</span></td>
+<td><span style="font-family:var(--mono)">${whatsEsc(d.hora_fim)}</span></td>
 <td>${calcHoras(d.hora_inicio, d.hora_fim)}h trabalhadas</td>
 <td><span class="badge ${d.ativo ? 'badge-confirmado' : 'badge-cancelado'}">${d.ativo ? 'Ativo' : 'Inativo'}</span></td>
 <td>
-<button class="btn btn-ghost btn-sm" onclick="editDisponibilidade(${d.id})">Editar</button>
-<button class="btn btn-ghost btn-sm" onclick="toggleDisponibilidade(${d.id})" style="color:${d.ativo ? 'var(--red)':'var(--green)'}">${d.ativo ? 'Desativar' : 'Ativar'}</button>
-<button class="btn btn-ghost btn-sm" onclick="removerDisponibilidade(${d.id})" style="color:var(--red)">Remover</button>
+<button class="btn btn-ghost btn-sm" onclick="editDisponibilidade(${Number(d.id)})">Editar</button>
+<button class="btn btn-ghost btn-sm" onclick="toggleDisponibilidade(${Number(d.id)})" style="color:${d.ativo ? 'var(--red)':'var(--green)'}">${d.ativo ? 'Desativar' : 'Ativar'}</button>
+<button class="btn btn-ghost btn-sm" onclick="removerDisponibilidade(${Number(d.id)})" style="color:var(--red)">Remover</button>
 </td>
 </tr>`).join('');
     html += `<div class="card mb-20">
 <div class="flex-between mb-16">
 <div style="display:flex;align-items:center;gap:10px">
-<div class="avatar-sm" style="background:var(--accent)">${u.nome[0]}</div>
+<div class="avatar-sm" style="background:var(--accent)">${whatsEsc(u.nome[0])}</div>
 <div>
-<strong style="font-size:15px">${u.nome}</strong>
+<strong style="font-size:15px">${whatsEsc(u.nome)}</strong>
 <div class="text-muted">${{admin:'Administrador',gerente:'Gerente',colaborador:'Colaborador'}[u.perfil]}</div>
 </div>
 </div>
-<button class="btn btn-outline btn-sm" onclick="openNovaDisponibilidade(${u.id})">+ Horário para este colaborador</button>
+<button class="btn btn-outline btn-sm" onclick="openNovaDisponibilidade(${Number(u.id)})">+ Horário para este colaborador</button>
 </div>
 ${grade}
 ${disps.length > 0 ?`<div class="table-wrap"><table>
@@ -2645,7 +2675,7 @@ function openNovaDisponibilidade(preUsuario = null) {
 <div class="form-field full">
 <label class="form-label">Colaborador</label>
 <select class="form-select" id="nd-usuario">
-${USUARIOS.filter(u=>u.ativo && u.perfil !== 'visualizador').map(u =>`<option value="${u.id}" ${preUsuario == u.id ? 'selected' : ''}>${u.nome}</option>`).join('')}
+${USUARIOS.filter(u=>u.ativo && u.perfil !== 'visualizador').map(u =>`<option value="${whatsEsc(u.id)}" ${preUsuario == u.id ? 'selected' : ''}>${whatsEsc(u.nome)}</option>`).join('')}
 </select>
 </div>
 <div class="form-field full">
@@ -2696,15 +2726,15 @@ function editDisponibilidade(id) {
   $id('modal-body').innerHTML = `<div class="form-grid">
 <div class="form-field">
 <label class="form-label">Hora início</label>
-<input type="time" class="form-input" id="ed-ini" value="${d.hora_inicio}">
+<input type="time" class="form-input" id="ed-ini" value="${whatsEsc(d.hora_inicio)}">
 </div>
 <div class="form-field">
 <label class="form-label">Hora fim</label>
-<input type="time" class="form-input" id="ed-fim" value="${d.hora_fim}">
+<input type="time" class="form-input" id="ed-fim" value="${whatsEsc(d.hora_fim)}">
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditDisponibilidade(${id})">Salvar</button>`;
+<button class="btn btn-accent" onclick="salvarEditDisponibilidade(${Number(id)})">Salvar</button>`;
   openModal()
 }
 async function salvarEditDisponibilidade(id) {
@@ -2791,14 +2821,14 @@ const inicio = new Date(b.data_inicio);
 const fim = new Date(b.data_fim);
 const isAllDay = inicio.getHours() === 0 && fim.getHours() === 23;
 return`<tr>
-                <td><span class="badge ${cls}">${label}</span>${isGlobal ? ' <span class="chip" style="font-size:10px">Global</span>' : ''}</td>
-                <td>${isGlobal ? '<span class="text-muted">Escritório inteiro</span>' : usr}</td>
+                <td><span class="badge ${cls}">${whatsEsc(label)}</span>${isGlobal ? ' <span class="chip" style="font-size:10px">Global</span>' : ''}</td>
+                <td>${isGlobal ? '<span class="text-muted">Escritório inteiro</span>' : whatsEsc(usr)}</td>
                 <td><span style="font-family:var(--mono);font-size:13px">${isAllDay ? fmtDate(b.data_inicio.slice(0,10)) : fmtDateTime(b.data_inicio)}</span></td>
                 <td><span style="font-family:var(--mono);font-size:13px">${isAllDay ? fmtDate(b.data_fim.slice(0,10)) : fmtDateTime(b.data_fim)}</span></td>
-                <td>${b.motivo || '—'}</td>
+                <td>${whatsEsc(b.motivo || '—')}</td>
                 <td>
-                  <button class="btn btn-ghost btn-sm" onclick="editBloqueio(${b.id})">Editar</button>
-                  <button class="btn btn-danger btn-sm" onclick="removerBloqueio(${b.id})">Remover</button>
+                  <button class="btn btn-ghost btn-sm" onclick="editBloqueio(${Number(b.id)})">Editar</button>
+                  <button class="btn btn-danger btn-sm" onclick="removerBloqueio(${Number(b.id)})">Remover</button>
                 </td>
               </tr>`
 }).join('')}
@@ -2823,7 +2853,7 @@ function openNovoBloqueio() {
 <label class="form-label">Colaborador <span class="text-muted">(deixe em branco para bloquear todos)</span></label>
 <select class="form-select" id="nb-usuario">
 <option value="">— Todos (escritório inteiro) —</option>
-${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${u.id}">${u.nome}</option>`).join('')}
+${USUARIOS.filter(u=>u.ativo).map(u=>`<option value="${whatsEsc(u.id)}">${whatsEsc(u.nome)}</option>`).join('')}
 </select>
 </div>
 <div class="form-field">
@@ -2904,19 +2934,19 @@ function editBloqueio(id) {
   $id('modal-body').innerHTML = `<div class="form-grid">
 <div class="form-field full">
 <label class="form-label">Motivo</label>
-<input type="text" class="form-input" id="eb-motivo" value="${b.motivo}">
+<input type="text" class="form-input" id="eb-motivo" value="${whatsEsc(b.motivo)}">
 </div>
 <div class="form-field">
 <label class="form-label">Data início</label>
-<input type="date" class="form-input" id="eb-dini" value="${b.data_inicio.slice(0,10)}">
+<input type="date" class="form-input" id="eb-dini" value="${whatsEsc(b.data_inicio.slice(0,10))}">
 </div>
 <div class="form-field">
 <label class="form-label">Data fim</label>
-<input type="date" class="form-input" id="eb-dfim" value="${b.data_fim.slice(0,10)}">
+<input type="date" class="form-input" id="eb-dfim" value="${whatsEsc(b.data_fim.slice(0,10))}">
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditBloqueio(${id})">Salvar</button>`;
+<button class="btn btn-accent" onclick="salvarEditBloqueio(${Number(id)})">Salvar</button>`;
   openModal()
 }
 async function salvarEditBloqueio(id) {
@@ -2972,8 +3002,8 @@ function renderConfiguracoes() {
 ${cfgs.map(c =>`
         <div style="margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-            <label class="form-label" style="margin:0">${c.chave}</label>
-            <span class="text-muted">${c.descricao}</span>
+            <label class="form-label" style="margin:0">${whatsEsc(c.chave)}</label>
+            <span class="text-muted">${whatsEsc(c.descricao)}</span>
           </div>
           ${renderConfigInput(c)}
         </div>`).join('')}
@@ -3012,11 +3042,11 @@ Testar agora
 </div>
 <div class="ui-stat-box">
 <div class="text-muted">Tenant ID</div>
-<div style="font-weight:600;font-family:var(--mono);font-size:13px;margin-top:4px">${APP.tenantId ?? '—'}</div>
+<div style="font-weight:600;font-family:var(--mono);font-size:13px;margin-top:4px">${whatsEsc(APP.tenantId ?? '—')}</div>
 </div>
 <div class="ui-stat-box">
 <div class="text-muted">Usuário</div>
-<div style="font-weight:600;font-size:13px;margin-top:4px">${APP.user?.email ?? '—'}</div>
+<div style="font-weight:600;font-size:13px;margin-top:4px">${whatsEsc(APP.user?.email ?? '—')}</div>
 </div>
 </div>
 </div>`;
@@ -3082,14 +3112,14 @@ function renderConfigInput(c) {
   if (c.valor === 'true' || c.valor === 'false') {
     return `<div style="display:flex;align-items:center;gap:10px">
 <label style="position:relative;display:inline-block;width:44px;height:22px">
-<input type="checkbox" id="cfg-${c.chave}" ${c.valor==='true'?'checked':''} style="opacity:0;width:0;height:0" onchange="updateConfigToggle('${c.chave}',this.checked)">
+<input type="checkbox" id="cfg-${whatsEsc(c.chave)}" ${c.valor==='true'?'checked':''} style="opacity:0;width:0;height:0" onchange="updateConfigToggle(${whatsEsc(JSON.stringify(c.chave))},this.checked)">
 <span style="position:absolute;inset:0;background:${c.valor==='true'?'var(--accent)':'var(--border)'};border-radius:22px;transition:.2s;cursor:pointer"></span>
 <span style="position:absolute;top:3px;left:${c.valor==='true'?'25px':'3px'};width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s"></span>
 </label>
 <span style="font-size:13px;color:var(--text-2)">${c.valor==='true'?'Ativado':'Desativado'}</span>
 </div>`
   }
-  return `<input type="${isNaN(c.valor)||c.valor===''?'text':'number'}" class="form-input" id="cfg-${c.chave}" value="${c.valor}" placeholder="${c.descricao}">`
+  return `<input type="${isNaN(c.valor)||c.valor===''?'text':'number'}" class="form-input" id="cfg-${whatsEsc(c.chave)}" value="${whatsEsc(c.valor)}" placeholder="${whatsEsc(c.descricao)}">`
 }
 function updateConfigToggle(chave, checked) {
   const c = CONFIG.find(x => x.chave === chave);
@@ -3144,6 +3174,8 @@ const WHATS_STATUS = {
 function whatsEsc(v) {
   return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
 }
+// cor vinda do banco só entra em style se for hexadecimal (#abc, #aabbcc...); senão usa a cor padrão do lugar
+function corSegura(c, padrao) { return /^#[0-9a-f]{3,8}$/i.test(String(c || '')) ? c : (padrao || '#94a3b8'); }
 // mesmo critério do banco: campo WhatsApp; senão o telefone, se for celular
 function whatsFone(whatsapp, telefone) {
   const limpa = v => { let d = String(v || '').replace(/\D/g, ''); if ((d.length === 12 || d.length === 13) && d.startsWith('55')) d = d.slice(2); return d; };
@@ -3164,7 +3196,7 @@ function whatsCfg(chave) {
 }
 function whatsBadge(a) {
   const [cls, label] = WHATS_STATUS[a.status] || ['badge-pendente', a.status];
-  return `<span class="badge ${cls}">${label}</span>${a.erro && a.status !== 'enviado' ? `<div class="text-muted" style="margin-top:2px">${whatsEsc(a.erro)}</div>` : ''}`
+  return `<span class="badge ${cls}">${whatsEsc(label)}</span>${a.erro && a.status !== 'enviado' ? `<div class="text-muted" style="margin-top:2px">${whatsEsc(a.erro)}</div>` : ''}`
 }
 // Pede à Edge Function para enviar já (sem esperar o ciclo de 2 min). Falha em silêncio.
 function whatsPing() {
@@ -3257,7 +3289,7 @@ async function whatsCarregarComandos() {
     const ST = { feito: ['badge-confirmado', 'Feito'], pergunta: ['badge-pendente', 'Respondido com dúvida'], erro: ['badge-cancelado', 'Erro'], ignorado: ['badge-concluido', 'Ignorada'], processando: ['badge-solicitado', 'Processando'] };
     el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Quem</th><th>Mensagem</th><th>Situação</th></tr></thead><tbody>${rows.map(r => {
       const [cls, lab] = ST[r.status] || ['badge-pendente', r.status];
-      return `<tr><td style="white-space:nowrap">${fmtDateTime(r.criado_em)}</td><td>${whatsEsc(getUsuario(r.usuario_id).nome.split(' ')[0])}</td><td>${whatsEsc(String(r.texto || '').slice(0, 80))}</td><td><span class="badge ${cls}">${lab}</span></td></tr>`
+      return `<tr><td style="white-space:nowrap">${fmtDateTime(r.criado_em)}</td><td>${whatsEsc(getUsuario(r.usuario_id).nome.split(' ')[0])}</td><td>${whatsEsc(String(r.texto || '').slice(0, 80))}</td><td><span class="badge ${cls}">${whatsEsc(lab)}</span></td></tr>`
     }).join('')}</tbody></table></div>`
   } catch(e) {
     el.textContent = 'Não foi possível carregar: ' + e.message
@@ -3325,7 +3357,7 @@ async function whatsCarregarHistorico() {
     el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Cliente</th><th>Aviso</th><th>WhatsApp</th><th>Situação</th></tr></thead><tbody>${rows.map(a => {
       const ag = a.agendamento_id ? AGENDAMENTOS.find(x => x.id === a.agendamento_id) : null;
       const cli = ag ? getCliente(ag.cliente_id).nome : (a.tipo === 'teste' ? '—' : 'Agendamento #' + a.agendamento_id);
-      return `<tr><td style="white-space:nowrap">${fmtDateTime(a.enviado_em || a.criado_em)}</td><td>${whatsEsc(cli)}</td><td>${WHATS_TIPO_LABEL[a.tipo] || whatsEsc(a.tipo)}</td><td style="white-space:nowrap">${whatsFmtFone(a.telefone)}</td><td>${whatsBadge(a)}</td></tr>`
+      return `<tr><td style="white-space:nowrap">${fmtDateTime(a.enviado_em || a.criado_em)}</td><td>${whatsEsc(cli)}</td><td>${WHATS_TIPO_LABEL[a.tipo] || whatsEsc(a.tipo)}</td><td style="white-space:nowrap">${whatsEsc(whatsFmtFone(a.telefone))}</td><td>${whatsBadge(a)}</td></tr>`
     }).join('')}</tbody></table></div>`
   } catch(e) {
     el.textContent = 'Não foi possível carregar: ' + e.message
@@ -3710,11 +3742,11 @@ function uiDataLonga() {
 }
 function uiLinhaAg(a, comResp) {
   const cl = getCliente(a.cliente_id, a), sv = getServico(a.servico_id, a);
-  const cor = (sv.cor && sv.cor !== '#C8C5BC') ? sv.cor : 'var(--accent)';
+  const cor = (sv.cor && sv.cor !== '#C8C5BC') ? corSegura(sv.cor, 'var(--accent)') : 'var(--accent)';
   const passado = new Date(a.data_fim || a.data_inicio) < new Date() || ['concluido', 'nao_compareceu'].includes(a.status);
   const dur = a.data_fim ? Math.round((new Date(a.data_fim) - new Date(a.data_inicio)) / 60000) : null;
   const extra = [sv.nome && sv.nome !== '—' ? whatsEsc(sv.nome) : '', comResp ? whatsEsc(getUsuario(a.usuario_responsavel_id).nome.split(' ')[0]) : '', UI_STATUS[a.status] || whatsEsc(a.status)].filter(Boolean).join(' · ');
-  return `<button class="ag-linha${passado ? ' passado' : ''}" onclick="openDetail(${a.id})" style="--cor:${whatsEsc(cor)}">
+  return `<button class="ag-linha${passado ? ' passado' : ''}" onclick="openDetail(${Number(a.id)})" style="--cor:${whatsEsc(cor)}">
 <span class="ag-hora">${fmtTime(a.data_inicio)}${dur ? `<small>${dur} min</small>` : ''}</span>
 <span class="ag-info"><b>${whatsEsc(cl.nome)}</b><span>${extra}</span></span><span class="ag-seta">›</span></button>`
 }
@@ -3736,8 +3768,8 @@ function uiCardProximo(a) {
 <div class="hj-prox-acoes">
 ${wpp ? `<a class="hj-btn" href="https://wa.me/55${wpp}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
 ${tel.length >= 10 ? `<a class="hj-btn" href="tel:+55${tel}">📞 Ligar</a>` : ''}
-${aConfirmar ? `<button class="hj-btn" onclick="confirmarAg(${a.id})">✓ Confirmar</button>` : `<button class="hj-btn" onclick="concluirAg(${a.id})">✓ Concluir</button>`}
-<button class="hj-btn" onclick="openDetail(${a.id})">Detalhes</button>
+${aConfirmar ? `<button class="hj-btn" onclick="confirmarAg(${Number(a.id)})">✓ Confirmar</button>` : `<button class="hj-btn" onclick="concluirAg(${Number(a.id)})">✓ Concluir</button>`}
+<button class="hj-btn" onclick="openDetail(${Number(a.id)})">Detalhes</button>
 </div></div>`
 }
 // Início (modo simples): os atendimentos da própria pessoa
@@ -3789,7 +3821,7 @@ function renderPainel() {
 <div class="hj-sec"><span>Equipe hoje</span><span class="hj-cont">${equipe.length}</span></div>
 <div class="eq-scroll">${eq || '<div class="hj-nada">Nenhum colaborador ativo.</div>'}</div>
 ${pend.length ? `<div class="hj-sec"><span>A confirmar</span><span class="hj-cont">${pend.length}</span></div>
-<div class="ag-lista">${pend.slice(0, 6).map(a => `<div class="ag-pend">${uiLinhaAg(a, true)}<button class="btn-ok" onclick="confirmarAg(${a.id})" aria-label="Confirmar">✓</button></div>`).join('')}</div>` : ''}
+<div class="ag-lista">${pend.slice(0, 6).map(a => `<div class="ag-pend">${uiLinhaAg(a, true)}<button class="btn-ok" onclick="confirmarAg(${Number(a.id)})" aria-label="Confirmar">✓</button></div>`).join('')}</div>` : ''}
 <div class="hj-sec"><span>Agenda de hoje</span><span class="hj-cont">${hojeL.length}</span></div>
 <div class="ag-lista">${hojeL.length ? hojeL.map(a => uiLinhaAg(a, true)).join('') : '<div class="hj-nada">Nada marcado para hoje.</div>'}</div>
 </div>`
@@ -3819,8 +3851,12 @@ async function interpretarVoz(texto) {
 // VERSÃO E ATUALIZAÇÕES
 // A cada atualização: subir APP_VERSAO, acrescentar a versão no topo de VERSOES,
 // trocar o número em version.json e o CACHE_NAME do service-worker.js.
-const APP_VERSAO = '2.7.0';
+const APP_VERSAO = '2.8.0';
 const VERSOES = [
+  { v: '2.8.0', data: '12/10/2026', itens: [
+    'Segurança: nomes, observações e serviços digitados não conseguem mais executar nada na tela de quem abre.',
+    '"Salvar usuário e senha" virou "Manter conectado neste aparelho": a senha não fica mais guardada; a entrada se renova sozinha. Quem tinha a senha salva digita uma vez.',
+    'Regras do banco revisadas: sem login, ninguém vê nem cria agendamentos; gerente não cadastra administrador.' ] },
   { v: '2.7.0', data: '12/10/2026', itens: [
     'Estudo da Reforma: mais 11 aulas analisadas (emissão de NF-e, apuração assistida, Simples na Resolução CGSN 190, contabilização pela OT CFC 01/2026, Lucro Presumido na LC 224, dividendos, redução do IRPF e EFD-Reinf).',
     'Cada vídeo analisado mostra os minutos que valem a pena, o que dá para pular e a relação com o programa (botão "Análise").' ] },
@@ -3930,20 +3966,20 @@ function renderMinhaAgenda() {
 <div class="flex-between mb-8">
 <div style="display:flex;align-items:center;gap:10px">
 <div style="width:10px;height:10px;border-radius:50%;background:${tipo.cor};flex-shrink:0"></div>
-<strong style="font-size:15px">${c.titulo}</strong>${lockIcon}
+<strong style="font-size:15px">${whatsEsc(c.titulo)}</strong>${lockIcon}
 </div>
 <div style="display:flex;gap:6px">
-<button class="btn btn-ghost btn-sm" onclick="editCompromisso(${c.id})">Editar</button>
-<button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removerCompromisso(${c.id})">Remover</button>
+<button class="btn btn-ghost btn-sm" onclick="editCompromisso(${Number(c.id)})">Editar</button>
+<button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removerCompromisso(${Number(c.id)})">Remover</button>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:${c.descricao ? 10:0}px">
 <div><div class="text-muted" style="font-size:11px">Tipo</div><div style="font-size:13px">${tipo.label}</div></div>
 <div><div class="text-muted" style="font-size:11px">Inicio</div><div style="font-size:13px;font-weight:600">${fmtDateTime(c.data_inicio)}</div></div>
 <div><div class="text-muted" style="font-size:11px">Fim</div><div style="font-size:13px">${fmtDateTime(c.data_fim)}</div></div>
-${c.local ? '<div><div class="text-muted" style="font-size:11px">Local</div><div style="font-size:13px">' + c.local + '</div></div>' : ''}
+${c.local ? '<div><div class="text-muted" style="font-size:11px">Local</div><div style="font-size:13px">' + whatsEsc(c.local) + '</div></div>' : ''}
 </div>
-${c.descricao ? '<div style="font-size:13px;color:var(--text-2);background:var(--bg);border-radius:6px;padding:8px">' + c.descricao + '</div>' : ''}
+${c.descricao ? '<div style="font-size:13px;color:var(--text-2);background:var(--bg);border-radius:6px;padding:8px">' + whatsEsc(c.descricao) + '</div>' : ''}
 </div>`
   };
   $id('page-content').innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
@@ -4042,7 +4078,7 @@ function editCompromisso(id) {
   $id('modal-body').innerHTML = `<div class="form-grid">
 <div class="form-field full">
 <label class="form-label">Titulo *</label>
-<input type="text" class="form-input" id="ec-titulo" value="${c.titulo || ''}">
+<input type="text" class="form-input" id="ec-titulo" value="${whatsEsc(c.titulo || '')}">
 </div>
 <div class="form-field">
 <label class="form-label">Tipo</label>
@@ -4065,23 +4101,23 @@ function editCompromisso(id) {
 </div>
 <div class="form-field">
 <label class="form-label">Data inicio</label>
-<input type="datetime-local" class="form-input" id="ec-ini" value="${fmtLocal(c.data_inicio)}">
+<input type="datetime-local" class="form-input" id="ec-ini" value="${whatsEsc(fmtLocal(c.data_inicio))}">
 </div>
 <div class="form-field">
 <label class="form-label">Data fim</label>
-<input type="datetime-local" class="form-input" id="ec-fim" value="${fmtLocal(c.data_fim)}">
+<input type="datetime-local" class="form-input" id="ec-fim" value="${whatsEsc(fmtLocal(c.data_fim))}">
 </div>
 <div class="form-field full">
 <label class="form-label">Local</label>
-<input type="text" class="form-input" id="ec-local" value="${c.local || ''}">
+<input type="text" class="form-input" id="ec-local" value="${whatsEsc(c.local || '')}">
 </div>
 <div class="form-field full">
 <label class="form-label">Descricao</label>
-<textarea class="form-input" id="ec-desc" rows="3">${c.descricao || ''}</textarea>
+<textarea class="form-input" id="ec-desc" rows="3">${whatsEsc(c.descricao || '')}</textarea>
 </div>
 </div>`;
   $id('modal-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-accent" onclick="salvarEditCompromisso(${id})">Salvar</button>`;
+<button class="btn btn-accent" onclick="salvarEditCompromisso(${Number(id)})">Salvar</button>`;
   openModal()
 }
 async function salvarEditCompromisso(id) {
@@ -4155,10 +4191,10 @@ function renderRelatorios() {
 <option value="custom" ${REL.periodo==='custom'?'selected':''}>Personalizado</option>
 </select>
 <div id="rel-custom-range" style="display:${REL.periodo==='custom'?'flex':'none'};align-items:center;gap:8px">
-<label>De</label><input type="date" id="rel-ini" value="${REL.dataIni}" onchange="relChangeDatas()">
-<label>Até</label><input type="date" id="rel-fim" value="${REL.dataFim}" onchange="relChangeDatas()">
+<label>De</label><input type="date" id="rel-ini" value="${whatsEsc(REL.dataIni)}" onchange="relChangeDatas()">
+<label>Até</label><input type="date" id="rel-fim" value="${whatsEsc(REL.dataFim)}" onchange="relChangeDatas()">
 </div>
-<span style="font-size:12px;color:var(--text-3);margin-left:auto">${ini} → ${fim} · <strong>${ags.length}</strong> agendamentos</span>
+<span style="font-size:12px;color:var(--text-3);margin-left:auto">${whatsEsc(ini)} → ${whatsEsc(fim)} · <strong>${ags.length}</strong> agendamentos</span>
 </div>
 <div class="rel-tabs">
 <button class="rel-tab ${REL.aba==='agendamentos'?'active':''}" onclick="relSetAba('agendamentos')">
@@ -4204,7 +4240,7 @@ function relRenderAba(ags, ini, fim) {
   else if (REL.aba === 'servicos')     relAbaServicos(wrap, ags)
 }
 function relKpiGrid(items) {
-  return `<div class="rel-kpi-grid">${items.map(i=>`<div class="rel-kpi"><div class="rel-kpi-label">${i.label}</div><div class="rel-kpi-value" ${i.color?`style="color:${i.color}"`:''} >${i.value}</div><div class="rel-kpi-sub">${i.sub||''}</div></div>`).join('')}</div>`
+  return `<div class="rel-kpi-grid">${items.map(i=>`<div class="rel-kpi"><div class="rel-kpi-label">${i.label}</div><div class="rel-kpi-value" ${i.color?`style="color:${i.color}"`:''} >${whatsEsc(i.value)}</div><div class="rel-kpi-sub">${whatsEsc(i.sub||'')}</div></div>`).join('')}</div>`
 }
 function relDonutSVG(data, total) {
   if (!data.length || !total) return '<div class="text-muted">Sem dados</div>';
@@ -4222,7 +4258,7 @@ function relDonutSVG(data, total) {
 function relBarChart(rows, color) {
   if (!rows.length) return '<div class="text-muted">Sem dados</div>';
   const max = Math.max(...rows.map(r=>r.v), 1);
-  return `<div class="bar-chart-wrap">${rows.map(r=>`<div class="bar-row"><div class="bar-label" title="${r.label}">${r.label}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(r.v/max*100)}%;background:${r.color||color||'var(--accent)'}"></div></div><div class="bar-val">${r.v}</div></div>`).join('')}</div>`
+  return `<div class="bar-chart-wrap">${rows.map(r=>`<div class="bar-row"><div class="bar-label" title="${whatsEsc(r.label)}">${whatsEsc(r.label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(r.v/max*100)}%;background:${r.color||color||'var(--accent)'}"></div></div><div class="bar-val">${r.v}</div></div>`).join('')}</div>`
 }
 function relAbaAgendamentos(wrap, ags, ini, fim) {
   const total=ags.length, concluidos=ags.filter(a=>a.status==='concluido').length;
@@ -4251,7 +4287,7 @@ relBarChart(dias.map(d=>({label:new Date(d+'T12:00:00').toLocaleDateString('pt-B
 <div class="donut-wrap">
 ${relDonutSVG(donutData,total)}
 <div class="donut-legend">
-${donutData.map(d=>`<div class="donut-legend-row"><div class="donut-legend-dot" style="background:${d.color}"></div><span style="font-size:12px;color:var(--text-2)">${d.label}</span><span style="font-size:12px;font-weight:700;margin-left:auto;padding-left:8px">${d.v}</span></div>`).join('')}
+${donutData.map(d=>`<div class="donut-legend-row"><div class="donut-legend-dot" style="background:${d.color}"></div><span style="font-size:12px;color:var(--text-2)">${whatsEsc(d.label)}</span><span style="font-size:12px;font-weight:700;margin-left:auto;padding-left:8px">${d.v}</span></div>`).join('')}
 </div>
 </div>
 </div>
@@ -4283,7 +4319,7 @@ function relAbaClientes(wrap, ags) {
 ${relBarChart(sorted.slice(0,15).map(c=>({label:c.nome,v:c.total,color:'var(--green)'})),'var(--green)')}
 ${sorted.length>15?`<div class="text-muted" style="margin-top:8px;font-size:12px">+${sorted.length-15} outros clientes</div>`:''}
 </div>
-${noshow.length>0?`<div class="card"><strong style="display:block;margin-bottom:16px;font-size:14px">⚠ No-show</strong><div style="display:flex;flex-direction:column;gap:8px">${noshow.slice(0,10).map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:7px"><span style="font-size:13px;font-weight:500">${c.nome}</span><span style="font-size:12px;font-weight:700;color:var(--purple);background:var(--purple-lt);padding:2px 8px;border-radius:12px">${c.noshow}x</span></div>`).join('')}</div></div>`:''} </div>`
+${noshow.length>0?`<div class="card"><strong style="display:block;margin-bottom:16px;font-size:14px">⚠ No-show</strong><div style="display:flex;flex-direction:column;gap:8px">${noshow.slice(0,10).map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:7px"><span style="font-size:13px;font-weight:500">${whatsEsc(c.nome)}</span><span style="font-size:12px;font-weight:700;color:var(--purple);background:var(--purple-lt);padding:2px 8px;border-radius:12px">${c.noshow}x</span></div>`).join('')}</div></div>`:''} </div>`
 }
 function relAbaOcupacao(wrap, ags, ini, fim) {
   const dias=Math.round((new Date(fim)-new Date(ini))/(1000*60*60*24))+1;
@@ -4299,19 +4335,19 @@ function relAbaOcupacao(wrap, ags, ini, fim) {
 {label:'Mais ocupado',value:sorted[0]?.nome?.split(' ')[0]||'—',sub:`${sorted[0]?.total||0} agendamentos`}, {label:'Dias no período',value:dias,sub:`~${diasUteis} dias úteis`}
 ])}
 <div class="ocupacao-grid">
-${sorted.map(u=>{const pct=totalSlots>0?Math.min(Math.round(u.total/totalSlots*100),100):0;const cor=pct>=80?'var(--red)':pct>=50?'var(--amber)':'var(--accent)';return`<div class="ocupacao-card"><div class="ocupacao-name">${u.nome}</div><div style="font-size:11px;color:var(--text-3);margin-bottom:8px">${perfilLabels[u.perfil]||u.perfil}</div><div class="ocupacao-pct" style="color:${cor}">${pct}%</div><div class="ocupacao-track"><div class="ocupacao-fill" style="width:${pct}%;background:${cor}"></div></div><div class="ocupacao-meta">${u.total} agendamentos · ${u.concluido} concluídos</div>${u.noshow>0?`<div style="font-size:11px;color:var(--purple);margin-top:4px">${u.noshow} no-show</div>`:''}</div>`;}).join('')||'<div class="text-muted">Sem dados</div>'}
+${sorted.map(u=>{const pct=totalSlots>0?Math.min(Math.round(u.total/totalSlots*100),100):0;const cor=pct>=80?'var(--red)':pct>=50?'var(--amber)':'var(--accent)';return`<div class="ocupacao-card"><div class="ocupacao-name">${whatsEsc(u.nome)}</div><div style="font-size:11px;color:var(--text-3);margin-bottom:8px">${whatsEsc(perfilLabels[u.perfil]||u.perfil)}</div><div class="ocupacao-pct" style="color:${cor}">${pct}%</div><div class="ocupacao-track"><div class="ocupacao-fill" style="width:${pct}%;background:${cor}"></div></div><div class="ocupacao-meta">${u.total} agendamentos · ${u.concluido} concluídos</div>${u.noshow>0?`<div style="font-size:11px;color:var(--purple);margin-top:4px">${u.noshow} no-show</div>`:''}</div>`;}).join('')||'<div class="text-muted">Sem dados</div>'}
 </div>
 <div class="card" style="margin-top:20px">
 <strong style="display:block;margin-bottom:14px;font-size:14px">Detalhamento por profissional</strong>
 <div class="table-wrap"><table>
 <thead><tr><th>Profissional</th><th>Perfil</th><th style="text-align:center">Total</th><th style="text-align:center">Concluídos</th><th style="text-align:center">Cancelados</th><th style="text-align:center">No-show</th><th style="text-align:center">Taxa conclusão</th></tr></thead>
 <tbody>${sorted.length===0?'<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:24px">Sem dados</td></tr>':
-sorted.map(u=>{const taxa=u.total?Math.round(u.concluido/u.total*100):0;return`<tr><td style="font-weight:600">${u.nome}</td><td>${perfilLabels[u.perfil]||u.perfil}</td><td style="text-align:center;font-weight:700">${u.total}</td><td style="text-align:center;color:var(--green)">${u.concluido}</td><td style="text-align:center;color:var(--red)">${u.cancelado}</td><td style="text-align:center;color:var(--purple)">${u.noshow}</td><td style="text-align:center"><span style="font-weight:700;color:${taxa>=70?'var(--green)':taxa>=40?'var(--amber)':'var(--red)'}">${taxa}%</span></td></tr>`;}).join('')} </tbody> </table></div> </div>`
+sorted.map(u=>{const taxa=u.total?Math.round(u.concluido/u.total*100):0;return`<tr><td style="font-weight:600">${whatsEsc(u.nome)}</td><td>${whatsEsc(perfilLabels[u.perfil]||u.perfil)}</td><td style="text-align:center;font-weight:700">${u.total}</td><td style="text-align:center;color:var(--green)">${u.concluido}</td><td style="text-align:center;color:var(--red)">${u.cancelado}</td><td style="text-align:center;color:var(--purple)">${u.noshow}</td><td style="text-align:center"><span style="font-weight:700;color:${taxa>=70?'var(--green)':taxa>=40?'var(--amber)':'var(--red)'}">${taxa}%</span></td></tr>`;}).join('')} </tbody> </table></div> </div>`
 }
 function relAbaServicos(wrap, ags) {
   const agsV=ags.filter(a=>!['cancelado_cliente','cancelado_escritorio'].includes(a.status));
   const svcMap={};
-  agsV.forEach(a=>{const s=getServico(a.servico_id);if(!svcMap[a.servico_id])svcMap[a.servico_id]={nome:s.nome,cor:s.cor||'var(--accent)',total:0,concluido:0,noshow:0};svcMap[a.servico_id].total++;if(a.status==='concluido')svcMap[a.servico_id].concluido++;if(a.status==='nao_compareceu')svcMap[a.servico_id].noshow++;});
+  agsV.forEach(a=>{const s=getServico(a.servico_id);if(!svcMap[a.servico_id])svcMap[a.servico_id]={nome:s.nome,cor:corSegura(s.cor,'var(--accent)'),total:0,concluido:0,noshow:0};svcMap[a.servico_id].total++;if(a.status==='concluido')svcMap[a.servico_id].concluido++;if(a.status==='nao_compareceu')svcMap[a.servico_id].noshow++;});
   const sorted=Object.values(svcMap).sort((a,b)=>b.total-a.total);
   const total=agsV.length;
   const donutData=sorted.map(s=>({k:s.nome,v:s.total,color:s.cor,label:s.nome}));
@@ -4330,7 +4366,7 @@ ${relBarChart(sorted.map(s=>({label:s.nome,v:s.total,color:s.cor})),'var(--accen
 <strong style="display:block;margin-bottom:16px;font-size:14px">Distribuição</strong>
 <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
 ${relDonutSVG(donutData,total)}
-<div class="donut-legend">${donutData.slice(0,6).map(d=>`<div class="donut-legend-row"><div class="donut-legend-dot" style="background:${d.color}"></div><span style="font-size:12px;color:var(--text-2)">${d.label}</span><span style="font-size:12px;font-weight:700;margin-left:auto;padding-left:8px">${d.v}</span></div>`).join('')}</div>
+<div class="donut-legend">${donutData.slice(0,6).map(d=>`<div class="donut-legend-row"><div class="donut-legend-dot" style="background:${d.color}"></div><span style="font-size:12px;color:var(--text-2)">${whatsEsc(d.label)}</span><span style="font-size:12px;font-weight:700;margin-left:auto;padding-left:8px">${d.v}</span></div>`).join('')}</div>
 </div>
 </div>
 </div>
@@ -4339,7 +4375,7 @@ ${relDonutSVG(donutData,total)}
 <div class="table-wrap"><table>
 <thead><tr><th>#</th><th>Serviço</th><th style="text-align:center">Solicitações</th><th style="text-align:center">Concluídos</th><th style="text-align:center">No-show</th><th style="text-align:center">Participação</th></tr></thead>
 <tbody>${sorted.length===0?'<tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Sem dados</td></tr>':
-sorted.map((s,i)=>{const share=total?Math.round(s.total/total*100):0;return`<tr><td style="color:var(--text-3);font-weight:600">${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:${s.cor};flex-shrink:0"></div><span style="font-weight:600">${s.nome}</span></div></td><td style="text-align:center;font-weight:700">${s.total}</td><td style="text-align:center;color:var(--green)">${s.concluido}</td><td style="text-align:center;color:var(--purple)">${s.noshow}</td><td style="text-align:center"><div style="display:inline-flex;align-items:center;gap:6px"><div style="width:60px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${share}%;background:${s.cor};border-radius:3px"></div></div><span style="font-size:12px;font-weight:600">${share}%</span></div></td></tr>`;}).join('')} </tbody> </table></div> </div>`
+sorted.map((s,i)=>{const share=total?Math.round(s.total/total*100):0;return`<tr><td style="color:var(--text-3);font-weight:600">${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:${s.cor};flex-shrink:0"></div><span style="font-weight:600">${whatsEsc(s.nome)}</span></div></td><td style="text-align:center;font-weight:700">${s.total}</td><td style="text-align:center;color:var(--green)">${s.concluido}</td><td style="text-align:center;color:var(--purple)">${s.noshow}</td><td style="text-align:center"><div style="display:inline-flex;align-items:center;gap:6px"><div style="width:60px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${share}%;background:${s.cor};border-radius:3px"></div></div><span style="font-size:12px;font-weight:600">${share}%</span></div></td></tr>`;}).join('')} </tbody> </table></div> </div>`
 }
 // SISTEMA DE LEMBRETES / NOTIFICAÇÕES
 // Pedir permissão de notificação ao logar
@@ -4501,11 +4537,11 @@ function _notifIcon() {
 }
 // Renderizar chips dos lembretes de um agendamento
 function lembreteRenderChips(ag) {
-  const mins = ag.lembretes_min ? JSON.parse(ag.lembretes_min) : [];
+  const mins = ag.lembretes_min ? JSON.parse(ag.lembretes_min).map(Number).filter(Number.isFinite) : [];
   if (mins.length === 0) return '<div style="font-size:12px;color:var(--text-3)">Nenhum lembrete configurado</div>';
   return mins.map(m => `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--accent-lt);color:var(--accent);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;margin:2px">
 🔔 ${m} min antes
-<button onclick="lembreteRemoverDetalhe(${ag.id},${m})" style="border:none;background:none;cursor:pointer;color:var(--accent);font-size:13px;line-height:1;padding:0 2px">×</button>
+<button onclick="lembreteRemoverDetalhe(${Number(ag.id)},${m})" style="border:none;background:none;cursor:pointer;color:var(--accent);font-size:13px;line-height:1;padding:0 2px">×</button>
 </span>`).join('')
 }
 // Modal novo agendamento — adicionar lembrete
@@ -4653,15 +4689,15 @@ function _mostrarAlertaLembrete(ag, titulo, corpo) {
  animation:slideUp .3s ease;
  `;
   card.innerHTML = `<div style="font-size:44px;margin-bottom:10px">🔔</div>
-<div style="font-size:17px;font-weight:700;color:#1A1916;margin-bottom:6px">${titulo}</div>
-<div style="font-size:14px;color:#6B6860;margin-bottom:22px">${corpo}</div>
+<div style="font-size:17px;font-weight:700;color:#1A1916;margin-bottom:6px">${whatsEsc(titulo)}</div>
+<div style="font-size:14px;color:#6B6860;margin-bottom:22px">${whatsEsc(corpo)}</div>
 <div style="display:flex;flex-direction:column;gap:8px">
 <div style="display:flex;gap:8px">
-<button onclick="$id('alerta-lembrete-overlay').remove();(async()=>{if(await atualizarStatusAg(${ag.id},'concluido')){toast('Agendamento conclu\u00eddo!','success');renderPage();}})()"
+<button onclick="$id('alerta-lembrete-overlay').remove();(async()=>{if(await atualizarStatusAg(${Number(ag.id)},'concluido')){toast('Agendamento conclu\u00eddo!','success');renderPage();}})()"
 style="flex:1;padding:10px 8px;border:none;border-radius:9px;background:#16A34A;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 ✅ Concluído
 </button>
-<button onclick="$id('alerta-lembrete-overlay').remove();reagendarAg(${ag.id})"
+<button onclick="$id('alerta-lembrete-overlay').remove();reagendarAg(${Number(ag.id)})"
 style="flex:1;padding:10px 8px;border:none;border-radius:9px;background:#F59E0B;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 📅 Reagendar
 </button>
@@ -4671,7 +4707,7 @@ style="flex:1;padding:10px 8px;border:none;border-radius:9px;background:#F59E0B;
 style="flex:1;padding:9px 8px;border:1px solid #E2E0DA;border-radius:9px;background:#F5F4F0;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 Dispensar
 </button>
-<button onclick="$id('alerta-lembrete-overlay').remove();openDetail(${ag.id})"
+<button onclick="$id('alerta-lembrete-overlay').remove();openDetail(${Number(ag.id)})"
 style="flex:1;padding:9px 8px;border:none;border-radius:9px;background:#2B5CE6;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;font-weight:600">
 Ver agendamento
 </button>
@@ -4968,8 +5004,8 @@ async function saCarregarDados() {
       const hoje = agHoje[t.id]    || 0;
       const criado = t.criado_em ? new Date(t.criado_em).toLocaleDateString('pt-BR') : '—';
       return `<tr>
-<td><strong>${t.nome}</strong></td>
-<td><span class="chip">${planoLabel[t.plano] || t.plano}</span></td>
+<td><strong>${whatsEsc(t.nome)}</strong></td>
+<td><span class="chip">${whatsEsc(planoLabel[t.plano] || t.plano)}</span></td>
 <td style="text-align:center;font-weight:600">${cli}</td>
 <td style="text-align:center">${usr}</td>
 <td style="text-align:center">${ags}</td>
@@ -4981,7 +5017,7 @@ async function saCarregarDados() {
 </tr>`
     }).join('')
   } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:32px">Erro: ${e.message}</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:32px">Erro: ${whatsEsc(e.message)}</td></tr>`
   }
 }
 function saRecarregar() { saCarregarDados(); }

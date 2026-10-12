@@ -328,7 +328,8 @@ async function fetchT(url, opts = {}, ms = 15000) {
 function salvarSessao(j) {
   E.token = j.access_token;
   guardar('agenda_token', j.access_token);
-  if (j.refresh_token) guardar('estudo_refresh', j.refresh_token);
+  // a renovação é a mesma do Agenda (agenda_refresh): o servidor troca o código a cada uso, então os dois guardam no mesmo lugar
+  if (j.refresh_token) { guardar('agenda_refresh', j.refresh_token); apagar('estudo_refresh'); }
   if (j.user && j.user.email) guardar('agenda_user_email', j.user.email);
 }
 async function entrar(email, senha) {
@@ -346,7 +347,7 @@ async function entrar(email, senha) {
   return j
 }
 async function renovarSessao() {
-  const rt = ler('estudo_refresh');
+  const rt = ler('agenda_refresh') || ler('estudo_refresh');
   if (rt) {
     try {
       const r = await fetchT(`${SUPA_URL}/auth/v1/token?grant_type=refresh_token`, {
@@ -355,11 +356,7 @@ async function renovarSessao() {
       if (r.ok) { salvarSessao(await r.json()); return true }
     } catch (e) {}
   }
-  // usuário e senha salvos no Agenda ("Salvar usuário e senha")
-  if (ler('agenda_remember') === '1' && ler('agenda_saved_email') && ler('agenda_saved_pass')) {
-    try { await entrar(ler('agenda_saved_email'), atob(ler('agenda_saved_pass'))); return true } catch (e) {}
-  }
-  return false
+  return false   // a senha nunca fica guardada no aparelho (Agenda v2.8.0)
 }
 async function api(method, caminho, { body, prefer, keepalive } = {}) {
   for (let tentativa = 0; tentativa < 2; tentativa++) {
@@ -384,12 +381,8 @@ function mostrarLogin() {
   $('tela-carregando').hidden = true;
   $('app').hidden = true;
   $('tela-login').hidden = false;
-  if (ler('agenda_remember') === '1') {
-    $('lg-email').value = ler('agenda_saved_email') || '';
-    try { $('lg-senha').value = atob(ler('agenda_saved_pass') || '') } catch (e) {}
-  } else if (ler('agenda_user_email')) {
-    $('lg-email').value = ler('agenda_user_email')
-  }
+  $('lg-email').value = ler('agenda_saved_email') || ler('agenda_user_email') || '';
+  apagar('agenda_saved_pass');   // versões antigas guardavam a senha aqui
 }
 $('form-login').addEventListener('submit', async ev => {
   ev.preventDefault();
@@ -406,7 +399,7 @@ $('form-login').addEventListener('submit', async ev => {
 
 async function iniciar() {
   E.token = ler('agenda_token');
-  if (!E.token) { apagar('estudo_refresh'); mostrarLogin(); return }   // saiu do Agenda: sai do estudo também
+  if (!E.token) { apagar('agenda_refresh'); apagar('estudo_refresh'); mostrarLogin(); return }   // saiu do Agenda: sai do estudo também
   let user = null;
   try {
     let r = await fetchT(`${SUPA_URL}/auth/v1/user`, { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}` } });
@@ -502,7 +495,7 @@ document.addEventListener('visibilitychange', () => {
 async function sair() {
   try { salvarPosicaoAtual(); som.pause(); await enviarFila() } catch (e) {}
   try { if (E.token) await fetchT(`${SUPA_URL}/auth/v1/logout`, { method: 'POST', headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}` } }, 5000) } catch (e) {}
-  apagar('agenda_token'); apagar('estudo_refresh');
+  apagar('agenda_token'); apagar('agenda_refresh'); apagar('estudo_refresh');
   location.reload()
 }
 $('form-troca').addEventListener('submit', async ev => {
@@ -522,7 +515,6 @@ $('form-troca').addEventListener('submit', async ev => {
       const det = j.msg || j.error_description || j.message || ('erro ' + r.status);
       return falha(/different from the old/i.test(det) ? 'Escolha uma senha diferente da provisória.' : 'Não foi possível salvar: ' + det)
     }
-    if (ler('agenda_remember') === '1') { try { guardar('agenda_saved_pass', btoa(s1)) } catch (e) { apagar('agenda_saved_pass') } }
     $('troca-senha').hidden = true;
     toast('Senha criada. Use-a nas próximas entradas.', 'ok')
   } catch (e) {
