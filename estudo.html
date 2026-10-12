@@ -11,7 +11,8 @@
 <!--
   ESTUDO DA REFORMA TRIBUTÁRIA — arquivo separado do Agenda (pode ser apagado depois sem afetar o app).
   Usa o mesmo login do Agenda (agenda_token) e as tabelas agenda_estudo_* (sql/agenda_estudo.sql).
-  Áudios em estudo/audio/, conteúdo e trilhas em estudo/dados.json.
+  Áudios (audio/*.mp3), conteúdo e trilhas (dados.json) e análises ficam no armazenamento privado "estudo" do Supabase:
+  só abrem com login ativo no Estudo (sql/agenda_estudo_arquivos.sql). Para trocar um arquivo: função estudo-carga.
 -->
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -266,7 +267,7 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
 <div class="toasts" id="toasts"></div>
 
 <script>
-const ESTUDO_VERSAO = '1.2.0';
+const ESTUDO_VERSAO = '1.3.0';
 const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1d2d4bmRhaHJ6aW5mZGxhcHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTA0ODgsImV4cCI6MjA5MDMyNjQ4OH0.9DaPGHIxt0CO-pjYPBwsHaoSqDN35CwVU0lJUyTXQIQ';
 const $ = id => document.getElementById(id);
@@ -286,7 +287,7 @@ const E = {
   token: null, authId: null, usuario: null, dados: null,
   trilha: null, prog: {}, notas: [], perfil: null,
   atual: null, pagina: 'trilha', fila: new Map(), timerFila: null, ultimoSalvo: 0,
-  soEstudo: [], acessoTexto: '',
+  soEstudo: [], acessoTexto: '', urls: {}, urlsEm: 0,
 };
 let D = null; // atalho para E.dados
 
@@ -404,13 +405,6 @@ $('form-login').addEventListener('submit', async ev => {
 });
 
 async function iniciar() {
-  try {
-    const r = await fetchT(`estudo/dados.json?v=${ESTUDO_VERSAO}`);
-    E.dados = D = await r.json();
-  } catch (e) {
-    $('tela-carregando').innerHTML = '<div style="text-align:center">Não foi possível carregar o estudo. Verifique a conexão.<br><br><button class="btn" onclick="location.reload()">Tentar de novo</button></div>';
-    return
-  }
   E.token = ler('agenda_token');
   if (!E.token) { apagar('estudo_refresh'); mostrarLogin(); return }   // saiu do Agenda: sai do estudo também
   let user = null;
@@ -438,6 +432,7 @@ async function abrirApp(user) {
     }
     if (!us || !us.length) throw new Error('Seu acesso ao Estudo não está ativo. Fale com o administrador do escritório.');
     E.usuario = us[0];
+    await carregarConteudo();
     const [perfis, progresso, notas] = await Promise.all([
       api('GET', `/rest/v1/agenda_estudo_perfil?auth_id=eq.${authId}&select=*`),
       api('GET', `/rest/v1/agenda_estudo_progresso?auth_id=eq.${authId}&select=item,concluido,posicao_seg,atualizado_em`),
@@ -468,6 +463,41 @@ async function abrirApp(user) {
   render()
 }
 function ehGestor() { return ['admin', 'gerente'].includes(E.usuario && E.usuario.perfil) }
+
+// ── conteúdo protegido (v1.3.0): armazenamento privado "estudo", só com login ativo ──
+const HORAS_URL = 12;   // validade dos endereços assinados dos áudios
+async function storage(method, caminho, body) {
+  for (let tentativa = 0; tentativa < 2; tentativa++) {
+    const r = await fetchT(`${SUPA_URL}/storage/v1${caminho}`, {
+      method, cache: 'no-cache',
+      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${E.token}`, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined
+    }, 30000);
+    if (!r.ok) {
+      const txt = await r.text().catch(() => '');   // sessão vencida: o armazenamento responde 400 com "jwt expired"
+      if (tentativa === 0 && (r.status === 401 || r.status === 403 || /jwt|expired|unauthorized/i.test(txt)) && await renovarSessao()) continue;
+      throw new Error('Não foi possível carregar o conteúdo do estudo (' + r.status + '). Verifique a conexão e tente de novo.')
+    }
+    return r.json()
+  }
+}
+async function carregarConteudo() {
+  E.dados = D = await storage('GET', '/object/authenticated/estudo/dados.json');
+  await assinarAudios()
+}
+// o player toca por endereço assinado (vale HORAS_URL); renova antes de vencer
+async function assinarAudios() {
+  const caminhos = Object.values(D.faixas).map(f => f.arq);
+  const r = await storage('POST', '/object/sign/estudo', { expiresIn: HORAS_URL * 3600, paths: caminhos });
+  const urls = {};
+  (r || []).forEach(x => { if (x.signedURL) urls[x.path] = `${SUPA_URL}/storage/v1${x.signedURL}` });
+  if (!Object.keys(urls).length) throw new Error('Seu acesso aos áudios do estudo não está ativo.');
+  E.urls = urls; E.urlsEm = Date.now()
+}
+function audiosVencendo() { return Date.now() - E.urlsEm > (HORAS_URL - 2) * 3600 * 1000 }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && D && E.usuario && audiosVencendo()) assinarAudios().catch(() => {})
+});
 
 async function sair() {
   try { salvarPosicaoAtual(); som.pause(); await enviarFila() } catch (e) {}
@@ -718,7 +748,7 @@ function abrirAnalise(id) {
   const v = D.videos[id], a = v && v.analise;
   if (!a) return;
   $('leitor-tit').textContent = 'Análise: ' + v.titulo;
-  // análise fixa do programa (estudo/dados.json), não vem do banco
+  // análise fixa do programa (dados.json do armazenamento do estudo), não vem do banco
   $('leitor-corpo').innerHTML = `<p class="muted">Analisado em ${whatsEsc(a.data)}, só pelo que aparece na tela (sem o áudio).</p>
 <h3>Em resumo</h3><p>${whatsEsc(a.resumo)}</p>
 <h3>Onde vale a pena assistir</h3><ul>${a.assistir.map(t => `<li><b>${whatsEsc(t[0])} a ${whatsEsc(t[1])}</b>: ${whatsEsc(t[2])}</li>`).join('')}</ul>
@@ -750,7 +780,9 @@ function tocar(id) {
   ultimoTick = Date.now();
   const p = E.prog[id] || {};
   const inicio = (!p.concluido && p.pos && p.pos < f.seg - 5) ? p.pos : 0;
-  som.src = f.arq;
+  if (!E.urls[f.arq]) { toast('Áudio indisponível. Atualize a página.', 'err'); return }
+  if (audiosVencendo()) assinarAudios().catch(() => {});   // renova em segundo plano; o endereço atual ainda vale
+  som.src = E.urls[f.arq];
   som.playbackRate = Number(ler('estudo_vel')) || 1;
   const posicionar = () => { try { if (inicio) som.currentTime = inicio } catch (e) {} };
   som.addEventListener('loadedmetadata', posicionar, { once: true });
@@ -813,7 +845,24 @@ som.addEventListener('ended', () => {
   render();
   if (prox && ler('estudo_continuo') !== '0') { toast('Próxima faixa: ' + D.faixas[prox].titulo); tocar(prox) }
 });
-som.addEventListener('error', () => { if (E.atual) toast('Não foi possível tocar o áudio. Verifique a conexão.', 'err') });
+let tentouRenovar = false;
+som.addEventListener('error', async () => {
+  if (!E.atual || !som.getAttribute('src')) return;
+  if (!tentouRenovar) {   // endereço vencido? assina de novo e retoma do mesmo ponto
+    tentouRenovar = true;
+    const id = E.atual, pos = som.currentTime || 0;
+    try {
+      await assinarAudios();
+      if (E.atual !== id) return;
+      som.src = E.urls[D.faixas[id].arq];
+      som.addEventListener('loadedmetadata', () => { try { if (pos) som.currentTime = pos } catch (e) {} }, { once: true });
+      som.play().catch(() => toast('Toque no play para continuar.'));
+      return
+    } catch (e) {}
+  }
+  toast('Não foi possível tocar o áudio. Verifique a conexão.', 'err')
+});
+som.addEventListener('playing', () => { tentouRenovar = false });
 let arrastando = false;
 $('pl-barra').addEventListener('input', () => { arrastando = true; const dur = som.duration || (D.faixas[E.atual] || {}).seg || 0; $('pl-atual').textContent = mmss(dur * $('pl-barra').value / 1000) });
 $('pl-barra').addEventListener('change', () => { const dur = som.duration || (D.faixas[E.atual] || {}).seg || 0; try { som.currentTime = dur * $('pl-barra').value / 1000 } catch (e) {} arrastando = false; salvarPosicaoAtual() });
@@ -853,7 +902,7 @@ if ('mediaSession' in navigator) {
 function abrirTexto(id) {
   const f = D.faixas[id];
   $('leitor-tit').textContent = rotuloFaixa(id);
-  $('leitor-corpo').innerHTML = f.html;   // conteúdo fixo do programa (estudo/dados.json), não vem do banco
+  $('leitor-corpo').innerHTML = f.html;   // conteúdo fixo do programa (dados.json do armazenamento do estudo), não vem do banco
   $('leitor-corpo').querySelectorAll('table').forEach(tb => { const w = document.createElement('div'); w.className = 'tab-rola'; tb.parentNode.insertBefore(w, tb); w.appendChild(tb) });
   $('leitor').hidden = false;
   $('leitor-corpo').scrollTop = 0

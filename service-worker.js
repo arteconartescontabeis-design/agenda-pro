@@ -1,7 +1,7 @@
 // Agenda Pro — Service Worker (acompanha a versão do app: APP_VERSAO no app.html)
 // Suporta: cache offline + notificações com app fechado
 
-const CACHE_NAME = 'agenda-pro-v2.5.0';   // trocar a cada versão nova
+const CACHE_NAME = 'agenda-pro-v2.6.0';   // trocar a cada versão nova
 const SUPA_HOSTS = ['hwvguqfprbjfqtxkmgiz.supabase.co', 'vuwgxndahrzinfdlapxz.supabase.co'];
 
 // Lembretes agendados: { key: { disparo, titulo, corpo, agId } }
@@ -30,7 +30,7 @@ self.addEventListener('fetch', e => {
   if (url.origin !== self.location.origin || e.request.method !== 'GET') return;
   // version.json: sempre da internet (é o que avisa que saiu versão nova)
   if (url.pathname.endsWith('version.json')) return;
-  // Áudios do estudo (estudo/audio/*.mp3): direto da internet, sem guardar (são grandes e o player pede trechos)
+  // Áudios: direto da internet, sem guardar (são grandes e o player pede trechos; os do estudo vêm do Supabase desde a v2.6.0)
   if (url.pathname.endsWith('.mp3')) return;
 
   // Páginas: primeiro a internet (versão mais nova); a cópia guardada só sem conexão
