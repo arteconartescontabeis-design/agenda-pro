@@ -9,19 +9,28 @@ Publicado pelo GitHub Pages: https://arteconartescontabeis-design.github.io/agen
 - `version.json` — número da versão publicada; o app compara com `APP_VERSAO` e mostra o aviso "Nova versão disponível".
 - `sql/` — migrations já aplicadas (registro). `supabase/functions/` — Edge Functions publicadas.
 - `docs/` — instruções para o servidor (serviço de WhatsApp).
-- `estudo.html` + `estudo/` — Estudo da Reforma Tributária (v2.3.0; análises de vídeo na v2.4.0, textos em `estudo/analises/`), **separado de propósito para ser apagado depois**:
-  trilhas (Executivo, Intensivo, Avançado, Fiscal, Contábil, Pessoal), 40 áudios em `estudo/audio/` (voz Azure
-  pt-BR-FranciscaNeural, gerados do programa salvo no OneDrive "Reforma Tributária - Programa de Estudo"), conteúdo,
-  vídeos e tarefas em `estudo/dados.json` (ao mudar, subir `ESTUDO_VERSAO` no estudo.html). Mesmo login do Agenda.
+- `estudo.html` — Estudo da Reforma Tributária (v2.3.0; análises de vídeo na v2.4.0), **separado de propósito para ser apagado depois**:
+  trilhas (Executivo, Intensivo, Avançado, Fiscal, Contábil, Pessoal), 40 áudios (voz Azure pt-BR-FranciscaNeural, gerados do
+  programa salvo no OneDrive "Reforma Tributária - Programa de Estudo"), conteúdo, vídeos, tarefas e análises em `dados.json`.
+  Mesmo login do Agenda.
+  **Conteúdo só com login (v2.6.0, Estudo 1.3.0):** áudios (`audio/*.mp3`), `dados.json` e `analises/*` **não ficam no GitHub**
+  (o repositório é público): estão no armazenamento privado `estudo` do Supabase (regra `estudo_arquivos_ler`,
+  `sql/agenda_estudo_arquivos.sql`; só quem tem acesso ativo ao Estudo lê). O estudo.html baixa o `dados.json` com o login e toca
+  os áudios por endereço assinado (12 h, renova sozinho). Para ler, trocar ou acrescentar arquivos: função `estudo-carga`
+  (`GET` lista, `GET ?caminho=` baixa, `POST ?caminho=` grava; cabeçalho `x-carga` com o token). O token não fica guardado em lugar
+  nenhum, só o hash na função: em outra sessão, gerar um token novo, trocar `HASH` e publicar a função de novo. Mudou o
+  `dados.json`, basta subir o arquivo (não precisa trocar `ESTUDO_VERSAO`; o app sempre confere). As versões antigas desses arquivos
+  ainda estão no histórico do GitHub (limpar o histórico só com confirmação do usuário).
   Tabelas `agenda_estudo_*` (`sql/agenda_estudo.sql`, com o comando de remoção comentado no fim).
   **Pessoas só do Estudo (v2.5.0, Estudo 1.2.0):** admin/gerente cadastram na aba Equipe do Estudo quem não usa o Agenda.
   Ficam em `agenda_estudo_usuarios` (não em `agenda_usuarios`: não veem nada da agenda), com login próprio e senha provisória
   criados pela função `estudo-usuario`; o Estudo pede a senha nova no 1º acesso. **Só local: não vai para o Portal** (pedido do
   usuário em 11/10/2026). As gravações do Estudo mandam `tenant_id` (para essas pessoas o banco usa `agenda_estudo_tenant_id()`;
   `sql/agenda_estudo_usuarios.sql`). Quem é só do Estudo e entra pelo `app.html` é levado ao `estudo.html`.
-  Para remover: apagar `estudo.html` e `estudo/`, os dois atalhos no `app.html` (menu lateral e "Mais"), o desvio para o
-  estudo em `carregarDadosUsuario` (`app.html`), a função `estudo-usuario` e, com confirmação do usuário, as tabelas
-  (`sql/agenda_estudo.sql` e `sql/agenda_estudo_usuarios.sql`). Logins criados pelo Estudo têm `app_metadata.criado_pelo_estudo`.
+  Para remover: apagar `estudo.html`, os dois atalhos no `app.html` (menu lateral e "Mais"), o desvio para o
+  estudo em `carregarDadosUsuario` (`app.html`), as funções `estudo-usuario` e `estudo-carga` e, com confirmação do usuário,
+  os arquivos e o armazenamento `estudo` e as tabelas (`sql/agenda_estudo.sql`, `sql/agenda_estudo_usuarios.sql` e
+  `sql/agenda_estudo_arquivos.sql`). Logins criados pelo Estudo têm `app_metadata.criado_pelo_estudo`.
 
 ## Versão e histórico (obrigatório a cada mudança no app)
 1. Subir `APP_VERSAO` no `app.html` (padrão `X.Y.Z`: Z = correção, Y = novidade, X = mudança grande).
@@ -44,6 +53,7 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
   - `agenda-equipe`: cadastra pessoa da equipe (cria o login com senha provisória ou reaproveita o existente).
   - `estudo-usuario`: cadastra pessoa só do Estudo (`acao` `cadastrar` ou `nova_senha`); só admin/gerente ativo do Agenda chama.
     Nova senha só para login criado por ela (`app_metadata.criado_pelo_estudo`), nunca para quem já tinha login (Financeiro Pro).
+  - `estudo-carga`: manutenção dos arquivos do armazenamento `estudo` (token no cabeçalho `x-carga`, hash na função). Não é usada pelo app.
   - `portal-provisionar` (index.ts + provisionar.ts; Verify JWT **desligado**): chamada pelo Portal Artecon (Acessos). Confere a
     sessão e o papel de administrador no núcleo do portal (projeto `fbxelwhdiisfmnwrerbl`), acha o escritório em `agenda_portal_orgs`
     (Artecon = org `a47ec000-…0001` → tenant 2) e cria/reativa/desativa a pessoa em `agenda_usuarios`. Níveis do portal:

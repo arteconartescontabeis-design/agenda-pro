@@ -3819,8 +3819,11 @@ async function interpretarVoz(texto) {
 // VERSÃO E ATUALIZAÇÕES
 // A cada atualização: subir APP_VERSAO, acrescentar a versão no topo de VERSOES,
 // trocar o número em version.json e o CACHE_NAME do service-worker.js.
-const APP_VERSAO = '2.5.0';
+const APP_VERSAO = '2.6.0';
 const VERSOES = [
+  { v: '2.6.0', data: '12/10/2026', itens: [
+    'Estudo da Reforma: os áudios, os textos e as análises agora só abrem com login. Antes, quem tivesse o endereço conseguia baixar sem senha.',
+    'Para quem usa nada muda: mesmo Estudo, mesmo player. Pessoa desativada perde o acesso também aos áudios.' ] },
   { v: '2.5.0', data: '11/10/2026', itens: [
     'Estudo da Reforma: administrador e gerente podem cadastrar pessoas só para o Estudo (aba Equipe do Estudo). Elas recebem login com senha provisória e não veem nada da agenda.',
     'Na mesma tela: gerar nova senha, desativar e reativar essas pessoas. O cadastro fica só no Agenda (não vai para o Portal Artecon).',
