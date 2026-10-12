@@ -267,7 +267,7 @@ body.com-player .toasts{bottom:calc(190px + env(safe-area-inset-bottom))}
 <div class="toasts" id="toasts"></div>
 
 <script>
-const ESTUDO_VERSAO = '1.3.0';
+const ESTUDO_VERSAO = '1.4.0';
 const SUPA_URL = 'https://vuwgxndahrzinfdlapxz.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1d2d4bmRhaHJ6aW5mZGxhcHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTA0ODgsImV4cCI6MjA5MDMyNjQ4OH0.9DaPGHIxt0CO-pjYPBwsHaoSqDN35CwVU0lJUyTXQIQ';
 const $ = id => document.getElementById(id);
@@ -741,7 +741,9 @@ function htmlVideo(id) {
 <button class="marca${ok ? ' sim' : ''}" onclick="alternar('${id}')" aria-label="Marcar vídeo como assistido">${ICO.ok}</button>
 <div class="item-info"><b><a href="${whatsEsc(v.link)}" target="_blank" rel="noopener">${whatsEsc(v.titulo)} ↗</a></b>
 <div class="meta">${whatsEsc(v.curso)} · ${whatsEsc(v.bloco)} · ${whatsEsc(duracaoVideo(v))}</div>${v.analise ? `
-<div class="analise"><span class="selo">✓ analisado</span> assistir ${v.analise.assistir.map(t => `<b>${whatsEsc(t[0])}–${whatsEsc(t[1])}</b>`).join(', ')}</div>` : ''}</div>
+<div class="analise"><span class="selo">✓ analisado</span> ${v.analise.assistir.length
+  ? 'assistir ' + v.analise.assistir.map(t => `<b>${whatsEsc(t[0])}–${whatsEsc(t[1])}</b>`).join(', ')
+  : whatsEsc(v.analise.curta || 'veja a análise')}</div>` : ''}</div>
 ${v.analise ? `<button class="ler" onclick="abrirAnalise('${id}')">Análise</button>` : ''}</div>`
 }
 function abrirAnalise(id) {
@@ -751,13 +753,16 @@ function abrirAnalise(id) {
   // análise fixa do programa (dados.json do armazenamento do estudo), não vem do banco
   $('leitor-corpo').innerHTML = `<p class="muted">Analisado em ${whatsEsc(a.data)}, só pelo que aparece na tela (sem o áudio).</p>
 <h3>Em resumo</h3><p>${whatsEsc(a.resumo)}</p>
-<h3>Onde vale a pena assistir</h3><ul>${a.assistir.map(t => `<li><b>${whatsEsc(t[0])} a ${whatsEsc(t[1])}</b>: ${whatsEsc(t[2])}</li>`).join('')}</ul>
+<h3>Onde vale a pena assistir</h3>${a.assistir.length
+  ? `<ul>${a.assistir.map(t => `<li><b>${whatsEsc(t[0])} a ${whatsEsc(t[1])}</b>: ${whatsEsc(t[2])}</li>`).join('')}</ul>`
+  : `<p>${whatsEsc(a.curta || 'Nenhum trecho em especial.')}</p>`}
 <h3>Pode pular</h3><p>${whatsEsc(a.pular)}</p>
 <h3>Relação com o programa</h3><p>${whatsEsc(a.programa)}</p>
 <p><a class="btn" href="${whatsEsc(v.link)}" target="_blank" rel="noopener">Abrir a aula ↗</a></p>
 <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
 <h2>Análise completa</h2>${a.html}`;
   $('leitor-corpo').querySelectorAll('table').forEach(tb => { const w = document.createElement('div'); w.className = 'tab-rola'; tb.parentNode.insertBefore(w, tb); w.appendChild(tb) });
+  $('leitor-corpo').querySelectorAll('a[href^="http"]').forEach(l => { l.target = '_blank'; l.rel = 'noopener' });   // aulas abrem fora do app
   $('leitor').hidden = false;
   $('leitor-corpo').scrollTop = 0
 }
