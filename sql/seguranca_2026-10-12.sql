@@ -85,6 +85,14 @@ alter function core.ia_ini_dia(timestamp with time zone) set search_path = core,
 
 -- 2c) Avisos de cota da Azure: ver sql/nucleo_ia_fala_avisos.sql
 
+-- 2d) (aplicado no fim do dia) cct_deduplicar_por_cnpj junta e apaga empresas/sindicatos repetidos de TODOS os
+--     escritórios e não conferia quem chama (abria sem login). Agora só pelo editor SQL ou pela chave de serviço.
+--     cct_execucao_iniciar é do robô (só a chave de serviço chama, conferido nos registros).
+revoke execute on function public.cct_deduplicar_por_cnpj(text) from public, anon, authenticated;
+grant execute on function public.cct_deduplicar_por_cnpj(text) to service_role;
+revoke execute on function public.cct_execucao_iniciar(text, text, text, text, text) from public, anon, authenticated;
+grant execute on function public.cct_execucao_iniciar(text, text, text, text, text) to service_role;
+
 -- ------------------------------------------------------------
 -- 3) COBRANÇA (yeujqjtjqtegsnzwwazb)
 -- ------------------------------------------------------------
