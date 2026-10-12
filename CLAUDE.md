@@ -111,7 +111,7 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
 - Núcleo do portal: `enviar_email`/`cct_email_db` só para a chave de serviço; funções do robô do CCT fechadas sem login.
 - Azure: chaves, troca e orçamento em `docs/azure-chaves-e-custo.md`; avisos de 80%/100% das cotas em `sql/nucleo_ia_fala_avisos.sql`.
 - Feito pelo usuário (12/10/2026): a chave da Anthropic do histórico (final `6QAA`) já não existe no console; "Prevent use of
-  leaked passwords" ligado no Departamento Pessoal e no Cobrança (falta conferir o agenda-pro). Pendente: orçamento na Azure antes de 08/11/2026.
+  leaked passwords" ligado nos três projetos (agenda-pro, Departamento Pessoal e Cobrança; conferido nos alertas do Supabase). Pendente: orçamento na Azure antes de 08/11/2026.
 - Fora do Agenda (avisar, não mexer sem pedido): no mesmo projeto, as funções `fin_*` do Financeiro aceitam chamada sem login
   (conferir dentro de cada uma); `validar-anexos` lê documento sem login (limitado pela IA Central a US$ 1/dia).
   O armazenamento `fin-documentos` (privado) deixa **qualquer pessoa logada** no projeto ler, trocar e apagar todos os arquivos
