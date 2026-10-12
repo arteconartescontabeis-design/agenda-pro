@@ -101,7 +101,24 @@ O número aparece no topo de todas as telas e no login; tocar nele abre o histó
    - A decidir com o usuário: entrar no Agenda direto pelo portal (sem pedir a senha de novo) ou manter o login próprio;
      escritório (tenant) de quem é liberado; se o WhatsApp da pessoa também vem do portal.
 
+## Segurança (revisão de 12/10/2026, `sql/seguranca_2026-10-12.sql`)
+- Sessão: o app (v2.8.0+) e o `estudo.html` guardam só o acesso (`agenda_token`) e, com "Manter conectado", o código de renovação
+  (`agenda_refresh`, o mesmo nos dois; o servidor troca a cada uso). **Nunca guardar senha no navegador.** `sessaoRenovar()` renova
+  a cada 45 min e no 401 (`supaWithAuth(token, true)`).
+- Visões novas: sempre `security_invoker = true` e sem `anon`. As regras para quem não está logado (agendamento por link público,
+  bloqueios, disponibilidade) estão desligadas com `false` — não existe página pública.
+- Gerente não cadastra administrador (regra `usuarios_insert_admin`).
+- Núcleo do portal: `enviar_email`/`cct_email_db` só para a chave de serviço; funções do robô do CCT fechadas sem login.
+- Azure: chaves, troca e orçamento em `docs/azure-chaves-e-custo.md`; avisos de 80%/100% das cotas em `sql/nucleo_ia_fala_avisos.sql`.
+- Pendências do usuário: revogar a chave da Anthropic que ficou no histórico do repositório (30/03–02/04/2026, final `6QAA`);
+  ligar "Leaked password protection" no Auth (Supabase); orçamento na Azure antes de 08/11/2026.
+- Fora do Agenda (avisar, não mexer sem pedido): no mesmo projeto, as funções `fin_*` do Financeiro aceitam chamada sem login
+  (conferir dentro de cada uma); `validar-anexos` lê documento sem login (limitado pela IA Central a US$ 1/dia).
+  O armazenamento `fin-documentos` (privado) deixa **qualquer pessoa logada** no projeto ler, trocar e apagar todos os arquivos
+  (inclusive quem é só do Agenda ou só do Estudo): a regra olha só o nome do armazenamento.
+
 ## Regras
-- Dado do banco que vai para `innerHTML` passa por `whatsEsc` no código novo.
+- Dado do banco que vai para `innerHTML` passa por `whatsEsc` (texto e atributos) e cor do banco por `corSegura` — em todo o app
+  desde a v2.8.0. Id em `onclick` vai como `Number(...)`.
 - Interface de celular: barra inferior (`UI`, `uiIniciar`), modo simples (`renderHoje`) para colaborador e modo controlador (`renderPainel`) para admin/gerente.
 - O interpretador `AGCMD` dentro do `app.html` é a cópia em JS de `supabase/functions/agenda-whats/comandos.ts`: mudou um, mudar o outro.
