@@ -1,3 +1,7 @@
+> **Repositório antigo (18/10/2026):** o app mudou para o repositório `gestao-financeiro` (pasta `agenda-pro/`, endereço
+> https://arteconartescontabeis-design.github.io/gestao-financeiro/agenda-pro/). Aqui ficaram só os avisos de mudança de endereço (e um service worker que desliga o antigo).
+> Não desenvolver mais aqui.
+
 # Agenda Pro — memória do projeto
 
 App de agendamento da **Artecon** (escritório contábil). Tudo em português.
